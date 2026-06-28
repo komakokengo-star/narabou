@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "Fukuoka Queue Concierge",
-    "tagline": "We line up at Hakata's hottest spots, so you don't have to."
+    "tagline": "We stand in line for Hakata & Tenjin's most-loved restaurants."
   },
   "nav": {
     "home": "Home",
@@ -9,8 +9,8 @@
     "customer": "Customer",
     "worker": "Worker",
     "admin": "Admin",
-    "logout": "Logout",
-    "login": "Login",
+    "logout": "Log out",
+    "login": "Log in",
     "signup": "Sign up"
   },
   "common": {
@@ -32,14 +32,14 @@
     "refresh": "Refresh"
   },
   "auth": {
-    "title": "Login / Sign up",
+    "title": "Log in / Sign up",
     "email": "Email",
     "password": "Password",
     "name": "Name",
-    "login": "Login",
+    "login": "Log in",
     "signup": "Sign up",
-    "switchSignup": "Don't have an account?",
-    "switchLogin": "Already have an account?",
+    "switchSignup": "Don't have an account? Sign up",
+    "switchLogin": "Already have an account? Log in",
     "success": "Authenticated",
     "failed": "Authentication failed"
   },
@@ -48,14 +48,14 @@
     "worker": "Worker",
     "admin": "Admin",
     "switch": "Switch role",
-    "becomeWorker": "Become a worker",
-    "becomeWorkerDesc": "During the beta, you can add the worker role with one click."
+    "becomeWorker": "Register as Worker",
+    "becomeWorkerDesc": "During the beta you can add the worker role in one click."
   },
   "fees": {
     "base": "Base fee",
     "time": "Time fee",
     "peak": "Peak fee",
-    "extra": "Extension",
+    "extra": "Extra fee",
     "total": "Total",
     "platformFee": "Platform fee (20%)",
     "workerPayout": "Worker payout (80%)",
@@ -63,19 +63,19 @@
   },
   "request": {
     "title": "Request",
-    "create": "Create new request",
-    "list": "My requests",
-    "storeName": "Store name",
+    "create": "New request",
+    "list": "Your requests",
+    "storeName": "Restaurant name",
     "storeAddress": "Address",
     "desiredTime": "Desired time",
     "estimatedWait": "Estimated wait",
-    "isPeak": "Peak pricing (+¥300)",
+    "isPeak": "Peak surcharge (+¥300)",
     "notes": "Notes",
     "status": {
       "open": "Open",
       "matched": "Matched",
       "arrived": "Arrived",
-      "in_progress": "Queueing",
+      "in_progress": "In line",
       "completed": "Completed",
       "canceled": "Canceled"
     },
@@ -84,13 +84,13 @@
       "approveExtension": "Approve extension",
       "cancel": "Cancel request",
       "extend": "Request extension",
-      "accept": "Accept job",
+      "accept": "Accept",
       "arrived": "Report arrival",
-      "startQueue": "Start queueing",
+      "startQueue": "Start queuing",
       "checkin": "Check-in",
       "complete": "Complete"
     },
-    "extensionPrompt": "How many additional minutes?",
+    "extensionPrompt": "How many extra minutes?",
     "cancelConfirm": "Cancel this request? Refund: ¥{{amount}}"
   },
   "payment": {
@@ -101,7 +101,7 @@
     "failed": "Failed",
     "title": "Payment",
     "testMode": "Stripe test mode. Use card 4242 4242 4242 4242.",
-    "pay": "Pay ¥{{amount}}",
+    "pay": "Pay {{amount}}",
     "history": "Payment history"
   },
   "worker": {
@@ -112,29 +112,29 @@
       "title": "Stripe Connect",
       "notReady": "Set up Stripe Connect to receive payouts.",
       "create": "Create Stripe account",
-      "onboard": "Start onboarding",
+      "onboard": "Continue onboarding",
       "ready": "Stripe account ready",
       "open": "Open Stripe dashboard"
     },
     "verification": {
-      "title": "ID Verification",
+      "title": "Identity verification",
       "upload": "Upload ID document",
-      "uploaded": "Uploaded (pending approval)",
+      "uploaded": "Uploaded (awaiting review)",
       "verified": "Verified"
     }
   },
   "admin": {
-    "title": "Admin Dashboard",
+    "title": "Admin dashboard",
     "requests": "Requests",
     "workers": "Workers",
     "payments": "Payments",
     "totalRevenue": "Gross volume",
     "platformRevenue": "Platform revenue (20%)",
     "forceCancel": "Force cancel",
-    "approveVerification": "Approve verification",
+    "approveVerification": "Approve",
     "togglePeak": "Toggle peak"
   },
   "map": {
-    "approx": "Location blurred by ~50-100m for safety"
+    "approx": "Location is fuzzed by ~50-100m for safety."
   }
 }
