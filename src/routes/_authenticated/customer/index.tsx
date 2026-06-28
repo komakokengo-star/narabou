@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { calcFee, formatYen } from "@/lib/fees";
+import { StoreSearchMap } from "@/components/StoreSearchMap";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/customer/")({
