@@ -132,7 +132,34 @@
     "platformRevenue": "運営収入 (20%)",
     "forceCancel": "強制キャンセル",
     "approveVerification": "本人確認を承認",
-    "togglePeak": "ピーク料金切替"
+    "togglePeak": "ピーク料金切替",
+    "troubles": "トラブル対応"
+  },
+  "troubles": {
+    "title": "トラブル対応",
+    "subtitle": "キャンセル・差し戻し・手動承認をここで処理します。",
+    "filter": {
+      "all": "すべて",
+      "trouble": "要対応",
+      "canceled": "キャンセル",
+      "pending_pay": "未確定決済",
+      "failed_pay": "決済失敗"
+    },
+    "statusActions": "ステータス操作",
+    "payments": "決済",
+    "revert": "差し戻し (再募集)",
+    "revertConfirm": "マッチを解除し依頼を再募集状態に戻します。よろしいですか？",
+    "reverted": "差し戻しました",
+    "statusChanged": "ステータスを変更しました",
+    "markPaid": "支払い済として承認",
+    "markFailed": "失敗としてマーク",
+    "markedPaid": "支払い済として承認しました",
+    "markedFailed": "失敗としてマークしました",
+    "partialRefund": "部分返金",
+    "refundAmount": "返金額",
+    "reason": "理由（任意・履歴に残ります）",
+    "executeRefund": "返金を実行",
+    "netPaid": "純受領"
   },
   "map": {
     "approx": "位置情報は安全のため約50-100mぼかしています"
