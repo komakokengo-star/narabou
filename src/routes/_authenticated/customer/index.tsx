@@ -94,14 +94,14 @@ function CustomerHome() {
             onSubmit={(e) => { e.preventDefault(); create.mutate(); }}
             className="grid sm:grid-cols-2 gap-4"
           >
-            <div className="sm:col-span-2">
-              <Label>{t("request.storeName")}</Label>
-              <Input value={storeName} onChange={(e) => setStoreName(e.target.value)} required minLength={1} maxLength={120} placeholder="例: 一蘭 天神西通り店" />
-            </div>
-            <div className="sm:col-span-2">
-              <Label>{t("request.storeAddress")}</Label>
-              <Input value={storeAddress} onChange={(e) => setStoreAddress(e.target.value)} maxLength={200} placeholder="任意" />
-            </div>
+            <StoreSearchMap
+              storeName={storeName}
+              storeAddress={storeAddress}
+              onChange={(v) => {
+                setStoreName(v.storeName);
+                setStoreAddress(v.storeAddress);
+              }}
+            />
             <div>
               <Label>{t("request.desiredTime")}</Label>
               <Input type="datetime-local" value={desiredTime} onChange={(e) => setDesiredTime(e.target.value)} />
