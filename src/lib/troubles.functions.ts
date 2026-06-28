@@ -10,6 +10,27 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
   if (!ok) throw new Error("Forbidden: admin only");
 }
 
+async function audit(
+  admin: any,
+  actorId: string,
+  action: string,
+  targetType: string,
+  targetId: string | null,
+  details: Record<string, unknown> = {},
+) {
+  try {
+    await admin.from("audit_logs").insert({
+      actor_id: actorId,
+      action,
+      target_type: targetType,
+      target_id: targetId,
+      details,
+    });
+  } catch (e) {
+    console.error("audit log failed", e);
+  }
+}
+
 // 管理者による手動・部分返金（金額指定）
 export const manualRefund = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -41,10 +62,18 @@ export const manualRefund = createServerFn({ method: "POST" })
       status: newRefund >= p.amount ? "refunded" : "partially_refunded",
     }).eq("id", p.id);
 
+    await audit(supabaseAdmin, context.userId, "manual_refund", "payment", p.id, {
+      amount: amt,
+      reason: data.reason ?? null,
+      request_id: p.request_id,
+      payment_kind: p.kind,
+      remaining_after: remaining - amt,
+    });
+
     return { refunded: amt };
   });
 
-// 差し戻し: 依頼を再募集状態に戻し、マッチング解除
+// 差し戻し
 export const revertRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { requestId: string; reason?: string }) => d)
@@ -52,11 +81,23 @@ export const revertRequest = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const { data: prev } = await supabaseAdmin
+      .from("requests").select("status").eq("id", data.requestId).maybeSingle();
+    const { data: match } = await supabaseAdmin
+      .from("matches").select("worker_id").eq("request_id", data.requestId).maybeSingle();
+
     await supabaseAdmin.from("matches").delete().eq("request_id", data.requestId);
     const { error } = await supabaseAdmin.from("requests").update({
       status: "open",
     }).eq("id", data.requestId);
     if (error) throw error;
+
+    await audit(supabaseAdmin, context.userId, "revert_request", "request", data.requestId, {
+      previous_status: prev?.status ?? null,
+      unmatched_worker_id: match?.worker_id ?? null,
+      reason: data.reason ?? null,
+    });
+
     return { ok: true };
   });
 
@@ -67,14 +108,22 @@ export const setRequestStatus = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: prev } = await supabaseAdmin
+      .from("requests").select("status").eq("id", data.requestId).maybeSingle();
     const { error } = await supabaseAdmin.from("requests").update({
       status: data.status,
     }).eq("id", data.requestId);
     if (error) throw error;
+
+    await audit(supabaseAdmin, context.userId, "set_status", "request", data.requestId, {
+      from: prev?.status ?? null,
+      to: data.status,
+    });
+
     return { ok: true };
   });
 
-// 手動承認: Stripe確認できない場合に管理者が支払い済としてマーク
+// 手動承認: 支払い済としてマーク
 export const manualMarkPaid = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { paymentId: string }) => d)
@@ -92,6 +141,14 @@ export const manualMarkPaid = createServerFn({ method: "POST" })
       worker_payout: workerPayout,
     }).eq("id", data.paymentId);
     if (error) throw error;
+
+    await audit(supabaseAdmin, context.userId, "manual_mark_paid", "payment", p.id, {
+      from: p.status,
+      amount: p.amount,
+      request_id: p.request_id,
+      payment_kind: p.kind,
+    });
+
     return { ok: true };
   });
 
@@ -102,9 +159,19 @@ export const manualMarkFailed = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: p } = await supabaseAdmin
+      .from("payments").select("*").eq("id", data.paymentId).maybeSingle();
     const { error } = await supabaseAdmin.from("payments").update({
       status: "failed",
     }).eq("id", data.paymentId);
     if (error) throw error;
+
+    await audit(supabaseAdmin, context.userId, "manual_mark_failed", "payment", data.paymentId, {
+      from: p?.status ?? null,
+      amount: p?.amount ?? null,
+      request_id: p?.request_id ?? null,
+      payment_kind: p?.kind ?? null,
+    });
+
     return { ok: true };
   });
