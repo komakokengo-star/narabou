@@ -70,7 +70,11 @@
     "desiredTime": "Desired time",
     "estimatedWait": "Estimated wait",
     "isPeak": "Peak surcharge (+¥300)",
-    "isPeakHelp": "Turn on for Fri–Sun, holidays, and busy lunch/dinner windows (11:30–13:30 / 18:00–20:30) when lines are long. It helps secure a worker faster.",
+    "isPeakHelp": "Turn on for Fri–Sun, holidays, and busy lunch/dinner windows (11:30–13:30 / 18:00–20:30) when lines are long. It helps secure a worker faster. You can also toggle the peak surcharge on or off after the request is created, as long as it has not been paid yet — open the request detail screen.",
+    "togglePeakAfter": "Toggle peak surcharge",
+    "togglePeakAfterHelp": "Until payment is made, you can switch the peak surcharge on or off even after the request is created.",
+    "peakUpdated": "Peak surcharge updated",
+    "peakLocked": "Already paid — cannot change",
     "notes": "Notes",
     "status": {
       "open": "Open",

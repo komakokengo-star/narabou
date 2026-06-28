@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { PEAK_FEE } from "@/lib/fees";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
@@ -90,6 +92,32 @@ function RequestDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // ピーク料金は依頼作成後でも、支払い前であれば依頼者がON/OFFを切り替え可能。
+  // 切り替えると peak_fee と total_fee を再計算して requests テーブルに反映する。
+  const hasPaidMain = payments.some((p) => p.status === "paid" && p.kind === "main");
+  const canTogglePeak =
+    !hasPaidMain && request && request.status !== "completed" && request.status !== "canceled";
+
+  const togglePeak = useMutation({
+    mutationFn: async (next: boolean) => {
+      if (!request) throw new Error("not loaded");
+      if (!canTogglePeak) throw new Error(t("request.peakLocked"));
+      const peakFee = next ? PEAK_FEE : 0;
+      const totalFee =
+        (request.base_fee ?? 0) + (request.time_fee ?? 0) + peakFee + (request.extra_fee ?? 0);
+      const { error } = await supabase
+        .from("requests")
+        .update({ is_peak: next, peak_fee: peakFee, total_fee: totalFee })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("request.peakUpdated"));
+      qc.invalidateQueries({ queryKey: ["request", id] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   if (!request) return <div className="p-10 text-center">{t("common.loading")}</div>;
 
   const latest = checkins[0];
@@ -127,6 +155,27 @@ function RequestDetail() {
             <Stat label={t("fees.extra")} v={formatYen(request.extra_fee)} />
           </div>
         </Card>
+
+        {/* ピーク料金トグル: 支払い前のみ変更可能 */}
+        <Card className="p-6 mt-6">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-sm font-medium">{t("request.togglePeakAfter")}</div>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                {canTogglePeak ? t("request.togglePeakAfterHelp") : t("request.peakLocked")}
+              </p>
+              <p className="text-xs mt-1">
+                {t("fees.peak")}: {formatYen(request.is_peak ? PEAK_FEE : 0)}
+              </p>
+            </div>
+            <Switch
+              checked={request.is_peak}
+              disabled={!canTogglePeak || togglePeak.isPending}
+              onCheckedChange={(v) => togglePeak.mutate(v)}
+            />
+          </div>
+        </Card>
+
 
         {/* Map */}
         {latest?.location_lat && latest?.location_lng && (
