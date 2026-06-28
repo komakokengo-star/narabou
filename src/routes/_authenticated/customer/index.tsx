@@ -121,7 +121,14 @@ function CustomerHome() {
             </div>
             <div className="sm:col-span-2">
               <Label>{t("request.notes")}</Label>
-              <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} rows={3} />
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                maxLength={500}
+                rows={6}
+                placeholder={t("request.notesPlaceholder")}
+                className="placeholder:text-muted-foreground/60 placeholder:whitespace-pre-line"
+              />
             </div>
 
             <div className="sm:col-span-2 p-4 rounded-md bg-muted/40 text-sm space-y-1">
