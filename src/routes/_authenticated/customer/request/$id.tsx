@@ -156,6 +156,27 @@ function RequestDetail() {
           </div>
         </Card>
 
+        {/* ピーク料金トグル: 支払い前のみ変更可能 */}
+        <Card className="p-6 mt-6">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-sm font-medium">{t("request.togglePeakAfter")}</div>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                {canTogglePeak ? t("request.togglePeakAfterHelp") : t("request.peakLocked")}
+              </p>
+              <p className="text-xs mt-1">
+                {t("fees.peak")}: {formatYen(request.is_peak ? PEAK_FEE : 0)}
+              </p>
+            </div>
+            <Switch
+              checked={request.is_peak}
+              disabled={!canTogglePeak || togglePeak.isPending}
+              onCheckedChange={(v) => togglePeak.mutate(v)}
+            />
+          </div>
+        </Card>
+
+
         {/* Map */}
         {latest?.location_lat && latest?.location_lng && (
           <Card className="p-6 mt-6">
