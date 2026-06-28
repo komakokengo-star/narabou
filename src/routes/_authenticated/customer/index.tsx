@@ -110,9 +110,14 @@ function CustomerHome() {
               <Label>{t("request.estimatedWait")} ({t("common.minutes")})</Label>
               <Input type="number" min={10} max={300} value={estimatedWait} onChange={(e) => setEstimatedWait(Number(e.target.value))} />
             </div>
-            <div className="flex items-center gap-3 sm:col-span-2">
-              <Switch checked={isPeak} onCheckedChange={setIsPeak} id="peak" />
-              <Label htmlFor="peak">{t("request.isPeak")}</Label>
+            <div className="sm:col-span-2 rounded-md border border-border/60 bg-muted/30 p-3">
+              <div className="flex items-center gap-3">
+                <Switch checked={isPeak} onCheckedChange={setIsPeak} id="peak" />
+                <Label htmlFor="peak" className="cursor-pointer">{t("request.isPeak")}</Label>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                {t("request.isPeakHelp")}
+              </p>
             </div>
             <div className="sm:col-span-2">
               <Label>{t("request.notes")}</Label>
