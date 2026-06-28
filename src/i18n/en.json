@@ -70,6 +70,7 @@
     "desiredTime": "Desired time",
     "estimatedWait": "Estimated wait",
     "isPeak": "Peak surcharge (+¥300)",
+    "isPeakHelp": "Turn on for Fri–Sun, holidays, and busy lunch/dinner windows (11:30–13:30 / 18:00–20:30) when lines are long. It helps secure a worker faster.",
     "notes": "Notes",
     "status": {
       "open": "Open",
