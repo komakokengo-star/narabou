@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -82,7 +82,12 @@ function AdminHome() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-10 max-w-6xl">
-        <h1 className="font-serif text-3xl mb-6">{t("admin.title")}</h1>
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+          <h1 className="font-serif text-3xl">{t("admin.title")}</h1>
+          <Button asChild variant="outline">
+            <Link to="/admin/troubles">{t("admin.troubles")} →</Link>
+          </Button>
+        </div>
 
         <div className="grid sm:grid-cols-3 gap-4 mb-8">
           <Card className="p-6">
