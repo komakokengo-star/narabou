@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { cancelRequest } from "@/lib/payments.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
+  ssr: false,
   beforeLoad: async () => {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) throw redirect({ to: "/auth" });
