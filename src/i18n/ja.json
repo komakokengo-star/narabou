@@ -161,6 +161,22 @@
     "executeRefund": "返金を実行",
     "netPaid": "純受領"
   },
+  "audit": {
+    "title": "監査ログ",
+    "subtitle": "管理者によるトラブル対応操作の履歴です。",
+    "exportCsv": "CSV出力",
+    "searchPlaceholder": "対象ID・理由などで検索",
+    "actions": {
+      "all": "すべての操作",
+      "manual_refund": "手動返金",
+      "revert_request": "差し戻し",
+      "set_status": "ステータス変更",
+      "manual_mark_paid": "支払い済承認",
+      "manual_mark_failed": "失敗マーク",
+      "force_cancel": "強制キャンセル",
+      "cancel_request": "キャンセル"
+    }
+  },
   "map": {
     "approx": "位置情報は安全のため約50-100mぼかしています"
   }

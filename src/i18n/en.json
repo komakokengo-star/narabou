@@ -161,6 +161,22 @@
     "executeRefund": "Issue refund",
     "netPaid": "Net paid"
   },
+  "audit": {
+    "title": "Audit log",
+    "subtitle": "History of admin trouble-desk actions.",
+    "exportCsv": "Export CSV",
+    "searchPlaceholder": "Search by ID or reason",
+    "actions": {
+      "all": "All actions",
+      "manual_refund": "Manual refund",
+      "revert_request": "Revert request",
+      "set_status": "Status change",
+      "manual_mark_paid": "Mark as paid",
+      "manual_mark_failed": "Mark as failed",
+      "force_cancel": "Force cancel",
+      "cancel_request": "Cancel"
+    }
+  },
   "map": {
     "approx": "Location is fuzzed by ~50-100m for safety."
   }
