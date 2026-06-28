@@ -84,9 +84,14 @@ function AdminHome() {
       <main className="flex-1 container mx-auto px-4 py-10 max-w-6xl">
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <h1 className="font-serif text-3xl">{t("admin.title")}</h1>
-          <Button asChild variant="outline">
-            <Link to="/admin/troubles">{t("admin.troubles")} →</Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild variant="outline">
+              <Link to="/admin/troubles">{t("admin.troubles")} →</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/admin/audit">{t("audit.title")} →</Link>
+            </Button>
+          </div>
         </div>
 
         <div className="grid sm:grid-cols-3 gap-4 mb-8">
