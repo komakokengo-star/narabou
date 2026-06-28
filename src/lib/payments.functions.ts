@@ -190,5 +190,23 @@ export const cancelRequest = createServerFn({ method: "POST" })
     }
 
     await supabaseAdmin.from("requests").update({ status: "canceled" }).eq("id", req.id);
+
+    try {
+      await supabaseAdmin.from("audit_logs").insert({
+        actor_id: context.userId,
+        action: data.force ? "force_cancel" : "cancel_request",
+        target_type: "request",
+        target_id: req.id,
+        details: {
+          refunded: refund,
+          total_paid: totalPaid,
+          by_admin: !!isAdmin && data.force === true,
+          previous_status: req.status,
+        },
+      });
+    } catch (e) {
+      console.error("audit log failed", e);
+    }
+
     return { refunded: refund };
   });
