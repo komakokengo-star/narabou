@@ -13,7 +13,9 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCustomerIndexRouteImport } from './routes/_authenticated/customer/index'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
+import { Route as AuthenticatedCustomerRequestIdRouteImport } from './routes/_authenticated/customer/request/$id'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -34,22 +36,38 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCustomerIndexRoute =
+  AuthenticatedCustomerIndexRouteImport.update({
+    id: '/customer/',
+    path: '/customer/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
   id: '/api/public/webhooks/stripe',
   path: '/api/public/webhooks/stripe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCustomerRequestIdRoute =
+  AuthenticatedCustomerRequestIdRouteImport.update({
+    id: '/customer/request/$id',
+    path: '/customer/request/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/customer/': typeof AuthenticatedCustomerIndexRoute
+  '/customer/request/$id': typeof AuthenticatedCustomerRequestIdRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/customer': typeof AuthenticatedCustomerIndexRoute
+  '/customer/request/$id': typeof AuthenticatedCustomerRequestIdRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRoutesById {
@@ -58,19 +76,35 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/customer/': typeof AuthenticatedCustomerIndexRoute
+  '/_authenticated/customer/request/$id': typeof AuthenticatedCustomerRequestIdRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/api/public/webhooks/stripe'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/customer/'
+    | '/customer/request/$id'
+    | '/api/public/webhooks/stripe'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/api/public/webhooks/stripe'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/customer'
+    | '/customer/request/$id'
+    | '/api/public/webhooks/stripe'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/dashboard'
+    | '/_authenticated/customer/'
+    | '/_authenticated/customer/request/$id'
     | '/api/public/webhooks/stripe'
   fileRoutesById: FileRoutesById
 }
@@ -111,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/customer/': {
+      id: '/_authenticated/customer/'
+      path: '/customer'
+      fullPath: '/customer/'
+      preLoaderRoute: typeof AuthenticatedCustomerIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/webhooks/stripe': {
       id: '/api/public/webhooks/stripe'
       path: '/api/public/webhooks/stripe'
@@ -118,15 +159,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksStripeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/customer/request/$id': {
+      id: '/_authenticated/customer/request/$id'
+      path: '/customer/request/$id'
+      fullPath: '/customer/request/$id'
+      preLoaderRoute: typeof AuthenticatedCustomerRequestIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedCustomerIndexRoute: typeof AuthenticatedCustomerIndexRoute
+  AuthenticatedCustomerRequestIdRoute: typeof AuthenticatedCustomerRequestIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedCustomerIndexRoute: AuthenticatedCustomerIndexRoute,
+  AuthenticatedCustomerRequestIdRoute: AuthenticatedCustomerRequestIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
