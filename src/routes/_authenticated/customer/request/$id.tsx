@@ -92,6 +92,32 @@ function RequestDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // ピーク料金は依頼作成後でも、支払い前であれば依頼者がON/OFFを切り替え可能。
+  // 切り替えると peak_fee と total_fee を再計算して requests テーブルに反映する。
+  const hasPaidMain = payments.some((p) => p.status === "paid" && p.kind === "main");
+  const canTogglePeak =
+    !hasPaidMain && request && request.status !== "completed" && request.status !== "canceled";
+
+  const togglePeak = useMutation({
+    mutationFn: async (next: boolean) => {
+      if (!request) throw new Error("not loaded");
+      if (!canTogglePeak) throw new Error(t("request.peakLocked"));
+      const peakFee = next ? PEAK_FEE : 0;
+      const totalFee =
+        (request.base_fee ?? 0) + (request.time_fee ?? 0) + peakFee + (request.extra_fee ?? 0);
+      const { error } = await supabase
+        .from("requests")
+        .update({ is_peak: next, peak_fee: peakFee, total_fee: totalFee })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("request.peakUpdated"));
+      qc.invalidateQueries({ queryKey: ["request", id] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   if (!request) return <div className="p-10 text-center">{t("common.loading")}</div>;
 
   const latest = checkins[0];
