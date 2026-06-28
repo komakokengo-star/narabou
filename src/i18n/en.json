@@ -132,7 +132,34 @@
     "platformRevenue": "Platform revenue (20%)",
     "forceCancel": "Force cancel",
     "approveVerification": "Approve",
-    "togglePeak": "Toggle peak"
+    "togglePeak": "Toggle peak",
+    "troubles": "Trouble desk"
+  },
+  "troubles": {
+    "title": "Trouble desk",
+    "subtitle": "Handle cancellations, reverts, and manual approvals here.",
+    "filter": {
+      "all": "All",
+      "trouble": "Needs action",
+      "canceled": "Canceled",
+      "pending_pay": "Pending pay",
+      "failed_pay": "Failed pay"
+    },
+    "statusActions": "Status actions",
+    "payments": "Payments",
+    "revert": "Revert to open",
+    "revertConfirm": "Unmatch the worker and put this request back to open. Proceed?",
+    "reverted": "Reverted",
+    "statusChanged": "Status updated",
+    "markPaid": "Mark as paid",
+    "markFailed": "Mark as failed",
+    "markedPaid": "Marked as paid",
+    "markedFailed": "Marked as failed",
+    "partialRefund": "Partial refund",
+    "refundAmount": "Refund amount",
+    "reason": "Reason (optional, kept for audit)",
+    "executeRefund": "Issue refund",
+    "netPaid": "Net paid"
   },
   "map": {
     "approx": "Location is fuzzed by ~50-100m for safety."
