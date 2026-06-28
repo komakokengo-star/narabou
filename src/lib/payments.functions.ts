@@ -49,19 +49,24 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
         : {}),
     });
 
-    const { error: payErr } = await supabaseAdmin.from("payments").upsert(
-      {
-        request_id: req.id,
-        amount: fee.total,
-        platform_fee: fee.platformFee,
-        worker_payout: fee.workerPayout,
-        status: "pending",
-        stripe_payment_intent_id: intent.id,
-        stripe_client_secret: intent.client_secret,
-        kind: "main",
-      },
-      { onConflict: "stripe_payment_intent_id" },
-    );
+    // remove previous pending main payments for idempotency
+    await supabaseAdmin
+      .from("payments")
+      .delete()
+      .eq("request_id", req.id)
+      .eq("kind", "main")
+      .eq("status", "pending");
+
+    const { error: payErr } = await supabaseAdmin.from("payments").insert({
+      request_id: req.id,
+      amount: fee.total,
+      platform_fee: fee.platformFee,
+      worker_payout: fee.workerPayout,
+      status: "pending",
+      stripe_payment_intent_id: intent.id,
+      stripe_client_secret: intent.client_secret,
+      kind: "main",
+    });
     if (payErr) console.error(payErr);
 
     // also update request total_fee
