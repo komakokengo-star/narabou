@@ -76,6 +76,7 @@
     "peakUpdated": "Peak surcharge updated",
     "peakLocked": "Already paid — cannot change",
     "notes": "Notes",
+    "notesPlaceholder": "e.g.\n- Party of 2 adults + 1 child. Please call me when our turn is close.\n- Counter seat preferred, table seat is fine if not available.\n- We plan to arrive around 12:30. I'll message if we're running late.\n- Could you check with the staff about allergy-friendly options?",
     "status": {
       "open": "Open",
       "matched": "Matched",
