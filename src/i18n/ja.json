@@ -1,0 +1,140 @@
+{
+  "app": {
+    "name": "福岡行列代行",
+    "tagline": "博多・天神の人気店、並ぶのは私たち。"
+  },
+  "nav": {
+    "home": "ホーム",
+    "dashboard": "ダッシュボード",
+    "customer": "依頼者",
+    "worker": "代行者",
+    "admin": "管理者",
+    "logout": "ログアウト",
+    "login": "ログイン",
+    "signup": "新規登録"
+  },
+  "common": {
+    "loading": "読み込み中…",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "submit": "送信",
+    "back": "戻る",
+    "yen": "円",
+    "minutes": "分",
+    "minute": "分",
+    "language": "言語",
+    "japanese": "日本語",
+    "english": "English",
+    "noData": "データはありません",
+    "error": "エラーが発生しました",
+    "confirm": "確認",
+    "delete": "削除",
+    "refresh": "更新"
+  },
+  "auth": {
+    "title": "ログイン / 新規登録",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "name": "お名前",
+    "login": "ログイン",
+    "signup": "新規登録",
+    "switchSignup": "アカウントをお持ちでない方",
+    "switchLogin": "既にアカウントをお持ちの方",
+    "success": "認証に成功しました",
+    "failed": "認証に失敗しました"
+  },
+  "role": {
+    "customer": "依頼者",
+    "worker": "代行者",
+    "admin": "管理者",
+    "switch": "ロール切替",
+    "becomeWorker": "代行者として登録",
+    "becomeWorkerDesc": "ベータ期間中はワンクリックで代行者ロールを追加できます。"
+  },
+  "fees": {
+    "base": "基本料金",
+    "time": "時間課金",
+    "peak": "ピーク料金",
+    "extra": "追加課金",
+    "total": "合計",
+    "platformFee": "運営手数料 (20%)",
+    "workerPayout": "代行者報酬 (80%)",
+    "estimate": "見積もり"
+  },
+  "request": {
+    "title": "依頼",
+    "create": "新規依頼を作成",
+    "list": "依頼一覧",
+    "storeName": "店名",
+    "storeAddress": "住所",
+    "desiredTime": "希望時間",
+    "estimatedWait": "想定待ち時間",
+    "isPeak": "ピーク料金 (+300円)",
+    "notes": "備考",
+    "status": {
+      "open": "募集中",
+      "matched": "受注済",
+      "arrived": "現地到着",
+      "in_progress": "並び中",
+      "completed": "完了",
+      "canceled": "キャンセル"
+    },
+    "actions": {
+      "pay": "支払いに進む",
+      "approveExtension": "延長を承認",
+      "cancel": "依頼をキャンセル",
+      "extend": "延長を要請",
+      "accept": "受注する",
+      "arrived": "現地到着を報告",
+      "startQueue": "並び開始",
+      "checkin": "定点報告",
+      "complete": "完了報告"
+    },
+    "extensionPrompt": "追加で何分延長しますか？",
+    "cancelConfirm": "本当にキャンセルしますか？返金額: ¥{{amount}}"
+  },
+  "payment": {
+    "pending": "未払い",
+    "paid": "支払済",
+    "refunded": "返金済",
+    "partial": "一部返金",
+    "failed": "失敗",
+    "title": "お支払い",
+    "testMode": "Stripe テストモードです。カード番号は 4242 4242 4242 4242 をご利用ください。",
+    "pay": "{{amount}}円を支払う",
+    "history": "支払い履歴"
+  },
+  "worker": {
+    "openJobs": "公開中の依頼",
+    "myJobs": "受注中の依頼",
+    "earnings": "報酬",
+    "stripe": {
+      "title": "Stripe Connect",
+      "notReady": "報酬を受け取るには Stripe Connect の登録が必要です。",
+      "create": "Stripe アカウントを作成",
+      "onboard": "オンボーディングを開始",
+      "ready": "Stripe アカウント準備完了",
+      "open": "Stripe ダッシュボードを開く"
+    },
+    "verification": {
+      "title": "本人確認",
+      "upload": "本人確認書類をアップロード",
+      "uploaded": "アップロード済 (管理者承認待ち)",
+      "verified": "承認済"
+    }
+  },
+  "admin": {
+    "title": "管理者ダッシュボード",
+    "requests": "依頼管理",
+    "workers": "代行者管理",
+    "payments": "決済管理",
+    "totalRevenue": "総取引額",
+    "platformRevenue": "運営収入 (20%)",
+    "forceCancel": "強制キャンセル",
+    "approveVerification": "本人確認を承認",
+    "togglePeak": "ピーク料金切替"
+  },
+  "map": {
+    "approx": "位置情報は安全のため約50-100mぼかしています"
+  }
+}
