@@ -88,11 +88,39 @@ async function cleanup() {
   if (res.status !== 200) process.exit(1);
 }
 
+async function verify() {
+  const ts = String(Math.floor(Date.now() / 1000));
+  const sig = crypto.createHmac("sha256", secret).update(ts).digest("hex");
+  const verifyUrl = url.replace(/\/webhooks\/stripe$/, "/hooks/test-cleanup");
+  const res = await fetch(verifyUrl, {
+    method: "GET",
+    headers: { "x-test-cleanup": `t=${ts},v1=${sig}` },
+  });
+  const text = await res.text();
+  console.log(`[verify] ${res.status} ${text}`);
+  if (res.status !== 200) process.exit(1);
+  let json;
+  try { json = JSON.parse(text); } catch { console.error("FAIL: invalid JSON"); process.exit(1); }
+  const ev = json?.remaining?.stripe_events ?? -1;
+  const py = json?.remaining?.payments ?? -1;
+  if (ev !== 0 || py !== 0) {
+    console.error(`FAIL: remaining stripe_events=${ev} payments=${py} (expected 0/0)`);
+    process.exit(1);
+  }
+}
+
 if (caseName === "cleanup") {
   await cleanup();
   console.log("PASS");
   process.exit(0);
 }
+
+if (caseName === "verify") {
+  await verify();
+  console.log("PASS");
+  process.exit(0);
+}
+
 
 let results = [];
 if (caseName === "duplicate") {
