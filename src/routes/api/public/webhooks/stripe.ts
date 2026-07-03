@@ -1,12 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { logJson } from "@/lib/log-schema";
 
 export const Route = createFileRoute("/api/public/webhooks/stripe")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const runId = crypto.randomUUID();
+        const startedAt = Date.now();
         const secret = process.env.STRIPE_WEBHOOK_SECRET;
         const sig = request.headers.get("stripe-signature");
         const body = await request.text();
+
+        logJson("info", "webhook.received", {
+          runId,
+          hasSignature: !!sig,
+          bodyBytes: body.length,
+          signatureVerified: false,
+        });
 
         try {
           const { getStripe } = await import("@/lib/stripe.server");
@@ -17,16 +27,25 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
           let event: { id: string; type: string; data: { object: Record<string, unknown> } };
           if (secret) {
             if (!sig) {
+              logJson("warn", "webhook.rejected", { runId, reason: "missing_signature", httpStatus: 400 });
               return new Response("missing stripe-signature", { status: 400 });
             }
             try {
               event = stripe.webhooks.constructEvent(body, sig, secret) as unknown as typeof event;
             } catch (err) {
-              console.error("Stripe signature verification failed", err);
+              logJson("warn", "webhook.rejected", {
+                runId,
+                reason: `invalid_signature: ${(err as Error).message}`,
+                httpStatus: 400,
+              });
               return new Response("invalid signature", { status: 400 });
             }
           } else {
-            console.warn("STRIPE_WEBHOOK_SECRET not set - accepting unverified webhook (dev only)");
+            logJson("warn", "webhook.rejected", {
+              runId,
+              reason: "no_secret_configured_dev_fallback",
+              httpStatus: 200,
+            });
             event = JSON.parse(body);
           }
 
@@ -35,11 +54,17 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
             .from("stripe_events")
             .insert({ event_id: event.id, type: event.type });
           if (dedupErr) {
-            // 23505 = unique_violation → 既に処理済み
-            if ((dedupErr as { code?: string }).code === "23505") {
+            const code = (dedupErr as { code?: string; message?: string }).code;
+            if (code === "23505") {
+              logJson("info", "webhook.duplicate", { runId, eventId: event.id, type: event.type });
               return new Response("duplicate", { status: 200 });
             }
-            console.error("stripe_events insert failed", dedupErr);
+            logJson("error", "webhook.db_error", {
+              runId,
+              stage: "stripe_events.insert",
+              message: (dedupErr as { message?: string }).message ?? "unknown",
+              code: code ?? "unknown",
+            });
             return new Response("db error", { status: 500 });
           }
 
@@ -69,14 +94,29 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
             }
           } catch (handlerErr) {
             // 処理失敗時は記録済みイベントを削除し、Stripeの再送を許可
-            console.error("Handler failed for", event.id, handlerErr);
+            logJson("error", "webhook.handler_error", {
+              runId,
+              eventId: event.id,
+              type: event.type,
+              message: (handlerErr as Error).message ?? String(handlerErr),
+            });
             await supabaseAdmin.from("stripe_events").delete().eq("event_id", event.id);
             return new Response("handler error", { status: 500 });
           }
 
+          logJson("info", "webhook.processed", {
+            runId,
+            eventId: event.id,
+            type: event.type,
+            durationMs: Date.now() - startedAt,
+          });
           return new Response("ok");
         } catch (err) {
-          console.error("Webhook error", err);
+          logJson("error", "webhook.rejected", {
+            runId,
+            reason: `unexpected: ${(err as Error).message ?? String(err)}`,
+            httpStatus: 400,
+          });
           return new Response("error", { status: 400 });
         }
       },
