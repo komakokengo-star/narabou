@@ -125,16 +125,26 @@
     "openJobs": "公開中の依頼",
     "myJobs": "受注中の依頼",
     "earnings": "報酬",
-    "stripe": {
-      "title": "Stripe Connect",
-      "notReady": "報酬を受け取るには Stripe Connect の登録が必要です。",
-      "create": "Stripe アカウントを作成",
-      "onboard": "オンボーディングを開始",
-      "ready": "Stripe アカウント準備完了",
-      "open": "Stripe ダッシュボードを開く",
-      "keyHelp": "接続エラーが出る場合は、Stripe のシークレットキーが sk_test_ または sk_live_ で始まる正しい値か確認してください。",
-      "invalidKey": "Stripe のシークレットキーが無効です。sk_test_ または sk_live_ で始まる正しいキーを保存してから再度お試しください。"
+    "account": {
+      "title": "アカウント設定",
+      "subtitle": "案件を受注する前に、以下の設定を完了してください。",
+      "step1": "プロフィール情報",
+      "step1Desc": "依頼者に表示されるお名前です。",
+      "displayName": "表示名",
+      "save": "保存する",
+      "saved": "保存しました",
+      "step2": "受取口座の登録",
+      "step2Desc": "報酬の振込先となる銀行口座を登録します。安全な決済パートナーの画面で入力します。",
+      "register": "受取口座を登録する",
+      "continue": "登録を続ける",
+      "ready": "登録完了",
+      "notReady": "未登録",
+      "pending": "審査中",
+      "refresh": "状態を更新",
+      "invalidKey": "決済システムの接続に問題があります。しばらく経ってから再度お試しください。",
+      "help": "口座情報は暗号化され、当社サーバーには保存されません。"
     },
+
     "verification": {
       "title": "本人確認",
       "upload": "本人確認書類をアップロード",

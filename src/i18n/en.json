@@ -125,15 +125,24 @@
     "openJobs": "Open jobs",
     "myJobs": "My jobs",
     "earnings": "Earnings",
-    "stripe": {
-      "title": "Stripe Connect",
-      "notReady": "Set up Stripe Connect to receive payouts.",
-      "create": "Create Stripe account",
-      "onboard": "Continue onboarding",
-      "ready": "Stripe account ready",
-      "open": "Open Stripe dashboard",
-      "keyHelp": "If setup fails, confirm the Stripe secret key starts with sk_test_ or sk_live_ and is copied in full.",
-      "invalidKey": "The Stripe secret key is invalid. Save a valid key starting with sk_test_ or sk_live_, then try again."
+    "account": {
+      "title": "Account setup",
+      "subtitle": "Finish these steps before accepting jobs.",
+      "step1": "Profile",
+      "step1Desc": "This is the name customers will see.",
+      "displayName": "Display name",
+      "save": "Save",
+      "saved": "Saved",
+      "step2": "Payout bank account",
+      "step2Desc": "Register the bank account where your earnings will be deposited. You'll enter details on our secure payments partner's screen.",
+      "register": "Register payout account",
+      "continue": "Continue registration",
+      "ready": "Registered",
+      "notReady": "Not registered",
+      "pending": "Under review",
+      "refresh": "Refresh status",
+      "invalidKey": "The payment system is temporarily unavailable. Please try again later.",
+      "help": "Bank details are encrypted and never stored on our servers."
     },
     "verification": {
       "title": "Identity verification",
