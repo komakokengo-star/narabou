@@ -202,9 +202,11 @@ function WorkerHome() {
                   <div className="flex gap-2 flex-wrap">
                     <Button
                       onClick={() => {
-                        setOnboardingUrl(null);
-                        onboardingPopupRef.current = prepareStripeOnboardingWindow();
-                        startPayoutOnboarding.mutate();
+                        if (profile?.stripe_account_id) {
+                          setOnboardingOpen(true);
+                        } else {
+                          startPayoutOnboarding.mutate();
+                        }
                       }}
                       disabled={startPayoutOnboarding.isPending}
                     >
@@ -215,15 +217,9 @@ function WorkerHome() {
                         {t("worker.account.refresh")}
                       </Button>
                     )}
-                    {onboardingUrl && (
-                      <Button variant="outline" asChild>
-                        <a href={onboardingUrl} target="_blank" rel="noopener noreferrer">
-                          登録画面を開く
-                        </a>
-                      </Button>
-                    )}
                   </div>
                 )}
+
 
                 <div className="flex items-center gap-1.5 mt-3 text-[11px] text-muted-foreground">
                   <Lock className="w-3 h-3" />
