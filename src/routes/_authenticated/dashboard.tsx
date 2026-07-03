@@ -2,13 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Header } from "@/components/Header";
 import { useAuth, useRoles, useProfile } from "@/lib/auth";
-import { supabase } from "@/integrations/supabase/client";
+import { selfGrantWorkerRole } from "@/lib/roles.functions";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ShoppingBag, Briefcase, ShieldCheck } from "lucide-react";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
@@ -20,18 +21,23 @@ function Dashboard() {
   const { data: roles = [], refetch: refetchRoles } = useRoles(user?.id);
   const { data: profile } = useProfile(user?.id);
   const qc = useQueryClient();
+  const [loading, setLoading] = useState(false);
 
   const becomeWorker = async () => {
     if (!user) return;
-    const { error } = await supabase.from("user_roles").insert({ user_id: user.id, role: "worker" });
-    if (error) {
-      toast.error(error.message);
-      return;
+    setLoading(true);
+    try {
+      await selfGrantWorkerRole();
+      toast.success("代行者ロールを追加しました");
+      await refetchRoles();
+      qc.invalidateQueries({ queryKey: ["roles", user.id] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "登録に失敗しました");
+    } finally {
+      setLoading(false);
     }
-    toast.success("代行者ロールを追加しました");
-    await refetchRoles();
-    qc.invalidateQueries({ queryKey: ["roles", user.id] });
   };
+
 
   return (
     <div className="min-h-screen flex flex-col">
