@@ -1,0 +1,80 @@
+#!/usr/bin/env node
+/**
+ * Stripe Webhook E2Eテスト用スクリプト
+ *
+ * 使い方:
+ *   STRIPE_WEBHOOK_SECRET=whsec_xxx node scripts/test-stripe-webhook.mjs \
+ *     --url https://<host>/api/public/webhooks/stripe \
+ *     --case valid|bad-signature|no-signature|duplicate|unknown-type|refunded|failed|account-updated
+ *
+ * 追加オプション:
+ *   --pi pi_xxx         payment_intent.id を指定
+ *   --account acct_xxx  Connect accountId を指定
+ *   --event evt_xxx     event.id を明示指定（冪等テスト用）
+ */
+import crypto from "node:crypto";
+
+const args = Object.fromEntries(
+  process.argv.slice(2).reduce((acc, cur, i, arr) => {
+    if (cur.startsWith("--")) acc.push([cur.slice(2), arr[i + 1]]);
+    return acc;
+  }, []),
+);
+
+const url = args.url;
+const secret = process.env.STRIPE_WEBHOOK_SECRET;
+const caseName = args.case ?? "valid";
+if (!url) { console.error("--url required"); process.exit(1); }
+if (!secret) { console.error("STRIPE_WEBHOOK_SECRET env required"); process.exit(1); }
+
+const eventId = args.event ?? `evt_test_${crypto.randomBytes(6).toString("hex")}`;
+const pi = args.pi ?? `pi_test_${crypto.randomBytes(6).toString("hex")}`;
+const acct = args.account ?? `acct_test_${crypto.randomBytes(6).toString("hex")}`;
+
+function buildEvent(kind) {
+  const base = { id: eventId, object: "event", api_version: "2024-06-20", created: Math.floor(Date.now() / 1000) };
+  switch (kind) {
+    case "valid":
+    case "duplicate":
+      return { ...base, type: "payment_intent.succeeded", data: { object: { id: pi, object: "payment_intent", status: "succeeded" } } };
+    case "failed":
+      return { ...base, type: "payment_intent.payment_failed", data: { object: { id: pi, object: "payment_intent", status: "requires_payment_method" } } };
+    case "refunded":
+      return { ...base, type: "charge.refunded", data: { object: { id: `ch_${crypto.randomBytes(6).toString("hex")}`, object: "charge", payment_intent: pi, amount_refunded: 1000 } } };
+    case "account-updated":
+      return { ...base, type: "account.updated", data: { object: { id: acct, object: "account", charges_enabled: true, payouts_enabled: true } } };
+    case "unknown-type":
+      return { ...base, type: "customer.created", data: { object: { id: `cus_${crypto.randomBytes(6).toString("hex")}`, object: "customer" } } };
+    default:
+      return { ...base, type: "payment_intent.succeeded", data: { object: { id: pi } } };
+  }
+}
+
+function signPayload(payload, secret, { tamperSig = false, tamperBody = false } = {}) {
+  const timestamp = Math.floor(Date.now() / 1000);
+  const body = tamperBody ? payload.replace(/"/, "'") : payload;
+  const signed = `${timestamp}.${body}`;
+  let v1 = crypto.createHmac("sha256", secret).update(signed, "utf8").digest("hex");
+  if (tamperSig) v1 = v1.replace(/^./, v1[0] === "0" ? "1" : "0");
+  return { header: `t=${timestamp},v1=${v1}`, body };
+}
+
+async function send(kind) {
+  const eventBody = JSON.stringify(buildEvent(kind));
+  const tamperSig = kind === "bad-signature";
+  const tamperBody = kind === "tampered-body";
+  const { header, body } = signPayload(eventBody, secret, { tamperSig, tamperBody });
+  const headers = { "content-type": "application/json" };
+  if (kind !== "no-signature") headers["stripe-signature"] = header;
+  const res = await fetch(url, { method: "POST", headers, body });
+  const text = await res.text();
+  console.log(`[${kind}] ${res.status} ${text}  event=${eventId}`);
+  return res;
+}
+
+if (caseName === "duplicate") {
+  await send("valid");
+  await send("valid"); // 同じeventIdで再送
+} else {
+  await send(caseName);
+}
