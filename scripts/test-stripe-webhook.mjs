@@ -122,7 +122,11 @@ async function verify() {
       }
     }
     if (i < maxAttempts - 1) {
-      const wait = baseMs * 2 ** i;
+      // Full jitter: sleep = random(0, base * 2^i), 上限 VERIFY_MAX_MS
+      const cap = Number(process.env.VERIFY_MAX_MS ?? 20000);
+      const exp = Math.min(baseMs * 2 ** i, cap);
+      const wait = Math.floor(Math.random() * exp);
+      console.log(`[verify] backoff ${wait}ms (cap ${exp}ms)`);
       await new Promise((res) => setTimeout(res, wait));
     }
   }
