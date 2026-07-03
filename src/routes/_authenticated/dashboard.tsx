@@ -83,7 +83,10 @@ function Dashboard() {
                 <div className="font-medium">{t("role.becomeWorker")}</div>
                 <div className="text-xs text-muted-foreground mt-1">{t("role.becomeWorkerDesc")}</div>
               </div>
-              <Button onClick={becomeWorker}>{t("role.becomeWorker")}</Button>
+              <Button onClick={becomeWorker} disabled={loading}>
+                {loading ? t("common.loading") : t("role.becomeWorker")}
+              </Button>
+
             </div>
           </Card>
         )}
