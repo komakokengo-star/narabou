@@ -56,6 +56,18 @@ function AdminHome() {
     },
   });
 
+  const { data: connectData, isFetching: connectFetching, refetch: refetchConnect } = useQuery({
+    queryKey: ["admin-connect-statuses"],
+    queryFn: () => adminListConnectStatuses(),
+    refetchInterval: 30000,
+  });
+  const connectRows = connectData?.rows ?? [];
+  const connectByUser = new Map(connectRows.map((r) => [r.userId, r]));
+  const connectCounts = connectRows.reduce(
+    (acc, r) => { acc[r.status] = (acc[r.status] ?? 0) + 1; return acc; },
+    {} as Record<ConnectStatus, number>,
+  );
+
   const togglePeak = useMutation({
     mutationFn: async (r: { id: string; is_peak: boolean }) => {
       await supabase.from("requests").update({ is_peak: !r.is_peak }).eq("id", r.id);
