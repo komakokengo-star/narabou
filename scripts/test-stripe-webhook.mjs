@@ -155,7 +155,10 @@ async function verify() {
     }
   }
 
-  console.error(`FAIL: remaining not zero after ${maxAttempts} attempts`);
+  logJson("error", "verify.fail", {
+    runId, attempts: maxAttempts,
+    remaining: last?.json?.remaining ?? null,
+  });
   // 詳細サンプルを取得してログ & アーティファクトへ
   const ts2 = String(Math.floor(Date.now() / 1000));
   const sig2 = crypto.createHmac("sha256", secret).update(ts2).digest("hex");
