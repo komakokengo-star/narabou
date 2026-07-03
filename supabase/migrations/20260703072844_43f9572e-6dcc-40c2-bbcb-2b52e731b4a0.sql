@@ -1,0 +1,1 @@
+UPDATE public.profiles SET stripe_account_id = NULL WHERE stripe_account_id LIKE 'acct_%';
