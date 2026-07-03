@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { formatYen, calcFee, PLATFORM_RATE } from "@/lib/fees";
 import { toast } from "sonner";
 import { CheckCircle2, User, Landmark, Lock } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   createConnectAccount, createAccountLink, refreshConnectStatus,
 } from "@/lib/stripe-connect.functions";
@@ -26,6 +26,8 @@ function WorkerHome() {
   const { user } = useAuth();
   const { data: profile, refetch: refetchProfile } = useProfile(user?.id);
   const qc = useQueryClient();
+  const onboardingPopupRef = useRef<Window | null>(null);
+  const [onboardingUrl, setOnboardingUrl] = useState<string | null>(null);
 
   const [displayName, setDisplayName] = useState("");
   useEffect(() => { if (profile?.name) setDisplayName(profile.name); }, [profile?.name]);
@@ -72,6 +74,46 @@ function WorkerHome() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const isEmbeddedPreview = () => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.self !== window.top;
+    } catch {
+      return true;
+    }
+  };
+
+  const prepareStripeOnboardingWindow = () => {
+    if (!isEmbeddedPreview()) return null;
+    const popup = window.open("about:blank", "stripe_connect_onboarding");
+    if (popup) {
+      popup.document.title = "Stripe Connect";
+      popup.document.body.innerHTML = '<p style="font-family: system-ui, sans-serif; padding: 24px;">Stripeの登録画面を開いています…</p>';
+    }
+    return popup;
+  };
+
+  const openStripeOnboarding = (url: string) => {
+    const popup = onboardingPopupRef.current;
+    onboardingPopupRef.current = null;
+
+    if (popup && !popup.closed) {
+      popup.opener = null;
+      popup.location.href = url;
+      return;
+    }
+
+    if (isEmbeddedPreview()) {
+      const opened = window.open(url, "_blank", "noopener,noreferrer");
+      if (opened) return;
+      setOnboardingUrl(url);
+      toast.info("Stripeの登録画面を新しいタブで開いてください");
+      return;
+    }
+
+    window.location.assign(url);
+  };
+
   const startPayoutOnboarding = useMutation({
     mutationFn: async () => {
       const created = await createConnectAccount();
@@ -83,9 +125,15 @@ function WorkerHome() {
         },
       });
       if (link.error || !link.url) throw new Error(link.error || t("worker.account.invalidKey"));
-      window.location.href = link.url;
+      return link.url;
     },
-    onError: (e: Error) => toast.error(e.message),
+    onSuccess: (url) => openStripeOnboarding(url),
+    onError: (e: Error) => {
+      const popup = onboardingPopupRef.current;
+      onboardingPopupRef.current = null;
+      if (popup && !popup.closed) popup.close();
+      toast.error(e.message);
+    },
   });
 
   const refreshPayout = useMutation({
@@ -201,12 +249,24 @@ function WorkerHome() {
 
                 {!payoutReady && (
                   <div className="flex gap-2 flex-wrap">
-                    <Button onClick={() => startPayoutOnboarding.mutate()} disabled={startPayoutOnboarding.isPending}>
+                    <Button
+                      onClick={() => {
+                        setOnboardingUrl(null);
+                        onboardingPopupRef.current = prepareStripeOnboardingWindow();
+                        startPayoutOnboarding.mutate();
+                      }}
+                      disabled={startPayoutOnboarding.isPending}
+                    >
                       {payoutPending ? t("worker.account.continue") : t("worker.account.register")}
                     </Button>
                     {payoutPending && (
                       <Button variant="outline" onClick={() => refreshPayout.mutate()} disabled={refreshPayout.isPending}>
                         {t("worker.account.refresh")}
+                      </Button>
+                    )}
+                    {onboardingUrl && (
+                      <Button variant="outline" onClick={() => window.open(onboardingUrl, "_blank", "noopener,noreferrer")}>
+                        登録画面を開く
                       </Button>
                     )}
                   </div>
