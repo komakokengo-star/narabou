@@ -1,8 +1,29 @@
 // Server-only Stripe helpers. Import inside handlers only.
 import Stripe from "stripe";
 
+function normalizeStripeSecretKey(key: string | undefined): string {
+  let value = key?.trim() ?? "";
+
+  // Secure forms sometimes receive an env-style paste such as
+  // STRIPE_SECRET_KEY=sk_test_... or export STRIPE_SECRET_KEY="sk_test_...".
+  // Normalize those common forms without ever logging the raw value.
+  value = value.replace(/^export\s+/i, "").trim();
+  const envAssignment = value.match(/^(?:STRIPE_SECRET_KEY|stripe_secret_key)\s*=\s*(.+)$/);
+  if (envAssignment) value = envAssignment[1].trim();
+
+  if (
+    (value.startsWith('"') && value.endsWith('"'))
+    || (value.startsWith("'") && value.endsWith("'"))
+    || (value.startsWith("`") && value.endsWith("`"))
+  ) {
+    value = value.slice(1, -1).trim();
+  }
+
+  return value;
+}
+
 export function validateStripeSecretKey(key: string | undefined): { ok: true; key: string } | { ok: false; message: string } {
-  const trimmed = key?.trim() ?? "";
+  const trimmed = normalizeStripeSecretKey(key);
   if (!trimmed) {
     return { ok: false, message: "Stripe secret key is not configured." };
   }
