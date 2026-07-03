@@ -1,0 +1,54 @@
+name: Stripe Webhook E2E
+
+on:
+  pull_request:
+    paths:
+      - "src/routes/api/public/webhooks/stripe.ts"
+      - "scripts/test-stripe-webhook.mjs"
+      - ".github/workflows/stripe-webhook-e2e.yml"
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+      # 例: https://project--<PROJECT_ID>-dev.lovable.app/api/public/webhooks/stripe
+      WEBHOOK_URL: ${{ secrets.STRIPE_WEBHOOK_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Preflight
+        run: |
+          if [ -z "$STRIPE_WEBHOOK_SECRET" ] || [ -z "$WEBHOOK_URL" ]; then
+            echo "Missing STRIPE_WEBHOOK_SECRET or STRIPE_WEBHOOK_URL repo secret" >&2
+            exit 1
+          fi
+          # プレビュー環境の到達性チェック
+          curl -sSfo /dev/null -X OPTIONS "$WEBHOOK_URL" || \
+            curl -sSfo /dev/null "$WEBHOOK_URL" || \
+            (echo "Webhook URL unreachable" >&2; exit 1)
+
+      - name: Valid signature -> 200
+        run: node scripts/test-stripe-webhook.mjs --url "$WEBHOOK_URL" --case valid --expect 200
+
+      - name: Bad signature -> 400
+        run: node scripts/test-stripe-webhook.mjs --url "$WEBHOOK_URL" --case bad-signature --expect 400
+
+      - name: Missing signature header -> 400
+        run: node scripts/test-stripe-webhook.mjs --url "$WEBHOOK_URL" --case no-signature --expect 400
+
+      - name: Tampered body -> 400
+        run: node scripts/test-stripe-webhook.mjs --url "$WEBHOOK_URL" --case tampered-body --expect 400
+
+      - name: Duplicate event -> idempotent
+        run: node scripts/test-stripe-webhook.mjs --url "$WEBHOOK_URL" --case duplicate
+
+      - name: Unknown event type -> 200
+        run: node scripts/test-stripe-webhook.mjs --url "$WEBHOOK_URL" --case unknown-type --expect 200
+
+      - name: Account updated -> 200
+        run: node scripts/test-stripe-webhook.mjs --url "$WEBHOOK_URL" --case account-updated --expect 200
