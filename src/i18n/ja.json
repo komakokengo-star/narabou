@@ -41,8 +41,19 @@
     "switchSignup": "アカウントをお持ちでない方",
     "switchLogin": "既にアカウントをお持ちの方",
     "success": "認証に成功しました",
-    "failed": "認証に失敗しました"
+    "failed": "認証に失敗しました",
+    "forgot": "パスワードをお忘れですか？",
+    "resetTitle": "パスワード再設定",
+    "resetDesc": "登録メールアドレスを入力してください。再設定用リンクをお送りします。",
+    "sendResetLink": "再設定リンクを送信",
+    "resetEmailSent": "再設定メールを送信しました。受信ボックスをご確認ください。",
+    "backToLogin": "ログインに戻る",
+    "newPassword": "新しいパスワード",
+    "updatePassword": "パスワードを更新",
+    "passwordUpdated": "パスワードを更新しました。ログインしてください。",
+    "resetLinkInvalid": "この再設定リンクは無効か有効期限が切れています。"
   },
+
   "role": {
     "customer": "依頼者",
     "worker": "代行者",
