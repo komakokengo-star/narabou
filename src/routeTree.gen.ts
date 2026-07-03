@@ -21,6 +21,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminTroublesRouteImport } from './routes/_authenticated/admin/troubles'
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin/audit'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
+import { Route as ApiPublicHooksTestCleanupRouteImport } from './routes/api/public/hooks/test-cleanup'
 import { Route as AuthenticatedWorkerJobIdRouteImport } from './routes/_authenticated/worker/job/$id'
 import { Route as AuthenticatedCustomerRequestIdRouteImport } from './routes/_authenticated/customer/request/$id'
 
@@ -86,6 +87,12 @@ const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
   path: '/api/public/webhooks/stripe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksTestCleanupRoute =
+  ApiPublicHooksTestCleanupRouteImport.update({
+    id: '/api/public/hooks/test-cleanup',
+    path: '/api/public/hooks/test-cleanup',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedWorkerJobIdRoute =
   AuthenticatedWorkerJobIdRouteImport.update({
     id: '/worker/job/$id',
@@ -112,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/worker/': typeof AuthenticatedWorkerIndexRoute
   '/customer/request/$id': typeof AuthenticatedCustomerRequestIdRoute
   '/worker/job/$id': typeof AuthenticatedWorkerJobIdRoute
+  '/api/public/hooks/test-cleanup': typeof ApiPublicHooksTestCleanupRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRoutesByTo {
@@ -127,6 +135,7 @@ export interface FileRoutesByTo {
   '/worker': typeof AuthenticatedWorkerIndexRoute
   '/customer/request/$id': typeof AuthenticatedCustomerRequestIdRoute
   '/worker/job/$id': typeof AuthenticatedWorkerJobIdRoute
+  '/api/public/hooks/test-cleanup': typeof ApiPublicHooksTestCleanupRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRoutesById {
@@ -144,6 +153,7 @@ export interface FileRoutesById {
   '/_authenticated/worker/': typeof AuthenticatedWorkerIndexRoute
   '/_authenticated/customer/request/$id': typeof AuthenticatedCustomerRequestIdRoute
   '/_authenticated/worker/job/$id': typeof AuthenticatedWorkerJobIdRoute
+  '/api/public/hooks/test-cleanup': typeof ApiPublicHooksTestCleanupRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
 }
 export interface FileRouteTypes {
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/worker/'
     | '/customer/request/$id'
     | '/worker/job/$id'
+    | '/api/public/hooks/test-cleanup'
     | '/api/public/webhooks/stripe'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -176,6 +187,7 @@ export interface FileRouteTypes {
     | '/worker'
     | '/customer/request/$id'
     | '/worker/job/$id'
+    | '/api/public/hooks/test-cleanup'
     | '/api/public/webhooks/stripe'
   id:
     | '__root__'
@@ -192,6 +204,7 @@ export interface FileRouteTypes {
     | '/_authenticated/worker/'
     | '/_authenticated/customer/request/$id'
     | '/_authenticated/worker/job/$id'
+    | '/api/public/hooks/test-cleanup'
     | '/api/public/webhooks/stripe'
   fileRoutesById: FileRoutesById
 }
@@ -199,6 +212,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
+  ApiPublicHooksTestCleanupRoute: typeof ApiPublicHooksTestCleanupRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
 }
 
@@ -288,6 +302,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksStripeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/test-cleanup': {
+      id: '/api/public/hooks/test-cleanup'
+      path: '/api/public/hooks/test-cleanup'
+      fullPath: '/api/public/hooks/test-cleanup'
+      preLoaderRoute: typeof ApiPublicHooksTestCleanupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/worker/job/$id': {
       id: '/_authenticated/worker/job/$id'
       path: '/worker/job/$id'
@@ -346,6 +367,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
+  ApiPublicHooksTestCleanupRoute: ApiPublicHooksTestCleanupRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
 }
 export const routeTree = rootRouteImport
