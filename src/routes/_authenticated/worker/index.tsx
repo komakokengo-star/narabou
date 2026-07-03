@@ -283,6 +283,39 @@ function WorkerHome() {
           })}
         </div>
       </main>
+
+      <Dialog
+        open={onboardingOpen}
+        onOpenChange={(o) => {
+          setOnboardingOpen(o);
+          if (!o) {
+            refreshConnectStatus().then((r) => {
+              if (!r.error) refetchProfile();
+            });
+          }
+        }}
+      >
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>受取口座の登録</DialogTitle>
+            <DialogDescription>
+              Stripe（決済パートナー）の安全なフォームで、本人確認と受取口座情報を入力してください。
+            </DialogDescription>
+          </DialogHeader>
+          {onboardingOpen && (
+            <StripeEmbeddedOnboarding
+              onExit={() => {
+                setOnboardingOpen(false);
+                refreshConnectStatus().then((r) => {
+                  if (!r.error) refetchProfile();
+                });
+              }}
+              onError={(msg) => toast.error(msg)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
+
 }
