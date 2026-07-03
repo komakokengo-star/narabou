@@ -27,10 +27,8 @@ const LinkInputSchema = z.object({
 
 type StripeErr = { message?: string; code?: string; type?: string };
 
-async function assertWorkerRole(
-  supabase: Awaited<ReturnType<typeof requireSupabaseAuth.server>>["context"]["supabase"],
-  userId: string,
-): Promise<boolean> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function assertWorkerRole(supabase: any, userId: string): Promise<boolean> {
   const { data, error } = await supabase.rpc("has_role", { _user_id: userId, _role: "worker" });
   if (error) return false;
   return data === true;
