@@ -92,7 +92,7 @@ export function typeOf(v: unknown): FieldType {
 
 export function validateLog(
   obj: unknown,
-  schemas: Record<string, LogSchema> = WEBHOOK_LOG_SCHEMAS,
+  schemas: Record<string, LogSchema> = ALL_LOG_SCHEMAS,
 ): string[] {
   const errs: string[] = [];
   if (obj === null || typeof obj !== "object" || Array.isArray(obj)) {
