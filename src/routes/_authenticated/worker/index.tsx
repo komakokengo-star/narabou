@@ -265,8 +265,10 @@ function WorkerHome() {
                       </Button>
                     )}
                     {onboardingUrl && (
-                      <Button variant="outline" onClick={() => window.open(onboardingUrl, "_blank", "noopener,noreferrer")}>
-                        登録画面を開く
+                      <Button variant="outline" asChild>
+                        <a href={onboardingUrl} target="_blank" rel="noopener noreferrer">
+                          登録画面を開く
+                        </a>
                       </Button>
                     )}
                   </div>
