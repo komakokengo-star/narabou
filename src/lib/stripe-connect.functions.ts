@@ -73,12 +73,16 @@ export const createConnectAccount = createServerFn({ method: "POST" })
     }
 
     // 2) Stripe キー検証（未設定・不正時は生エラーを外に出さない）
-    const { getStripe, validateStripeSecretKey } = await import("@/lib/stripe.server");
+    const { getStripe, validateStripeSecretKey, getStripeSecretKeyDiagnostic } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const validation = validateStripeSecretKey(process.env.STRIPE_SECRET_KEY);
     if (!validation.ok) {
       logJson("error", "connect.stripe_error", {
-        runId, userId, action: "create_account", message: "invalid_secret_key",
+        runId,
+        userId,
+        action: "create_account",
+        message: "invalid_secret_key",
+        diagnostic: getStripeSecretKeyDiagnostic(process.env.STRIPE_SECRET_KEY),
       });
       return { accountId: null, error: SETUP_ERROR };
     }
@@ -164,12 +168,16 @@ export const createAccountLink = createServerFn({ method: "POST" })
       return { url: null, error: FORBIDDEN_ERROR };
     }
 
-    const { getStripe, validateStripeSecretKey } = await import("@/lib/stripe.server");
+    const { getStripe, validateStripeSecretKey, getStripeSecretKeyDiagnostic } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const validation = validateStripeSecretKey(process.env.STRIPE_SECRET_KEY);
     if (!validation.ok) {
       logJson("error", "connect.stripe_error", {
-        runId, userId, action: "create_link", message: "invalid_secret_key",
+        runId,
+        userId,
+        action: "create_link",
+        message: "invalid_secret_key",
+        diagnostic: getStripeSecretKeyDiagnostic(process.env.STRIPE_SECRET_KEY),
       });
       return { url: null, error: SETUP_ERROR };
     }
@@ -245,12 +253,16 @@ export const refreshConnectStatus = createServerFn({ method: "POST" })
       return { ready: false, error: FORBIDDEN_ERROR };
     }
 
-    const { getStripe, validateStripeSecretKey } = await import("@/lib/stripe.server");
+    const { getStripe, validateStripeSecretKey, getStripeSecretKeyDiagnostic } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const validation = validateStripeSecretKey(process.env.STRIPE_SECRET_KEY);
     if (!validation.ok) {
       logJson("error", "connect.stripe_error", {
-        runId, userId, action: "refresh_status", message: "invalid_secret_key",
+        runId,
+        userId,
+        action: "refresh_status",
+        message: "invalid_secret_key",
+        diagnostic: getStripeSecretKeyDiagnostic(process.env.STRIPE_SECRET_KEY),
       });
       return { ready: false, error: SETUP_ERROR };
     }

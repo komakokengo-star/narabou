@@ -19,7 +19,44 @@ function normalizeStripeSecretKey(key: string | undefined): string {
     value = value.slice(1, -1).trim();
   }
 
+  // If the secure field received surrounding text (JSON, shell command,
+  // dashboard copy with labels, etc.), extract only the Stripe secret token.
+  const embeddedSecret = value.match(/sk_(?:test|live)_[A-Za-z0-9_]+/);
+  if (embeddedSecret) value = embeddedSecret[0];
+
   return value;
+}
+
+export function getStripeSecretKeyDiagnostic(key: string | undefined): {
+  configured: boolean;
+  reason: "ok" | "missing" | "publishable_key" | "restricted_key" | "bad_prefix" | "too_short";
+  lengthBucket: "empty" | "short" | "medium" | "long";
+  containsSecretToken: boolean;
+} {
+  const raw = key?.trim() ?? "";
+  const normalized = normalizeStripeSecretKey(key);
+  const lengthBucket = !raw ? "empty" : raw.length < 20 ? "short" : raw.length < 80 ? "medium" : "long";
+  if (!normalized) {
+    return { configured: false, reason: "missing", lengthBucket, containsSecretToken: false };
+  }
+  if (normalized.startsWith("pk_")) {
+    return { configured: true, reason: "publishable_key", lengthBucket, containsSecretToken: false };
+  }
+  if (normalized.startsWith("rk_")) {
+    return { configured: true, reason: "restricted_key", lengthBucket, containsSecretToken: false };
+  }
+  if (!normalized.startsWith("sk_test_") && !normalized.startsWith("sk_live_")) {
+    return {
+      configured: true,
+      reason: "bad_prefix",
+      lengthBucket,
+      containsSecretToken: /sk_(?:test|live)_[A-Za-z0-9_]+/.test(raw),
+    };
+  }
+  if (normalized.length < 20) {
+    return { configured: true, reason: "too_short", lengthBucket, containsSecretToken: true };
+  }
+  return { configured: true, reason: "ok", lengthBucket, containsSecretToken: true };
 }
 
 export function validateStripeSecretKey(key: string | undefined): { ok: true; key: string } | { ok: false; message: string } {

@@ -75,14 +75,14 @@ function WorkerHome() {
   const startPayoutOnboarding = useMutation({
     mutationFn: async () => {
       const created = await createConnectAccount();
-      if (created.error) throw new Error(t("worker.account.invalidKey"));
+      if (created.error) throw new Error(created.error);
       const link = await createAccountLink({
         data: {
           returnPath: `/worker?payout=ready`,
           refreshPath: `/worker?payout=refresh`,
         },
       });
-      if (link.error || !link.url) throw new Error(t("worker.account.invalidKey"));
+      if (link.error || !link.url) throw new Error(link.error || t("worker.account.invalidKey"));
       window.location.href = link.url;
     },
     onError: (e: Error) => toast.error(e.message),
@@ -91,7 +91,7 @@ function WorkerHome() {
   const refreshPayout = useMutation({
     mutationFn: () => refreshConnectStatus(),
     onSuccess: (r) => {
-      if (r.error) { toast.error(t("worker.account.invalidKey")); return; }
+      if (r.error) { toast.error(r.error); return; }
       refetchProfile();
       toast.success(t("worker.account.saved"));
     },
