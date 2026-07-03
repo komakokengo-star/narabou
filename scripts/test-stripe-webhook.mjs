@@ -101,33 +101,57 @@ async function fetchRemaining(verifyUrl) {
   catch { return { ok: false, status: res.status, text }; }
 }
 
+function logJson(level, event, fields) {
+  const line = JSON.stringify({
+    ts: new Date().toISOString(),
+    level,
+    event,
+    ...fields,
+  });
+  (level === "error" ? console.error : console.log)(line);
+}
+
 async function verify() {
   const verifyUrl = url.replace(/\/webhooks\/stripe$/, "/hooks/test-cleanup");
   // 指数バックオフでリトライ: 0.5s, 1s, 2s, 4s, 8s, 16s (合計 ~31s, 最大7試行)
   const maxAttempts = Number(process.env.VERIFY_MAX_ATTEMPTS ?? 7);
   const baseMs = Number(process.env.VERIFY_BASE_MS ?? 500);
+  const cap = Number(process.env.VERIFY_MAX_MS ?? 20000);
+  const runId = crypto.randomBytes(4).toString("hex");
   let last = null;
+
   for (let i = 0; i < maxAttempts; i++) {
+    const attempt = i + 1;
+    const started = Date.now();
     const r = await fetchRemaining(verifyUrl);
     last = r;
+    const durationMs = Date.now() - started;
     if (!r.ok) {
-      console.error(`[verify attempt ${i + 1}/${maxAttempts}] HTTP ${r.status} ${r.text}`);
+      logJson("error", "verify.attempt", {
+        runId, attempt, maxAttempts, durationMs,
+        ok: false, httpStatus: r.status, body: r.text,
+      });
     } else {
       const ev = r.json?.remaining?.stripe_events ?? -1;
       const py = r.json?.remaining?.payments ?? -1;
-      console.log(`[verify attempt ${i + 1}/${maxAttempts}] stripe_events=${ev} payments=${py}`);
-      if (ev === 0 && py === 0) {
-        console.log(`[verify] ${r.text}`);
+      const passed = ev === 0 && py === 0;
+      logJson("info", "verify.attempt", {
+        runId, attempt, maxAttempts, durationMs,
+        ok: true, remaining: { stripe_events: ev, payments: py }, passed,
+      });
+      if (passed) {
+        logJson("info", "verify.pass", { runId, attempts: attempt });
         return;
       }
     }
     if (i < maxAttempts - 1) {
-      // Full jitter: sleep = random(0, base * 2^i), 上限 VERIFY_MAX_MS
-      const cap = Number(process.env.VERIFY_MAX_MS ?? 20000);
+      // Full jitter: sleep = random(0, min(base * 2^i, cap))
       const exp = Math.min(baseMs * 2 ** i, cap);
-      const wait = Math.floor(Math.random() * exp);
-      console.log(`[verify] backoff ${wait}ms (cap ${exp}ms)`);
-      await new Promise((res) => setTimeout(res, wait));
+      const waitMs = Math.floor(Math.random() * exp);
+      logJson("info", "verify.backoff", {
+        runId, attempt, nextAttempt: attempt + 1, waitMs, capMs: exp,
+      });
+      await new Promise((res) => setTimeout(res, waitMs));
     }
   }
 
