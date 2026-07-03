@@ -131,7 +131,9 @@
       "create": "Create Stripe account",
       "onboard": "Continue onboarding",
       "ready": "Stripe account ready",
-      "open": "Open Stripe dashboard"
+      "open": "Open Stripe dashboard",
+      "keyHelp": "If setup fails, confirm the Stripe secret key starts with sk_test_ or sk_live_ and is copied in full.",
+      "invalidKey": "The Stripe secret key is invalid. Save a valid key starting with sk_test_ or sk_live_, then try again."
     },
     "verification": {
       "title": "Identity verification",
