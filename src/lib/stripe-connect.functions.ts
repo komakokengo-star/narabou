@@ -238,6 +238,75 @@ export const createAccountLink = createServerFn({ method: "POST" })
     }
   });
 
+// Embedded Components 用: AccountSession のクライアントシークレットを発行
+export const createConnectAccountSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const runId = crypto.randomUUID();
+    const userId = context.userId;
+    const started = Date.now();
+    logJson("info", "connect.request", { runId, userId, action: "create_account_session" });
+
+    if (!(await assertWorkerRole(context.supabase, userId))) {
+      logJson("warn", "connect.forbidden", {
+        runId, userId, action: "create_account_session", reason: "not_worker_role",
+      });
+      return { clientSecret: null, error: FORBIDDEN_ERROR };
+    }
+
+    const { getStripe, validateStripeSecretKey, getStripeSecretKeyDiagnostic } = await import("@/lib/stripe.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const validation = validateStripeSecretKey(process.env.STRIPE_SECRET_KEY);
+    if (!validation.ok) {
+      logJson("error", "connect.stripe_error", {
+        runId, userId, action: "create_account_session",
+        message: "invalid_secret_key",
+        diagnostic: getStripeSecretKeyDiagnostic(process.env.STRIPE_SECRET_KEY),
+      });
+      return { clientSecret: null, error: SETUP_ERROR };
+    }
+    const stripe = getStripe();
+
+    const { data: profile, error: profileErr } = await supabaseAdmin
+      .from("profiles").select("stripe_account_id").eq("id", userId).maybeSingle();
+    if (profileErr) {
+      logJson("error", "connect.db_error", {
+        runId, userId, stage: "profiles.select",
+        message: profileErr.message, code: profileErr.code ?? "unknown",
+      });
+      return { clientSecret: null, error: GENERIC_ERROR };
+    }
+    if (!profile?.stripe_account_id) {
+      return { clientSecret: null, error: "先に受取口座を作成してください。" };
+    }
+
+    try {
+      const session = await stripe.accountSessions.create({
+        account: profile.stripe_account_id,
+        components: {
+          account_onboarding: { enabled: true },
+        },
+      });
+      await writeAudit(supabaseAdmin, userId, "connect.account_session_created", {
+        runId, accountId: profile.stripe_account_id,
+      });
+      logJson("info", "connect.account_session_created", {
+        runId, userId, accountId: profile.stripe_account_id, durationMs: Date.now() - started,
+      });
+      return { clientSecret: session.client_secret, error: null };
+    } catch (e) {
+      const se = e as StripeErr;
+      logJson("error", "connect.stripe_error", {
+        runId, userId, action: "create_account_session",
+        message: se.message ?? "unknown",
+        code: se.code ?? "unknown",
+        stripeType: se.type ?? "unknown",
+      });
+      return { clientSecret: null, error: GENERIC_ERROR };
+    }
+  });
+
+
 export const refreshConnectStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
