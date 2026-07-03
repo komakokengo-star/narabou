@@ -7,8 +7,12 @@ import { Header } from "@/components/Header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { formatYen, calcFee, PLATFORM_RATE } from "@/lib/fees";
 import { toast } from "sonner";
+import { CheckCircle2, User, Landmark, Lock } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   createConnectAccount, createAccountLink, refreshConnectStatus,
 } from "@/lib/stripe-connect.functions";
@@ -23,13 +27,14 @@ function WorkerHome() {
   const { data: profile, refetch: refetchProfile } = useProfile(user?.id);
   const qc = useQueryClient();
 
+  const [displayName, setDisplayName] = useState("");
+  useEffect(() => { if (profile?.name) setDisplayName(profile.name); }, [profile?.name]);
+
   const { data: openJobs = [] } = useQuery({
     queryKey: ["open-jobs"],
     queryFn: async () => {
       const { data } = await supabase
-        .from("requests")
-        .select("*")
-        .eq("status", "open")
+        .from("requests").select("*").eq("status", "open")
         .order("created_at", { ascending: false });
       return data ?? [];
     },
@@ -42,8 +47,7 @@ function WorkerHome() {
     queryFn: async () => {
       const { data: matches } = await supabase
         .from("matches").select("*, requests(*)")
-        .eq("worker_id", user!.id)
-        .order("created_at", { ascending: false });
+        .eq("worker_id", user!.id).order("created_at", { ascending: false });
       return matches ?? [];
     },
     refetchInterval: 10000,
@@ -59,33 +63,43 @@ function WorkerHome() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const stripeCreate = useMutation({
+  const saveName = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("profiles").update({ name: displayName }).eq("id", user!.id);
+      if (error) throw error;
+    },
+    onSuccess: () => { toast.success(t("worker.account.saved")); refetchProfile(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const startPayoutOnboarding = useMutation({
     mutationFn: async () => {
       const created = await createConnectAccount();
-      if (created.error) throw new Error(t("worker.stripe.invalidKey"));
+      if (created.error) throw new Error(t("worker.account.invalidKey"));
       const link = await createAccountLink({
         data: {
-          returnUrl: `${window.location.origin}/worker?stripe=ready`,
-          refreshUrl: `${window.location.origin}/worker?stripe=refresh`,
+          returnUrl: `${window.location.origin}/worker?payout=ready`,
+          refreshUrl: `${window.location.origin}/worker?payout=refresh`,
         },
       });
-      if (link.error || !link.url) throw new Error(t("worker.stripe.invalidKey"));
+      if (link.error || !link.url) throw new Error(t("worker.account.invalidKey"));
       window.location.href = link.url;
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const stripeRefresh = useMutation({
+  const refreshPayout = useMutation({
     mutationFn: () => refreshConnectStatus(),
     onSuccess: (r) => {
-      if (r.error) {
-        toast.error(t("worker.stripe.invalidKey"));
-        return;
-      }
+      if (r.error) { toast.error(t("worker.account.invalidKey")); return; }
       refetchProfile();
-      toast.success("更新しました");
+      toast.success(t("worker.account.saved"));
     },
   });
+
+  const payoutReady = !!profile?.stripe_account_ready;
+  const payoutPending = !!profile?.stripe_account_id && !payoutReady;
+  const canAcceptJobs = payoutReady;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -93,29 +107,95 @@ function WorkerHome() {
       <main className="flex-1 container mx-auto px-4 py-10 max-w-5xl">
         <h1 className="font-serif text-3xl mb-6">{t("role.worker")}</h1>
 
+        {/* Onboarding */}
         <Card className="p-6 mb-8">
-          <h2 className="font-medium mb-2">{t("worker.stripe.title")}</h2>
-          {profile?.stripe_account_ready ? (
-            <Badge>{t("worker.stripe.ready")}</Badge>
-          ) : (
-            <>
-              <p className="text-sm text-muted-foreground mb-3">{t("worker.stripe.notReady")}</p>
-              <p className="text-xs text-muted-foreground mb-3">{t("worker.stripe.keyHelp")}</p>
-              <div className="flex gap-2 flex-wrap">
-                <Button onClick={() => stripeCreate.mutate()} disabled={stripeCreate.isPending}>
-                  {profile?.stripe_account_id ? t("worker.stripe.onboard") : t("worker.stripe.create")}
-                </Button>
-                {profile?.stripe_account_id && (
-                  <Button variant="outline" onClick={() => stripeRefresh.mutate()} disabled={stripeRefresh.isPending}>
-                    {t("common.refresh")}
-                  </Button>
-                )}
+          <div className="mb-5">
+            <h2 className="font-medium text-lg">{t("worker.account.title")}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t("worker.account.subtitle")}</p>
+          </div>
+
+          {/* Step 1 */}
+          <div className="border rounded-lg p-4 mb-3">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <User className="w-4 h-4" />
               </div>
-            </>
-          )}
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <div className="font-medium">1. {t("worker.account.step1")}</div>
+                  {profile?.name && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 mb-3">{t("worker.account.step1Desc")}</p>
+                <div className="flex gap-2 flex-wrap items-end">
+                  <div className="flex-1 min-w-[200px]">
+                    <Label htmlFor="displayName" className="text-xs">{t("worker.account.displayName")}</Label>
+                    <Input
+                      id="displayName"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      placeholder="山田 太郎"
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => saveName.mutate()}
+                    disabled={saveName.isPending || !displayName.trim() || displayName === profile?.name}
+                  >
+                    {t("worker.account.save")}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div className="border rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <Landmark className="w-4 h-4" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="font-medium">2. {t("worker.account.step2")}</div>
+                  {payoutReady && (
+                    <Badge className="bg-emerald-600 hover:bg-emerald-600">
+                      <CheckCircle2 className="w-3 h-3 mr-1" />
+                      {t("worker.account.ready")}
+                    </Badge>
+                  )}
+                  {payoutPending && <Badge variant="secondary">{t("worker.account.pending")}</Badge>}
+                  {!payoutReady && !payoutPending && <Badge variant="outline">{t("worker.account.notReady")}</Badge>}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 mb-3">{t("worker.account.step2Desc")}</p>
+
+                {!payoutReady && (
+                  <div className="flex gap-2 flex-wrap">
+                    <Button onClick={() => startPayoutOnboarding.mutate()} disabled={startPayoutOnboarding.isPending}>
+                      {payoutPending ? t("worker.account.continue") : t("worker.account.register")}
+                    </Button>
+                    {payoutPending && (
+                      <Button variant="outline" onClick={() => refreshPayout.mutate()} disabled={refreshPayout.isPending}>
+                        {t("worker.account.refresh")}
+                      </Button>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-1.5 mt-3 text-[11px] text-muted-foreground">
+                  <Lock className="w-3 h-3" />
+                  {t("worker.account.help")}
+                </div>
+              </div>
+            </div>
+          </div>
         </Card>
 
         <h2 className="font-medium mb-3">{t("worker.openJobs")}</h2>
+        {!canAcceptJobs && (
+          <div className="text-xs text-muted-foreground mb-3">
+            ※ 受注するには「受取口座の登録」を完了してください。
+          </div>
+        )}
         <div className="grid gap-3 mb-8">
           {openJobs.length === 0 && <div className="text-sm text-muted-foreground">{t("common.noData")}</div>}
           {openJobs.map((r) => {
@@ -132,7 +212,9 @@ function WorkerHome() {
                   <div className="text-sm">{formatYen(f.total)}</div>
                   <div className="text-[10px] text-muted-foreground">報酬 {formatYen(Math.round(f.total * (1 - PLATFORM_RATE)))}</div>
                 </div>
-                <Button size="sm" onClick={() => accept.mutate(r.id)}>{t("request.actions.accept")}</Button>
+                <Button size="sm" onClick={() => accept.mutate(r.id)} disabled={!canAcceptJobs}>
+                  {t("request.actions.accept")}
+                </Button>
               </Card>
             );
           })}
