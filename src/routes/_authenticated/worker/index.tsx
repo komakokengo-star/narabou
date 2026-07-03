@@ -99,6 +99,37 @@ function WorkerHome() {
 
   const payoutReady = !!profile?.stripe_account_ready;
   const payoutPending = !!profile?.stripe_account_id && !payoutReady;
+
+  // Stripeから戻ってきたときに即時ステータス更新
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("payout") === "ready" || params.get("payout") === "refresh") {
+      refreshConnectStatus().then((r) => {
+        if (!r.error) refetchProfile();
+      });
+      params.delete("payout");
+      const q = params.toString();
+      window.history.replaceState({}, "", window.location.pathname + (q ? `?${q}` : ""));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 審査中は自動ポーリング（webhookが遅延した場合の保険）
+  useEffect(() => {
+    if (!payoutPending) return;
+    let cancelled = false;
+    const tick = async () => {
+      const r = await refreshConnectStatus();
+      if (cancelled) return;
+      if (!r.error) {
+        await refetchProfile();
+        if (r.ready) toast.success(t("worker.account.ready"));
+      }
+    };
+    const id = setInterval(tick, 8000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [payoutPending, refetchProfile, t]);
   const canAcceptJobs = payoutReady;
 
   return (
