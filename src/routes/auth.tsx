@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter, redirect } from "@tanstack/react-router";
+import { createFileRoute, useRouter, redirect, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
@@ -87,13 +87,21 @@ function AuthPage() {
               {loading ? t("common.loading") : mode === "signup" ? t("auth.signup") : t("auth.login")}
             </Button>
           </form>
-          <button
-            type="button"
-            onClick={() => setMode(mode === "login" ? "signup" : "login")}
-            className="mt-4 text-xs text-muted-foreground hover:text-foreground"
-          >
-            {mode === "login" ? t("auth.switchSignup") : t("auth.switchLogin")}
-          </button>
+          <div className="mt-4 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => setMode(mode === "login" ? "signup" : "login")}
+              className="text-xs text-muted-foreground hover:text-foreground text-left"
+            >
+              {mode === "login" ? t("auth.switchSignup") : t("auth.switchLogin")}
+            </button>
+            {mode === "login" && (
+              <Link to="/auth/forgot" className="text-xs text-muted-foreground hover:text-foreground">
+                {t("auth.forgot")}
+              </Link>
+            )}
+          </div>
+
         </Card>
       </main>
     </div>
