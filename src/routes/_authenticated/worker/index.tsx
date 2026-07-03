@@ -9,13 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from "@/components/ui/dialog";
 import { formatYen, calcFee, PLATFORM_RATE } from "@/lib/fees";
 import { toast } from "sonner";
 import { CheckCircle2, User, Landmark, Lock } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import {
-  createConnectAccount, createAccountLink, refreshConnectStatus,
-} from "@/lib/stripe-connect.functions";
+import { useEffect, useState } from "react";
+import { createConnectAccount, refreshConnectStatus } from "@/lib/stripe-connect.functions";
+import { StripeEmbeddedOnboarding } from "@/components/StripeEmbeddedOnboarding";
 
 export const Route = createFileRoute("/_authenticated/worker/")({
   component: WorkerHome,
@@ -26,8 +28,8 @@ function WorkerHome() {
   const { user } = useAuth();
   const { data: profile, refetch: refetchProfile } = useProfile(user?.id);
   const qc = useQueryClient();
-  const onboardingPopupRef = useRef<Window | null>(null);
-  const [onboardingUrl, setOnboardingUrl] = useState<string | null>(null);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+
 
   const [displayName, setDisplayName] = useState("");
   useEffect(() => { if (profile?.name) setDisplayName(profile.name); }, [profile?.name]);
