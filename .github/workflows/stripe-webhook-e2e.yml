@@ -52,3 +52,7 @@ jobs:
 
       - name: Account updated -> 200
         run: node scripts/test-stripe-webhook.mjs --url "$WEBHOOK_URL" --case account-updated --expect 200
+
+      - name: Cleanup test records (evt_test_* / pi_test_*)
+        if: always()
+        run: node scripts/test-stripe-webhook.mjs --url "$WEBHOOK_URL" --case cleanup

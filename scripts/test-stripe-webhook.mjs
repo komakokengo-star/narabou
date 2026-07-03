@@ -75,6 +75,25 @@ async function send(kind) {
 // CI用: --expect <status> を渡すと期待コードと不一致の場合exit 1
 const expect = args.expect ? Number(args.expect) : null;
 
+async function cleanup() {
+  const ts = String(Math.floor(Date.now() / 1000));
+  const sig = crypto.createHmac("sha256", secret).update(ts).digest("hex");
+  const cleanupUrl = url.replace(/\/webhooks\/stripe$/, "/hooks/test-cleanup");
+  const res = await fetch(cleanupUrl, {
+    method: "POST",
+    headers: { "x-test-cleanup": `t=${ts},v1=${sig}` },
+  });
+  const text = await res.text();
+  console.log(`[cleanup] ${res.status} ${text}`);
+  if (res.status !== 200) process.exit(1);
+}
+
+if (caseName === "cleanup") {
+  await cleanup();
+  console.log("PASS");
+  process.exit(0);
+}
+
 let results = [];
 if (caseName === "duplicate") {
   results.push(await send("valid"));
