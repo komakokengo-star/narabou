@@ -38,6 +38,48 @@ export const WEBHOOK_LOG_SCHEMAS: Record<string, LogSchema> = {
   },
 };
 
+// Stripe Connect (受取口座) 用イベント。個人情報 (氏名/口座番号/DOB 等) は絶対に載せない。
+// 記録して良いのは actor(userId)・action種別・Stripe accountId・結果ブール・失敗理由のカテゴリのみ。
+export const CONNECT_LOG_SCHEMAS: Record<string, LogSchema> = {
+  "connect.request": {
+    required: { runId: "string", userId: "string", action: "string" },
+  },
+  "connect.forbidden": {
+    required: { runId: "string", userId: "string", action: "string", reason: "string" },
+  },
+  "connect.invalid_input": {
+    required: { runId: "string", userId: "string", action: "string", reason: "string" },
+  },
+  "connect.account_created": {
+    required: { runId: "string", userId: "string", accountId: "string", durationMs: "number" },
+  },
+  "connect.account_reused": {
+    required: { runId: "string", userId: "string", accountId: "string" },
+  },
+  "connect.link_created": {
+    required: { runId: "string", userId: "string", accountId: "string", durationMs: "number" },
+  },
+  "connect.status_refreshed": {
+    required: {
+      runId: "string", userId: "string", accountId: "string",
+      ready: "boolean", durationMs: "number",
+    },
+  },
+  "connect.stripe_error": {
+    required: { runId: "string", userId: "string", action: "string", message: "string" },
+    optional: { code: "string", stripeType: "string" },
+  },
+  "connect.db_error": {
+    required: { runId: "string", userId: "string", stage: "string", message: "string" },
+    optional: { code: "string" },
+  },
+};
+
+export const ALL_LOG_SCHEMAS: Record<string, LogSchema> = {
+  ...WEBHOOK_LOG_SCHEMAS,
+  ...CONNECT_LOG_SCHEMAS,
+};
+
 const LOG_LEVELS: LogLevel[] = ["info", "warn", "error", "debug"];
 
 export function typeOf(v: unknown): FieldType {
@@ -50,7 +92,7 @@ export function typeOf(v: unknown): FieldType {
 
 export function validateLog(
   obj: unknown,
-  schemas: Record<string, LogSchema> = WEBHOOK_LOG_SCHEMAS,
+  schemas: Record<string, LogSchema> = ALL_LOG_SCHEMAS,
 ): string[] {
   const errs: string[] = [];
   if (obj === null || typeof obj !== "object" || Array.isArray(obj)) {

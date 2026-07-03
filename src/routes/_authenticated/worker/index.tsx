@@ -78,8 +78,8 @@ function WorkerHome() {
       if (created.error) throw new Error(t("worker.account.invalidKey"));
       const link = await createAccountLink({
         data: {
-          returnUrl: `${window.location.origin}/worker?payout=ready`,
-          refreshUrl: `${window.location.origin}/worker?payout=refresh`,
+          returnPath: `/worker?payout=ready`,
+          refreshPath: `/worker?payout=refresh`,
         },
       });
       if (link.error || !link.url) throw new Error(t("worker.account.invalidKey"));
