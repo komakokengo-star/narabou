@@ -143,23 +143,81 @@ function AdminHome() {
           ))}
         </div>
 
-        <h2 className="font-medium mb-3">{t("admin.workers")}</h2>
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <h2 className="font-medium">{t("admin.workers")}</h2>
+          <Button size="sm" variant="outline" onClick={() => refetchConnect()} disabled={connectFetching}>
+            <RefreshCw className={`w-3 h-3 mr-1 ${connectFetching ? "animate-spin" : ""}`} />
+            受取口座を再同期
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+          <Card className="p-3">
+            <div className="text-[11px] text-muted-foreground flex items-center gap-1"><Circle className="w-3 h-3" />未開始</div>
+            <div className="font-serif text-xl mt-1">{connectCounts.not_started ?? 0}</div>
+          </Card>
+          <Card className="p-3">
+            <div className="text-[11px] text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3 text-amber-600" />進行中</div>
+            <div className="font-serif text-xl mt-1">{connectCounts.in_progress ?? 0}</div>
+          </Card>
+          <Card className="p-3">
+            <div className="text-[11px] text-muted-foreground flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-600" />完了</div>
+            <div className="font-serif text-xl mt-1">{connectCounts.completed ?? 0}</div>
+          </Card>
+          <Card className="p-3">
+            <div className="text-[11px] text-muted-foreground flex items-center gap-1"><AlertTriangle className="w-3 h-3 text-destructive" />エラー</div>
+            <div className="font-serif text-xl mt-1">{connectCounts.error ?? 0}</div>
+          </Card>
+        </div>
+
         <div className="grid sm:grid-cols-2 gap-3 mb-8">
-          {workers.map((w) => (
-            <Card key={w.id} className="p-4 flex items-center justify-between">
-              <div>
-                <div className="font-medium text-sm">{w.name}</div>
-                <div className="text-xs text-muted-foreground">
-                  ★{w.rating ?? "-"} ({w.rating_count ?? 0}) · Stripe {w.stripe_account_ready ? "✓" : "—"}
-                </div>
-              </div>
-              {!w.verified ? (
-                <Button size="sm" onClick={() => verify.mutate(w.id)}>{t("admin.approveVerification")}</Button>
+          {workers.map((w) => {
+            const c = connectByUser.get(w.id);
+            const status: ConnectStatus = c?.status ?? (w.stripe_account_ready ? "completed" : w.stripe_account_id ? "in_progress" : "not_started");
+            const badge =
+              status === "completed" ? (
+                <Badge className="bg-emerald-600 hover:bg-emerald-600"><CheckCircle2 className="w-3 h-3 mr-1" />完了</Badge>
+              ) : status === "in_progress" ? (
+                <Badge className="bg-amber-500 hover:bg-amber-500"><Clock className="w-3 h-3 mr-1" />進行中</Badge>
+              ) : status === "error" ? (
+                <Badge variant="destructive"><AlertTriangle className="w-3 h-3 mr-1" />エラー</Badge>
               ) : (
-                <Badge>{t("worker.verification.verified")}</Badge>
-              )}
-            </Card>
-          ))}
+                <Badge variant="outline"><Circle className="w-3 h-3 mr-1" />未開始</Badge>
+              );
+            return (
+              <Card key={w.id} className="p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="font-medium text-sm truncate">{w.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      ★{w.rating ?? "-"} ({w.rating_count ?? 0})
+                    </div>
+                  </div>
+                  {!w.verified ? (
+                    <Button size="sm" onClick={() => verify.mutate(w.id)}>{t("admin.approveVerification")}</Button>
+                  ) : (
+                    <Badge variant="secondary">{t("worker.verification.verified")}</Badge>
+                  )}
+                </div>
+                <div className="mt-3 pt-3 border-t flex items-center justify-between gap-2 flex-wrap">
+                  <div className="text-[11px] text-muted-foreground">受取口座</div>
+                  {badge}
+                </div>
+                {c && (c.status === "error" || c.status === "in_progress") && (
+                  <div className="mt-2 text-[11px] text-muted-foreground space-y-0.5">
+                    {c.disabledReason && <div>理由: {c.disabledReason}</div>}
+                    {c.errorMessage && <div>詳細: {c.errorMessage}</div>}
+                    {c.currentlyDue.length > 0 && (
+                      <div>要提出: {c.currentlyDue.slice(0, 3).join(", ")}{c.currentlyDue.length > 3 ? "…" : ""}</div>
+                    )}
+                  </div>
+                )}
+                {c?.accountId && (
+                  <div className="mt-1 text-[10px] text-muted-foreground font-mono truncate">{c.accountId}</div>
+                )}
+              </Card>
+            );
+          })}
         </div>
 
         <h2 className="font-medium mb-3">{t("admin.payments")}</h2>
