@@ -52,7 +52,7 @@ async function writeAudit(
     action,
     target_type: "stripe_connect_account",
     target_id: null,
-    details,
+    details: details as never,
   });
 }
 
