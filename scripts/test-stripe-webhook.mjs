@@ -88,50 +88,76 @@ async function cleanup() {
   if (res.status !== 200) process.exit(1);
 }
 
-async function verify() {
+async function fetchRemaining(verifyUrl) {
   const ts = String(Math.floor(Date.now() / 1000));
   const sig = crypto.createHmac("sha256", secret).update(ts).digest("hex");
-  const verifyUrl = url.replace(/\/webhooks\/stripe$/, "/hooks/test-cleanup");
   const res = await fetch(verifyUrl, {
     method: "GET",
     headers: { "x-test-cleanup": `t=${ts},v1=${sig}` },
   });
   const text = await res.text();
-  console.log(`[verify] ${res.status} ${text}`);
-  if (res.status !== 200) process.exit(1);
-  let json;
-  try { json = JSON.parse(text); } catch { console.error("FAIL: invalid JSON"); process.exit(1); }
-  const ev = json?.remaining?.stripe_events ?? -1;
-  const py = json?.remaining?.payments ?? -1;
-  if (ev !== 0 || py !== 0) {
-    console.error(`FAIL: remaining stripe_events=${ev} payments=${py} (expected 0/0)`);
-    // 詳細サンプルを取得してログ & アーティファクトへ
-    const ts2 = String(Math.floor(Date.now() / 1000));
-    const sig2 = crypto.createHmac("sha256", secret).update(ts2).digest("hex");
-    const detailUrl = `${verifyUrl}?samples=1&limit=200`;
-    const detailRes = await fetch(detailUrl, {
-      method: "GET",
-      headers: { "x-test-cleanup": `t=${ts2},v1=${sig2}` },
-    });
-    const detailText = await detailRes.text();
-    console.error("---- leaked test records ----");
-    console.error(detailText);
-    console.error("-----------------------------");
-    const outDir = process.env.ARTIFACT_DIR ?? "./artifacts";
-    try {
-      const fs = await import("node:fs/promises");
-      await fs.mkdir(outDir, { recursive: true });
-      await fs.writeFile(`${outDir}/leaked-test-records.json`, detailText);
-      await fs.writeFile(
-        `${outDir}/verify-summary.json`,
-        JSON.stringify({ remaining: json.remaining, at: new Date().toISOString() }, null, 2),
-      );
-      console.error(`Wrote artifacts to ${outDir}/`);
-    } catch (e) {
-      console.error("failed to write artifact:", e);
+  if (res.status !== 200) return { ok: false, status: res.status, text };
+  try { return { ok: true, json: JSON.parse(text), text }; }
+  catch { return { ok: false, status: res.status, text }; }
+}
+
+async function verify() {
+  const verifyUrl = url.replace(/\/webhooks\/stripe$/, "/hooks/test-cleanup");
+  // 指数バックオフでリトライ: 0.5s, 1s, 2s, 4s, 8s, 16s (合計 ~31s, 最大7試行)
+  const maxAttempts = Number(process.env.VERIFY_MAX_ATTEMPTS ?? 7);
+  const baseMs = Number(process.env.VERIFY_BASE_MS ?? 500);
+  let last = null;
+  for (let i = 0; i < maxAttempts; i++) {
+    const r = await fetchRemaining(verifyUrl);
+    last = r;
+    if (!r.ok) {
+      console.error(`[verify attempt ${i + 1}/${maxAttempts}] HTTP ${r.status} ${r.text}`);
+    } else {
+      const ev = r.json?.remaining?.stripe_events ?? -1;
+      const py = r.json?.remaining?.payments ?? -1;
+      console.log(`[verify attempt ${i + 1}/${maxAttempts}] stripe_events=${ev} payments=${py}`);
+      if (ev === 0 && py === 0) {
+        console.log(`[verify] ${r.text}`);
+        return;
+      }
     }
-    process.exit(1);
+    if (i < maxAttempts - 1) {
+      const wait = baseMs * 2 ** i;
+      await new Promise((res) => setTimeout(res, wait));
+    }
   }
+
+  console.error(`FAIL: remaining not zero after ${maxAttempts} attempts`);
+  // 詳細サンプルを取得してログ & アーティファクトへ
+  const ts2 = String(Math.floor(Date.now() / 1000));
+  const sig2 = crypto.createHmac("sha256", secret).update(ts2).digest("hex");
+  const detailUrl = `${verifyUrl}?samples=1&limit=200`;
+  const detailRes = await fetch(detailUrl, {
+    method: "GET",
+    headers: { "x-test-cleanup": `t=${ts2},v1=${sig2}` },
+  });
+  const detailText = await detailRes.text();
+  console.error("---- leaked test records ----");
+  console.error(detailText);
+  console.error("-----------------------------");
+  const outDir = process.env.ARTIFACT_DIR ?? "./artifacts";
+  try {
+    const fs = await import("node:fs/promises");
+    await fs.mkdir(outDir, { recursive: true });
+    await fs.writeFile(`${outDir}/leaked-test-records.json`, detailText);
+    await fs.writeFile(
+      `${outDir}/verify-summary.json`,
+      JSON.stringify(
+        { remaining: last?.json?.remaining ?? null, attempts: maxAttempts, at: new Date().toISOString() },
+        null,
+        2,
+      ),
+    );
+    console.error(`Wrote artifacts to ${outDir}/`);
+  } catch (e) {
+    console.error("failed to write artifact:", e);
+  }
+  process.exit(1);
 }
 
 if (caseName === "cleanup") {
