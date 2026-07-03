@@ -9,13 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from "@/components/ui/dialog";
 import { formatYen, calcFee, PLATFORM_RATE } from "@/lib/fees";
 import { toast } from "sonner";
 import { CheckCircle2, User, Landmark, Lock } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import {
-  createConnectAccount, createAccountLink, refreshConnectStatus,
-} from "@/lib/stripe-connect.functions";
+import { useEffect, useState } from "react";
+import { createConnectAccount, refreshConnectStatus } from "@/lib/stripe-connect.functions";
+import { StripeEmbeddedOnboarding } from "@/components/StripeEmbeddedOnboarding";
 
 export const Route = createFileRoute("/_authenticated/worker/")({
   component: WorkerHome,
@@ -26,8 +28,8 @@ function WorkerHome() {
   const { user } = useAuth();
   const { data: profile, refetch: refetchProfile } = useProfile(user?.id);
   const qc = useQueryClient();
-  const onboardingPopupRef = useRef<Window | null>(null);
-  const [onboardingUrl, setOnboardingUrl] = useState<string | null>(null);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+
 
   const [displayName, setDisplayName] = useState("");
   useEffect(() => { if (profile?.name) setDisplayName(profile.name); }, [profile?.name]);
@@ -74,66 +76,14 @@ function WorkerHome() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const isEmbeddedPreview = () => {
-    if (typeof window === "undefined") return false;
-    try {
-      return window.self !== window.top;
-    } catch {
-      return true;
-    }
-  };
-
-  const prepareStripeOnboardingWindow = () => {
-    if (!isEmbeddedPreview()) return null;
-    const popup = window.open("about:blank", "stripe_connect_onboarding");
-    if (popup) {
-      popup.document.title = "Stripe Connect";
-      popup.document.body.innerHTML = '<p style="font-family: system-ui, sans-serif; padding: 24px;">Stripeの登録画面を開いています…</p>';
-    }
-    return popup;
-  };
-
-  const openStripeOnboarding = (url: string) => {
-    const popup = onboardingPopupRef.current;
-    onboardingPopupRef.current = null;
-
-    if (popup && !popup.closed) {
-      popup.opener = null;
-      popup.location.href = url;
-      return;
-    }
-
-    if (isEmbeddedPreview()) {
-      const opened = window.open(url, "_blank", "noopener,noreferrer");
-      if (opened) return;
-      setOnboardingUrl(url);
-      toast.info("Stripeの登録画面を新しいタブで開いてください");
-      return;
-    }
-
-    window.location.assign(url);
-  };
-
   const startPayoutOnboarding = useMutation({
     mutationFn: async () => {
       const created = await createConnectAccount();
       if (created.error) throw new Error(created.error);
-      const link = await createAccountLink({
-        data: {
-          returnPath: `/worker?payout=ready`,
-          refreshPath: `/worker?payout=refresh`,
-        },
-      });
-      if (link.error || !link.url) throw new Error(link.error || t("worker.account.invalidKey"));
-      return link.url;
+      return true;
     },
-    onSuccess: (url) => openStripeOnboarding(url),
-    onError: (e: Error) => {
-      const popup = onboardingPopupRef.current;
-      onboardingPopupRef.current = null;
-      if (popup && !popup.closed) popup.close();
-      toast.error(e.message);
-    },
+    onSuccess: () => setOnboardingOpen(true),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const refreshPayout = useMutation({
@@ -144,6 +94,7 @@ function WorkerHome() {
       toast.success(t("worker.account.saved"));
     },
   });
+
 
   const payoutReady = !!profile?.stripe_account_ready;
   const payoutPending = !!profile?.stripe_account_id && !payoutReady;
@@ -251,9 +202,11 @@ function WorkerHome() {
                   <div className="flex gap-2 flex-wrap">
                     <Button
                       onClick={() => {
-                        setOnboardingUrl(null);
-                        onboardingPopupRef.current = prepareStripeOnboardingWindow();
-                        startPayoutOnboarding.mutate();
+                        if (profile?.stripe_account_id) {
+                          setOnboardingOpen(true);
+                        } else {
+                          startPayoutOnboarding.mutate();
+                        }
                       }}
                       disabled={startPayoutOnboarding.isPending}
                     >
@@ -264,15 +217,9 @@ function WorkerHome() {
                         {t("worker.account.refresh")}
                       </Button>
                     )}
-                    {onboardingUrl && (
-                      <Button variant="outline" asChild>
-                        <a href={onboardingUrl} target="_blank" rel="noopener noreferrer">
-                          登録画面を開く
-                        </a>
-                      </Button>
-                    )}
                   </div>
                 )}
+
 
                 <div className="flex items-center gap-1.5 mt-3 text-[11px] text-muted-foreground">
                   <Lock className="w-3 h-3" />
@@ -336,6 +283,39 @@ function WorkerHome() {
           })}
         </div>
       </main>
+
+      <Dialog
+        open={onboardingOpen}
+        onOpenChange={(o) => {
+          setOnboardingOpen(o);
+          if (!o) {
+            refreshConnectStatus().then((r) => {
+              if (!r.error) refetchProfile();
+            });
+          }
+        }}
+      >
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>受取口座の登録</DialogTitle>
+            <DialogDescription>
+              Stripe（決済パートナー）の安全なフォームで、本人確認と受取口座情報を入力してください。
+            </DialogDescription>
+          </DialogHeader>
+          {onboardingOpen && (
+            <StripeEmbeddedOnboarding
+              onExit={() => {
+                setOnboardingOpen(false);
+                refreshConnectStatus().then((r) => {
+                  if (!r.error) refetchProfile();
+                });
+              }}
+              onError={(msg) => toast.error(msg)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
+
 }
