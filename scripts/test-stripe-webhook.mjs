@@ -101,13 +101,77 @@ async function fetchRemaining(verifyUrl) {
   catch { return { ok: false, status: res.status, text }; }
 }
 
+// ---- structured log schema ----
+// event ごとに必須フィールドと型を定義。追加フィールドは許可。
+const LOG_SCHEMAS = {
+  "verify.attempt": {
+    required: {
+      runId: "string", attempt: "number", maxAttempts: "number",
+      durationMs: "number", ok: "boolean",
+    },
+    optional: {
+      httpStatus: "number", body: "string", passed: "boolean",
+      remaining: "object",
+    },
+  },
+  "verify.backoff": {
+    required: {
+      runId: "string", attempt: "number", nextAttempt: "number",
+      waitMs: "number", capMs: "number",
+    },
+  },
+  "verify.pass": {
+    required: { runId: "string", attempts: "number" },
+  },
+  "verify.fail": {
+    required: { runId: "string", attempts: "number" },
+    optional: { remaining: "object" },
+  },
+};
+
+function typeOf(v) {
+  if (v === null) return "null";
+  if (Array.isArray(v)) return "array";
+  return typeof v;
+}
+
+function validateLog(obj) {
+  const errs = [];
+  for (const k of ["ts", "level", "event"]) {
+    if (typeof obj[k] !== "string") errs.push(`missing/invalid ${k}`);
+  }
+  if (obj.level && !["info", "warn", "error", "debug"].includes(obj.level)) {
+    errs.push(`invalid level: ${obj.level}`);
+  }
+  if (obj.ts && Number.isNaN(Date.parse(obj.ts))) errs.push(`invalid ts: ${obj.ts}`);
+  const schema = LOG_SCHEMAS[obj.event];
+  if (!schema) {
+    errs.push(`unknown event: ${obj.event}`);
+  } else {
+    for (const [k, t] of Object.entries(schema.required)) {
+      if (!(k in obj)) { errs.push(`missing required ${k}`); continue; }
+      const actual = typeOf(obj[k]);
+      const expected = t === "object" ? ["object"] : [t];
+      if (!expected.includes(actual)) errs.push(`${k}: expected ${t}, got ${actual}`);
+    }
+    for (const [k, t] of Object.entries(schema.optional ?? {})) {
+      if (k in obj && obj[k] !== null && typeOf(obj[k]) !== t) {
+        errs.push(`${k}: expected ${t}, got ${typeOf(obj[k])}`);
+      }
+    }
+  }
+  return errs;
+}
+
 function logJson(level, event, fields) {
-  const line = JSON.stringify({
-    ts: new Date().toISOString(),
-    level,
-    event,
-    ...fields,
-  });
+  const record = { ts: new Date().toISOString(), level, event, ...fields };
+  const errs = validateLog(record);
+  if (errs.length) {
+    const err = { ts: new Date().toISOString(), level: "error", event: "log.schema_violation", violations: errs, record };
+    console.error(JSON.stringify(err));
+    process.exit(1);
+  }
+  const line = JSON.stringify(record);
   (level === "error" ? console.error : console.log)(line);
 }
 
