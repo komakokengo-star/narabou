@@ -66,8 +66,12 @@ export const Route = createFileRoute("/api/public/hooks/test-cleanup")({
         const bad = verifySignature(request, secret);
         if (bad) return bad;
 
+        const url = new URL(request.url);
+        const withSamples = url.searchParams.get("samples") === "1";
+        const limit = Math.min(Number(url.searchParams.get("limit") ?? 50), 200);
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const [ev, py] = await Promise.all([
+        const [ev, py, evRows, pyRows] = await Promise.all([
           supabaseAdmin
             .from("stripe_events")
             .select("id", { count: "exact", head: true })
@@ -76,6 +80,20 @@ export const Route = createFileRoute("/api/public/hooks/test-cleanup")({
             .from("payments")
             .select("id", { count: "exact", head: true })
             .like("stripe_payment_intent_id", "pi_test_%"),
+          withSamples
+            ? supabaseAdmin
+                .from("stripe_events")
+                .select("*")
+                .like("id", "evt_test_%")
+                .limit(limit)
+            : Promise.resolve({ data: null, error: null }),
+          withSamples
+            ? supabaseAdmin
+                .from("payments")
+                .select("*")
+                .like("stripe_payment_intent_id", "pi_test_%")
+                .limit(limit)
+            : Promise.resolve({ data: null, error: null }),
         ]);
         if (ev.error || py.error) {
           return new Response(
@@ -87,6 +105,9 @@ export const Route = createFileRoute("/api/public/hooks/test-cleanup")({
           JSON.stringify({
             ok: true,
             remaining: { stripe_events: ev.count ?? 0, payments: py.count ?? 0 },
+            samples: withSamples
+              ? { stripe_events: evRows.data ?? [], payments: pyRows.data ?? [] }
+              : undefined,
           }),
           { status: 200, headers: { "content-type": "application/json" } },
         );

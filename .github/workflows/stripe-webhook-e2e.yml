@@ -59,4 +59,15 @@ jobs:
 
       - name: Verify cleanup (evt_test_* / pi_test_* == 0)
         if: always()
+        env:
+          ARTIFACT_DIR: ${{ github.workspace }}/artifacts
         run: node scripts/test-stripe-webhook.mjs --url "$WEBHOOK_URL" --case verify
+
+      - name: Upload leaked test records artifact
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stripe-webhook-e2e-leaks
+          path: ${{ github.workspace }}/artifacts
+          if-no-files-found: ignore
+          retention-days: 7

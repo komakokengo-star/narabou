@@ -105,6 +105,31 @@ async function verify() {
   const py = json?.remaining?.payments ?? -1;
   if (ev !== 0 || py !== 0) {
     console.error(`FAIL: remaining stripe_events=${ev} payments=${py} (expected 0/0)`);
+    // 詳細サンプルを取得してログ & アーティファクトへ
+    const ts2 = String(Math.floor(Date.now() / 1000));
+    const sig2 = crypto.createHmac("sha256", secret).update(ts2).digest("hex");
+    const detailUrl = `${verifyUrl}?samples=1&limit=200`;
+    const detailRes = await fetch(detailUrl, {
+      method: "GET",
+      headers: { "x-test-cleanup": `t=${ts2},v1=${sig2}` },
+    });
+    const detailText = await detailRes.text();
+    console.error("---- leaked test records ----");
+    console.error(detailText);
+    console.error("-----------------------------");
+    const outDir = process.env.ARTIFACT_DIR ?? "./artifacts";
+    try {
+      const fs = await import("node:fs/promises");
+      await fs.mkdir(outDir, { recursive: true });
+      await fs.writeFile(`${outDir}/leaked-test-records.json`, detailText);
+      await fs.writeFile(
+        `${outDir}/verify-summary.json`,
+        JSON.stringify({ remaining: json.remaining, at: new Date().toISOString() }, null, 2),
+      );
+      console.error(`Wrote artifacts to ${outDir}/`);
+    } catch (e) {
+      console.error("failed to write artifact:", e);
+    }
     process.exit(1);
   }
 }
