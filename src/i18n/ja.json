@@ -131,7 +131,9 @@
       "create": "Stripe アカウントを作成",
       "onboard": "オンボーディングを開始",
       "ready": "Stripe アカウント準備完了",
-      "open": "Stripe ダッシュボードを開く"
+      "open": "Stripe ダッシュボードを開く",
+      "keyHelp": "接続エラーが出る場合は、Stripe のシークレットキーが sk_test_ または sk_live_ で始まる正しい値か確認してください。",
+      "invalidKey": "Stripe のシークレットキーが無効です。sk_test_ または sk_live_ で始まる正しいキーを保存してから再度お試しください。"
     },
     "verification": {
       "title": "本人確認",

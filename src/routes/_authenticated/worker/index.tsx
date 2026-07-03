@@ -61,21 +61,30 @@ function WorkerHome() {
 
   const stripeCreate = useMutation({
     mutationFn: async () => {
-      await createConnectAccount();
-      const { url } = await createAccountLink({
+      const created = await createConnectAccount();
+      if (created.error) throw new Error(t("worker.stripe.invalidKey"));
+      const link = await createAccountLink({
         data: {
           returnUrl: `${window.location.origin}/worker?stripe=ready`,
           refreshUrl: `${window.location.origin}/worker?stripe=refresh`,
         },
       });
-      window.location.href = url;
+      if (link.error || !link.url) throw new Error(t("worker.stripe.invalidKey"));
+      window.location.href = link.url;
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const stripeRefresh = useMutation({
     mutationFn: () => refreshConnectStatus(),
-    onSuccess: () => { refetchProfile(); toast.success("更新しました"); },
+    onSuccess: (r) => {
+      if (r.error) {
+        toast.error(t("worker.stripe.invalidKey"));
+        return;
+      }
+      refetchProfile();
+      toast.success("更新しました");
+    },
   });
 
   return (
@@ -91,6 +100,7 @@ function WorkerHome() {
           ) : (
             <>
               <p className="text-sm text-muted-foreground mb-3">{t("worker.stripe.notReady")}</p>
+              <p className="text-xs text-muted-foreground mb-3">{t("worker.stripe.keyHelp")}</p>
               <div className="flex gap-2 flex-wrap">
                 <Button onClick={() => stripeCreate.mutate()} disabled={stripeCreate.isPending}>
                   {profile?.stripe_account_id ? t("worker.stripe.onboard") : t("worker.stripe.create")}
