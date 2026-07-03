@@ -69,12 +69,27 @@ async function send(kind) {
   const res = await fetch(url, { method: "POST", headers, body });
   const text = await res.text();
   console.log(`[${kind}] ${res.status} ${text}  event=${eventId}`);
-  return res;
+  return { status: res.status, text };
 }
 
+// CI用: --expect <status> を渡すと期待コードと不一致の場合exit 1
+const expect = args.expect ? Number(args.expect) : null;
+
+let results = [];
 if (caseName === "duplicate") {
-  await send("valid");
-  await send("valid"); // 同じeventIdで再送
+  results.push(await send("valid"));
+  results.push(await send("valid"));
+  // 1回目は200 ok、2回目は200 duplicate
+  if (results[0].status !== 200 || results[1].status !== 200 || !results[1].text.includes("duplicate")) {
+    console.error("FAIL: duplicate event should return 200 duplicate on second call");
+    process.exit(1);
+  }
 } else {
-  await send(caseName);
+  const r = await send(caseName);
+  results.push(r);
+  if (expect !== null && r.status !== expect) {
+    console.error(`FAIL: expected ${expect}, got ${r.status}`);
+    process.exit(1);
+  }
 }
+console.log("PASS");
