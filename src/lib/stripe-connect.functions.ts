@@ -314,3 +314,100 @@ export const refreshConnectStatus = createServerFn({ method: "POST" })
     });
     return { ready, error: null };
   });
+
+// 管理者向け: 全代行者のStripe Connectアカウント状態を取得
+export type ConnectStatus = "not_started" | "in_progress" | "completed" | "error";
+export type AdminConnectRow = {
+  userId: string;
+  accountId: string | null;
+  status: ConnectStatus;
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+  detailsSubmitted: boolean;
+  disabledReason: string | null;
+  currentlyDue: string[];
+  errorMessage: string | null;
+};
+
+export const adminListConnectStatuses = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ rows: AdminConnectRow[]; error: string | null }> => {
+    const runId = crypto.randomUUID();
+    const userId = context.userId;
+    logJson("info", "connect.request", { runId, userId, action: "admin_list_statuses" });
+
+    // 管理者のみ
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    });
+    if (isAdmin !== true) {
+      logJson("warn", "connect.forbidden", {
+        runId, userId, action: "admin_list_statuses", reason: "not_admin",
+      });
+      return { rows: [], error: FORBIDDEN_ERROR };
+    }
+
+    const { getStripe, validateStripeSecretKey } = await import("@/lib/stripe.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const validation = validateStripeSecretKey(process.env.STRIPE_SECRET_KEY);
+    if (!validation.ok) {
+      return { rows: [], error: SETUP_ERROR };
+    }
+    const stripe = getStripe();
+
+    // 全workerロールのユーザーIDを取得
+    const { data: roles } = await supabaseAdmin
+      .from("user_roles").select("user_id").eq("role", "worker");
+    const ids = (roles ?? []).map((r) => r.user_id);
+    if (ids.length === 0) return { rows: [], error: null };
+
+    const { data: profiles } = await supabaseAdmin
+      .from("profiles").select("id, stripe_account_id, stripe_account_ready").in("id", ids);
+
+    const rows: AdminConnectRow[] = [];
+    for (const p of profiles ?? []) {
+      const accountId = p.stripe_account_id ?? null;
+      if (!accountId) {
+        rows.push({
+          userId: p.id, accountId: null, status: "not_started",
+          chargesEnabled: false, payoutsEnabled: false, detailsSubmitted: false,
+          disabledReason: null, currentlyDue: [], errorMessage: null,
+        });
+        continue;
+      }
+      try {
+        const acc = await stripe.accounts.retrieve(accountId);
+        const chargesEnabled = !!acc.charges_enabled;
+        const payoutsEnabled = !!acc.payouts_enabled;
+        const detailsSubmitted = !!acc.details_submitted;
+        const disabledReason = acc.requirements?.disabled_reason ?? null;
+        const currentlyDue = (acc.requirements?.currently_due ?? []) as string[];
+        const errors = (acc.requirements?.errors ?? []) as Array<{ reason?: string }>;
+        let status: ConnectStatus;
+        if (chargesEnabled && payoutsEnabled) status = "completed";
+        else if (disabledReason || errors.length > 0) status = "error";
+        else status = "in_progress";
+        rows.push({
+          userId: p.id, accountId, status,
+          chargesEnabled, payoutsEnabled, detailsSubmitted,
+          disabledReason, currentlyDue,
+          errorMessage: errors[0]?.reason ?? null,
+        });
+      } catch (e) {
+        const se = e as StripeErr;
+        logJson("error", "connect.stripe_error", {
+          runId, userId, action: "admin_list_statuses",
+          message: se.message ?? "unknown", code: se.code ?? "unknown",
+          stripeType: se.type ?? "unknown",
+        });
+        rows.push({
+          userId: p.id, accountId, status: "error",
+          chargesEnabled: false, payoutsEnabled: !!p.stripe_account_ready,
+          detailsSubmitted: false, disabledReason: null, currentlyDue: [],
+          errorMessage: "Stripeからのアカウント情報取得に失敗しました",
+        });
+      }
+    }
+    return { rows, error: null };
+  });
