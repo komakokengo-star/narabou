@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthResetRouteImport } from './routes/auth.reset'
+import { Route as AuthForgotRouteImport } from './routes/auth.forgot'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedWorkerIndexRouteImport } from './routes/_authenticated/worker/index'
 import { Route as AuthenticatedCustomerIndexRouteImport } from './routes/_authenticated/customer/index'
@@ -35,6 +37,16 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthResetRoute = AuthResetRouteImport.update({
+  id: '/reset',
+  path: '/reset',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthForgotRoute = AuthForgotRouteImport.update({
+  id: '/forgot',
+  path: '/forgot',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
@@ -89,8 +101,10 @@ const AuthenticatedCustomerRequestIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/auth/forgot': typeof AuthForgotRoute
+  '/auth/reset': typeof AuthResetRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/troubles': typeof AuthenticatedAdminTroublesRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -102,8 +116,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/auth/forgot': typeof AuthForgotRoute
+  '/auth/reset': typeof AuthResetRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/troubles': typeof AuthenticatedAdminTroublesRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -117,8 +133,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/auth/forgot': typeof AuthForgotRoute
+  '/auth/reset': typeof AuthResetRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/_authenticated/admin/troubles': typeof AuthenticatedAdminTroublesRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -134,6 +152,8 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/auth/forgot'
+    | '/auth/reset'
     | '/admin/audit'
     | '/admin/troubles'
     | '/admin/'
@@ -147,6 +167,8 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/dashboard'
+    | '/auth/forgot'
+    | '/auth/reset'
     | '/admin/audit'
     | '/admin/troubles'
     | '/admin'
@@ -161,6 +183,8 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/dashboard'
+    | '/auth/forgot'
+    | '/auth/reset'
     | '/_authenticated/admin/audit'
     | '/_authenticated/admin/troubles'
     | '/_authenticated/admin/'
@@ -174,7 +198,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AuthRoute: typeof AuthRoute
+  AuthRoute: typeof AuthRouteWithChildren
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
 }
 
@@ -200,6 +224,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/auth/reset': {
+      id: '/auth/reset'
+      path: '/reset'
+      fullPath: '/auth/reset'
+      preLoaderRoute: typeof AuthResetRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/auth/forgot': {
+      id: '/auth/forgot'
+      path: '/forgot'
+      fullPath: '/auth/forgot'
+      preLoaderRoute: typeof AuthForgotRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
@@ -292,10 +330,22 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface AuthRouteChildren {
+  AuthForgotRoute: typeof AuthForgotRoute
+  AuthResetRoute: typeof AuthResetRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthForgotRoute: AuthForgotRoute,
+  AuthResetRoute: AuthResetRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AuthRoute: AuthRoute,
+  AuthRoute: AuthRouteWithChildren,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
 }
 export const routeTree = rootRouteImport
