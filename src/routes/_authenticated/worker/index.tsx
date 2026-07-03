@@ -76,66 +76,14 @@ function WorkerHome() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const isEmbeddedPreview = () => {
-    if (typeof window === "undefined") return false;
-    try {
-      return window.self !== window.top;
-    } catch {
-      return true;
-    }
-  };
-
-  const prepareStripeOnboardingWindow = () => {
-    if (!isEmbeddedPreview()) return null;
-    const popup = window.open("about:blank", "stripe_connect_onboarding");
-    if (popup) {
-      popup.document.title = "Stripe Connect";
-      popup.document.body.innerHTML = '<p style="font-family: system-ui, sans-serif; padding: 24px;">Stripeの登録画面を開いています…</p>';
-    }
-    return popup;
-  };
-
-  const openStripeOnboarding = (url: string) => {
-    const popup = onboardingPopupRef.current;
-    onboardingPopupRef.current = null;
-
-    if (popup && !popup.closed) {
-      popup.opener = null;
-      popup.location.href = url;
-      return;
-    }
-
-    if (isEmbeddedPreview()) {
-      const opened = window.open(url, "_blank", "noopener,noreferrer");
-      if (opened) return;
-      setOnboardingUrl(url);
-      toast.info("Stripeの登録画面を新しいタブで開いてください");
-      return;
-    }
-
-    window.location.assign(url);
-  };
-
   const startPayoutOnboarding = useMutation({
     mutationFn: async () => {
       const created = await createConnectAccount();
       if (created.error) throw new Error(created.error);
-      const link = await createAccountLink({
-        data: {
-          returnPath: `/worker?payout=ready`,
-          refreshPath: `/worker?payout=refresh`,
-        },
-      });
-      if (link.error || !link.url) throw new Error(link.error || t("worker.account.invalidKey"));
-      return link.url;
+      return true;
     },
-    onSuccess: (url) => openStripeOnboarding(url),
-    onError: (e: Error) => {
-      const popup = onboardingPopupRef.current;
-      onboardingPopupRef.current = null;
-      if (popup && !popup.closed) popup.close();
-      toast.error(e.message);
-    },
+    onSuccess: () => setOnboardingOpen(true),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const refreshPayout = useMutation({
@@ -146,6 +94,7 @@ function WorkerHome() {
       toast.success(t("worker.account.saved"));
     },
   });
+
 
   const payoutReady = !!profile?.stripe_account_ready;
   const payoutPending = !!profile?.stripe_account_id && !payoutReady;
