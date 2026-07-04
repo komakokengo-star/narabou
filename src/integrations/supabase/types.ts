@@ -182,10 +182,12 @@ export type Database = {
           id: string
           id_photo_url: string | null
           name: string
+          phone: string | null
           rating: number | null
           rating_count: number | null
           stripe_account_id: string | null
           stripe_account_ready: boolean | null
+          terms_accepted_at: string | null
           verified: boolean | null
         }
         Insert: {
@@ -193,10 +195,12 @@ export type Database = {
           id: string
           id_photo_url?: string | null
           name?: string
+          phone?: string | null
           rating?: number | null
           rating_count?: number | null
           stripe_account_id?: string | null
           stripe_account_ready?: boolean | null
+          terms_accepted_at?: string | null
           verified?: boolean | null
         }
         Update: {
@@ -204,10 +208,12 @@ export type Database = {
           id?: string
           id_photo_url?: string | null
           name?: string
+          phone?: string | null
           rating?: number | null
           rating_count?: number | null
           stripe_account_id?: string | null
           stripe_account_ready?: boolean | null
+          terms_accepted_at?: string | null
           verified?: boolean | null
         }
         Relationships: []
