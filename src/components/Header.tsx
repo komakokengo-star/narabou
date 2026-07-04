@@ -67,7 +67,7 @@ export function Header() {
                 <Button variant="ghost" size="sm" className="gap-2">
                   <UserIcon className="w-4 h-4" />
                   <span className="hidden sm:inline text-xs text-muted-foreground">
-                    {roles?.join(" / ")}
+                    {roles?.map((r) => t(`role.${r}`)).join(" / ")}
                   </span>
                 </Button>
               </DropdownMenuTrigger>
