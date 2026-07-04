@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/auth/forgot")({
+export const Route = createFileRoute("/auth_/forgot")({
   ssr: false,
   component: ForgotPage,
 });
