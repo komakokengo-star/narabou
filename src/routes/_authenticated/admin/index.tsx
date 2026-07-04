@@ -133,7 +133,7 @@ function AdminHome() {
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="secondary">{t(`request.status.${r.status}`)}</Badge>
-                {r.is_peak && <Badge>PEAK</Badge>}
+                {r.is_peak && <Badge>ピーク</Badge>}
                 <Button size="sm" variant="outline" onClick={() => togglePeak.mutate(r)}>{t("admin.togglePeak")}</Button>
                 {r.status !== "canceled" && r.status !== "completed" && (
                   <Button size="sm" variant="destructive" onClick={() => forceCancel.mutate(r.id)}>{t("admin.forceCancel")}</Button>
