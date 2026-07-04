@@ -22,6 +22,8 @@ if (!i18n.isInitialized) {
     fallbackLng: "ja",
     supportedLngs: ["ja", "en"],
     interpolation: { escapeValue: false },
+    // synchronous init so isInitialized=true before first render (SSR + client)
+    initAsync: false,
     react: { useSuspense: false },
   });
 }
