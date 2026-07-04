@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
@@ -25,6 +26,8 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -39,16 +42,30 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        if (!agreed) {
+          toast.error(t("auth.termsRequired"));
+          setLoading(false);
+          return;
+        }
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/dashboard`,
-            data: { name },
+            data: {
+              name,
+              phone: phone.trim(),
+              terms_accepted: "true",
+            },
           },
         });
         if (error) throw error;
-        toast.success(t("auth.success"));
+        if (!data.session) {
+          toast.success(t("auth.signupCheckEmail"), { duration: 8000 });
+          setMode("login");
+        } else {
+          toast.success(t("auth.success"));
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -70,10 +87,27 @@ function AuthPage() {
           <h1 className="font-serif text-2xl mb-6">{t("auth.title")}</h1>
           <form onSubmit={submit} className="space-y-4">
             {mode === "signup" && (
-              <div>
-                <Label htmlFor="name">{t("auth.name")}</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required minLength={1} maxLength={60} />
-              </div>
+              <>
+                <div>
+                  <Label htmlFor="name">{t("auth.name")}</Label>
+                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required minLength={1} maxLength={60} />
+                </div>
+                <div>
+                  <Label htmlFor="phone">{t("auth.phone")}</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    inputMode="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    minLength={10}
+                    maxLength={20}
+                    pattern="[0-9\-\+\(\)\s]{10,20}"
+                    placeholder={t("auth.phonePlaceholder")}
+                  />
+                </div>
+              </>
             )}
             <div>
               <Label htmlFor="email">{t("auth.email")}</Label>
@@ -83,6 +117,17 @@ function AuthPage() {
               <Label htmlFor="password">{t("auth.password")}</Label>
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
             </div>
+            {mode === "signup" && (
+              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                <Checkbox
+                  checked={agreed}
+                  onCheckedChange={(v) => setAgreed(v === true)}
+                  className="mt-0.5"
+                  aria-required
+                />
+                <span>{t("auth.termsAgree")}</span>
+              </label>
+            )}
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? t("common.loading") : mode === "signup" ? t("auth.signup") : t("auth.login")}
             </Button>
@@ -107,3 +152,4 @@ function AuthPage() {
     </div>
   );
 }
+
