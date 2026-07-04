@@ -25,31 +25,31 @@ export const SignupEmail = ({
   recipient,
   confirmationUrl,
 }: SignupEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="ja" dir="ltr">
     <Head />
-    <Preview>Confirm your email for {siteName}</Preview>
+    <Preview>{siteName} のメールアドレス確認</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Confirm your email</Heading>
+        <Heading style={h1}>メールアドレスの確認</Heading>
         <Text style={text}>
-          Thanks for signing up for{' '}
+          {' '}
           <Link href={siteUrl} style={link}>
             <strong>{siteName}</strong>
           </Link>
-          !
+          にご登録いただきありがとうございます。
         </Text>
         <Text style={text}>
-          Please confirm your email address (
+          メールアドレス（
           <Link href={`mailto:${recipient}`} style={link}>
             {recipient}
           </Link>
-          ) by clicking the button below:
+          ）を確認するため、下のボタンを押してください。
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Verify Email
+          メールアドレスを確認する
         </Button>
         <Text style={footer}>
-          If you didn't create an account, you can safely ignore this email.
+          このメールに心当たりがない場合は、破棄してください。
         </Text>
       </Container>
     </Body>

@@ -7,6 +7,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { I18nextProvider } from "react-i18next";
 
 import "@fontsource/noto-sans-jp/400.css";
 import "@fontsource/noto-sans-jp/500.css";
@@ -14,10 +15,29 @@ import "@fontsource/noto-sans-jp/700.css";
 import "@fontsource/noto-serif-jp/600.css";
 import "@fontsource/noto-serif-jp/700.css";
 
-import "../i18n";
+import appI18n from "../i18n";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { supabase } from "@/integrations/supabase/client";
+
+const recoveryRedirectScript = `
+(function () {
+  try {
+    var params = new URLSearchParams(window.location.search);
+    if (window.location.hash && window.location.hash.length > 1) {
+      new URLSearchParams(window.location.hash.slice(1)).forEach(function (value, key) {
+        if (!params.has(key)) params.set(key, value);
+      });
+    }
+    var isRecovery = params.get("type") === "recovery" || params.get("redirect_type") === "recovery";
+    var hasResetToken = params.has("access_token") || params.has("refresh_token") || params.has("token_hash") || params.has("token");
+    if (window.location.pathname === "/" && isRecovery && hasResetToken) {
+      window.location.replace("/auth/reset" + window.location.search + window.location.hash);
+    }
+  } catch (_) {}
+})();
+`;
 
 function NotFoundComponent() {
   return (
@@ -83,17 +103,34 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="ja">
       <head><HeadContent /></head>
-      <body>{children}<Scripts /></body>
+      <body>
+        <script dangerouslySetInnerHTML={{ __html: recoveryRedirectScript }} />
+        {children}
+        <Scripts />
+      </body>
     </html>
   );
 }
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        router.navigate({ to: "/auth/reset" });
+      }
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [router]);
+
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
-      <Toaster richColors position="top-center" />
+      <I18nextProvider i18n={appI18n}>
+        <Outlet />
+        <Toaster richColors position="top-center" />
+      </I18nextProvider>
     </QueryClientProvider>
   );
 }

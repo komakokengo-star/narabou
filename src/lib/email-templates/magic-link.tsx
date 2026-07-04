@@ -20,21 +20,20 @@ export const MagicLinkEmail = ({
   siteName,
   confirmationUrl,
 }: MagicLinkEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="ja" dir="ltr">
     <Head />
-    <Preview>Your login link for {siteName}</Preview>
+    <Preview>{siteName} のログインリンク</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Your login link</Heading>
+        <Heading style={h1}>ログインリンク</Heading>
         <Text style={text}>
-          Click the button below to log in to {siteName}. This link will expire
-          shortly.
+          下のボタンから {siteName} にログインできます。このリンクは一定時間で期限切れになります。
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Log In
+          ログインする
         </Button>
         <Text style={footer}>
-          If you didn't request this link, you can safely ignore this email.
+          このメールに心当たりがない場合は、破棄してください。
         </Text>
       </Container>
     </Body>

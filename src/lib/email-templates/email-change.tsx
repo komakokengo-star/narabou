@@ -30,32 +30,31 @@ export const EmailChangeEmail = ({
   newEmail,
   confirmationUrl,
 }: EmailChangeEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="ja" dir="ltr">
     <Head />
-    <Preview>Confirm your email change for {siteName}</Preview>
+    <Preview>{siteName} のメールアドレス変更確認</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Confirm your email change</Heading>
+        <Heading style={h1}>メールアドレス変更の確認</Heading>
         <Text style={text}>
-          You requested to change your email address for {siteName} from{' '}
+          {siteName} のメールアドレスを{' '}
           <Link href={`mailto:${oldEmail}`} style={link}>
             {oldEmail}
           </Link>{' '}
-          to{' '}
+          から{' '}
           <Link href={`mailto:${newEmail}`} style={link}>
             {newEmail}
           </Link>
-          .
+          へ変更するリクエストを受け付けました。
         </Text>
         <Text style={text}>
-          Click the button below to confirm this change:
+          下のボタンを押して変更を確認してください。
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Confirm Email Change
+          メールアドレス変更を確認する
         </Button>
         <Text style={footer}>
-          If you didn't request this change, please secure your account
-          immediately.
+          このメールに心当たりがない場合は、アカウントの安全を確認してください。
         </Text>
       </Container>
     </Body>

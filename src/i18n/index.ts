@@ -4,15 +4,7 @@ import ja from "./ja.json";
 import en from "./en.json";
 
 function detectInitialLanguage(): "ja" | "en" {
-  if (typeof window === "undefined") return "ja";
-  try {
-    const stored = window.localStorage.getItem("i18nextLng");
-    if (stored === "ja" || stored === "en") return stored;
-  } catch {
-    // ignore
-  }
-  const nav = window.navigator?.language ?? "ja";
-  return nav.toLowerCase().startsWith("en") ? "en" : "ja";
+  return "ja";
 }
 
 if (!i18n.isInitialized) {
@@ -20,6 +12,7 @@ if (!i18n.isInitialized) {
     resources: { ja: { translation: ja }, en: { translation: en } },
     lng: detectInitialLanguage(),
     fallbackLng: "ja",
+    defaultNS: "translation",
     supportedLngs: ["ja", "en"],
     interpolation: { escapeValue: false },
     // synchronous init so isInitialized=true before first render (SSR + client)

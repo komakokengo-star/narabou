@@ -12,12 +12,12 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Confirm your email',
-  invite: "You've been invited",
-  magiclink: 'Your login link',
-  recovery: 'Reset your password',
-  email_change: 'Confirm your new email',
-  reauthentication: 'Your verification code',
+  signup: 'メールアドレスの確認',
+  invite: '招待が届いています',
+  magiclink: 'ログインリンク',
+  recovery: 'パスワード再設定',
+  email_change: 'メールアドレス変更の確認',
+  reauthentication: '確認コード',
 }
 
 // Template mapping
@@ -31,7 +31,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "Fukuoka Queue Buddy"
+const SITE_NAME = "福岡行列代行"
 const SENDER_DOMAIN = "notify.narabou.jp"
 const ROOT_DOMAIN = "narabou.jp"
 const FROM_DOMAIN = "narabou.jp"

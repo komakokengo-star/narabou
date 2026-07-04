@@ -23,22 +23,50 @@ function ResetPage() {
   const [invalid, setInvalid] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+    const params = new URLSearchParams(window.location.search);
+    if (window.location.hash && window.location.hash.length > 1) {
+      new URLSearchParams(window.location.hash.slice(1)).forEach((value, key) => {
+        if (!params.has(key)) params.set(key, value);
+      });
+    }
+    const tokenHash = params.get("token_hash") ?? params.get("token");
+    const isRecovery = params.get("type") === "recovery" || params.get("redirect_type") === "recovery";
+
     // Supabase auto-parses the recovery link hash and fires PASSWORD_RECOVERY event.
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
       if (event === "PASSWORD_RECOVERY" || session) setReady(true);
     });
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setReady(true);
+
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!mounted) return;
+      if (data.session) {
+        setReady(true);
+      } else if (isRecovery && tokenHash) {
+        const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "recovery" });
+        if (!mounted) return;
+        if (error) {
+          setInvalid(true);
+        } else {
+          window.history.replaceState(window.history.state, "", "/auth/reset");
+          setReady(true);
+        }
+      }
       else {
         // Give the client a beat to parse the URL fragment; if still no session, link is invalid.
         setTimeout(() => {
           supabase.auth.getSession().then(({ data: d2 }) => {
+            if (!mounted) return;
             if (!d2.session) setInvalid(true);
           });
         }, 800);
       }
     });
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const submit = async (e: React.FormEvent) => {
