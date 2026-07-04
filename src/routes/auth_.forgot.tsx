@@ -24,8 +24,12 @@ function ForgotPage() {
     e.preventDefault();
     setLoading(true);
     try {
+      // Supabase の許可リストに登録された Site URL (公開URL) を使う。
+      // プレビューURLを渡すと許可リスト外で / にフォールバックされ、
+      // メールリンクが「プロキシエラー 404」または TOP に飛ぶ原因になる。
+      const resetOrigin = "https://narabou.lovable.app";
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset`,
+        redirectTo: `${resetOrigin}/auth/reset`,
       });
       if (error) throw error;
       setSent(true);
