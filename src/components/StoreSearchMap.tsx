@@ -209,7 +209,7 @@ export function StoreSearchMap({ storeName, storeAddress, onChange }: Props) {
       />
       {error && <p className="text-xs text-destructive">{error}</p>}
       {!BROWSER_KEY && (
-        <p className="text-xs text-destructive">Google Maps API key is not configured.</p>
+        <p className="text-xs text-destructive">Google マップの APIキーが設定されていません。</p>
       )}
     </div>
   );
