@@ -31,7 +31,7 @@ export function Header() {
           </div>
           <div className="leading-tight">
             <div className="font-serif font-semibold text-base">{t("app.name")}</div>
-            <div className="text-[10px] text-muted-foreground hidden sm:block">beta</div>
+            <div className="text-[10px] text-muted-foreground hidden sm:block">ベータ版</div>
           </div>
         </Link>
 
@@ -67,7 +67,7 @@ export function Header() {
                 <Button variant="ghost" size="sm" className="gap-2">
                   <UserIcon className="w-4 h-4" />
                   <span className="hidden sm:inline text-xs text-muted-foreground">
-                    {roles?.join(" / ")}
+                    {roles?.map((r) => t(`role.${r}`)).join(" / ")}
                   </span>
                 </Button>
               </DropdownMenuTrigger>

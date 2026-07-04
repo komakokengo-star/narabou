@@ -24,7 +24,7 @@ function Landing() {
       <main className="flex-1">
         <section className="container mx-auto px-4 pt-16 pb-12 sm:pt-24 sm:pb-20">
           <div className="max-w-3xl">
-            <p className="text-xs tracking-[0.3em] text-primary uppercase mb-4">Fukuoka · Beta</p>
+            <p className="text-xs tracking-[0.3em] text-primary uppercase mb-4">福岡 · ベータ版</p>
             <h1 className="font-serif text-4xl sm:text-6xl font-bold leading-tight">
               {t("app.name")}
             </h1>
