@@ -35,12 +35,52 @@ const SITE_NAME = "福岡行列代行"
 const SENDER_DOMAIN = "notify.narabou.jp"
 const ROOT_DOMAIN = "narabou.jp"
 const FROM_DOMAIN = "narabou.jp"
+const PUBLIC_APP_URL = "https://narabou.lovable.app"
+const PASSWORD_RESET_URL = `${PUBLIC_APP_URL}/auth/reset`
+const PASSWORD_FORGOT_URL = `${PUBLIC_APP_URL}/auth/forgot`
 
 function redactEmail(email: string | null | undefined): string {
   if (!email) return '***'
   const [localPart, domain] = email.split('@')
   if (!localPart || !domain) return '***'
   return `${localPart[0]}***@${domain}`
+}
+
+function buildConfirmationUrl(emailType: string, rawUrl: string | null | undefined): string {
+  if (emailType !== 'recovery') return rawUrl || PUBLIC_APP_URL
+
+  if (!rawUrl) return PASSWORD_FORGOT_URL
+
+  try {
+    const url = new URL(rawUrl)
+    const hasRecoveryToken =
+      url.searchParams.has('token') ||
+      url.searchParams.has('token_hash') ||
+      url.hash.includes('access_token=') ||
+      url.hash.includes('refresh_token=')
+    const isVerificationUrl =
+      url.pathname.includes('/auth/v1/verify') ||
+      url.searchParams.get('type') === 'recovery' ||
+      url.searchParams.get('redirect_type') === 'recovery'
+
+    if (isVerificationUrl) {
+      url.searchParams.set('redirect_to', PASSWORD_RESET_URL)
+      return url.toString()
+    }
+
+    if (hasRecoveryToken) {
+      url.protocol = 'https:'
+      url.host = 'narabou.lovable.app'
+      url.pathname = '/auth/reset'
+      return url.toString()
+    }
+
+    // The dashboard's "send test" email uses a synthetic URL with no reset token.
+    // Send that button to the Japanese forgot page instead of the preview TOP page.
+    return PASSWORD_FORGOT_URL
+  } catch {
+    return PASSWORD_FORGOT_URL
+  }
 }
 
 export const Route = createFileRoute("/lovable/email/auth/webhook")({
@@ -136,7 +176,7 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
           siteName: SITE_NAME,
           siteUrl: `https://${ROOT_DOMAIN}`,
           recipient: payload.data.email,
-          confirmationUrl: payload.data.url,
+          confirmationUrl: buildConfirmationUrl(emailType, payload.data.url),
           token: payload.data.token,
           email: payload.data.email,
           oldEmail: payload.data.old_email,
