@@ -19,6 +19,7 @@ function ResetPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
   const [invalid, setInvalid] = useState(false);
