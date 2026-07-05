@@ -18,8 +18,9 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "Fukuoka Queue Buddy"
+const SITE_NAME = "福岡行列代行"
 const ROOT_DOMAIN = "narabou.jp"
+const PUBLIC_APP_URL = "https://narabou.lovable.app"
 
 // Sample data for preview mode ONLY (not used in actual email sending).
 // URLs are baked in at scaffold time from the project's real data.
@@ -41,7 +42,7 @@ const SAMPLE_DATA: Record<string, object> = {
   },
   recovery: {
     siteName: SITE_NAME,
-    confirmationUrl: SAMPLE_PROJECT_URL,
+    confirmationUrl: `${PUBLIC_APP_URL}/auth/forgot`,
   },
   invite: {
     siteName: SITE_NAME,

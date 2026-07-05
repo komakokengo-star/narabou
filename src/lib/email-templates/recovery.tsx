@@ -16,10 +16,33 @@ interface RecoveryEmailProps {
   confirmationUrl: string
 }
 
+const PUBLIC_APP_URL = 'https://narabou.lovable.app'
+const PASSWORD_FORGOT_URL = `${PUBLIC_APP_URL}/auth/forgot`
+
+function getRecoveryButtonUrl(confirmationUrl: string) {
+  try {
+    const url = new URL(confirmationUrl)
+    const hasResetToken =
+      url.searchParams.has('token') ||
+      url.searchParams.has('token_hash') ||
+      url.hash.includes('access_token=') ||
+      url.hash.includes('refresh_token=')
+
+    // Test emails from the dashboard use a placeholder URL without a recovery token.
+    // Send those to the Japanese forgot-password page instead of the preview TOP page.
+    return hasResetToken ? confirmationUrl : PASSWORD_FORGOT_URL
+  } catch {
+    return PASSWORD_FORGOT_URL
+  }
+}
+
 export const RecoveryEmail = ({
   siteName,
   confirmationUrl,
-}: RecoveryEmailProps) => (
+}: RecoveryEmailProps) => {
+  const buttonUrl = getRecoveryButtonUrl(confirmationUrl)
+
+  return (
   <Html lang="ja" dir="ltr">
     <Head />
     <Preview>{siteName} のパスワード再設定</Preview>
@@ -29,7 +52,7 @@ export const RecoveryEmail = ({
         <Text style={text}>
           {siteName} のパスワード再設定リクエストを受け付けました。下のボタンから新しいパスワードを設定してください。
         </Text>
-        <Button style={button} href={confirmationUrl}>
+        <Button style={button} href={buttonUrl}>
           パスワードを再設定する
         </Button>
         <Text style={footer}>
@@ -38,7 +61,8 @@ export const RecoveryEmail = ({
       </Container>
     </Body>
   </Html>
-)
+  )
+}
 
 export default RecoveryEmail
 
