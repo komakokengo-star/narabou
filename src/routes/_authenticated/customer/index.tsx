@@ -195,7 +195,10 @@ function CustomerHome() {
                     )}
                     {r.store_name}
                   </div>
-                  <div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</div>
+                  <div className="text-xs text-muted-foreground">
+                    希望 {r.desired_time ? new Date(r.desired_time).toLocaleString() : "—"}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground/70">登録 {new Date(r.created_at).toLocaleString()}</div>
                 </div>
                 <div className="text-right">
                   <Badge variant="secondary">{t(`request.status.${r.status}`)}</Badge>
