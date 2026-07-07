@@ -61,29 +61,7 @@ function WorkerHome() {
 
   const accept = useMutation({
     mutationFn: async (requestId: string) => {
-      // 既存の match（過去に拒否/自動キャンセルされたもの）があれば再利用してリセット
-      const { data: existing } = await supabase
-        .from("matches").select("id, status").eq("request_id", requestId).maybeSingle();
-      if (existing) {
-        if (existing.status === "pending_approval" || existing.status === "approved") {
-          throw new Error("この依頼は既に他の代行者が受注申請中です");
-        }
-        const { error: updErr } = await supabase.from("matches").update({
-          worker_id: user!.id,
-          status: "pending_approval",
-          created_at: new Date().toISOString(),
-          auto_canceled_at: null,
-        } as never).eq("id", existing.id);
-        if (updErr) throw updErr;
-      } else {
-        const { error } = await supabase.from("matches").insert({
-          request_id: requestId, worker_id: user!.id,
-          status: "pending_approval",
-        } as never);
-        if (error) throw error;
-      }
-      // requests.status は open のままにし、他の代行者に重複受注させないため matched に更新
-      await supabase.from("requests").update({ status: "matched" }).eq("id", requestId);
+      await applyForRequest({ data: { requestId } });
     },
     onSuccess: () => { toast.success("受注申請を送信しました。依頼者の承認をお待ちください"); setDetailJobId(null); qc.invalidateQueries(); },
     onError: (e: Error) => toast.error(e.message),
