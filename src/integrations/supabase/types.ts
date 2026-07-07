@@ -316,8 +316,11 @@ export type Database = {
           extra_fee: number
           id: string
           is_peak: boolean
+          landmark: string | null
           notes: string | null
+          number_display_method: string | null
           peak_fee: number
+          request_number: number | null
           status: Database["public"]["Enums"]["request_status"]
           store_address: string | null
           store_name: string
@@ -334,8 +337,11 @@ export type Database = {
           extra_fee?: number
           id?: string
           is_peak?: boolean
+          landmark?: string | null
           notes?: string | null
+          number_display_method?: string | null
           peak_fee?: number
+          request_number?: number | null
           status?: Database["public"]["Enums"]["request_status"]
           store_address?: string | null
           store_name: string
@@ -352,8 +358,11 @@ export type Database = {
           extra_fee?: number
           id?: string
           is_peak?: boolean
+          landmark?: string | null
           notes?: string | null
+          number_display_method?: string | null
           peak_fee?: number
+          request_number?: number | null
           status?: Database["public"]["Enums"]["request_status"]
           store_address?: string | null
           store_name?: string
