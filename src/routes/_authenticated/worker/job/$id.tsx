@@ -216,6 +216,9 @@ function WorkerJob() {
                   <MapPin className="w-4 h-4 mr-1" />
                   {fetchGps.isPending ? "取得中..." : "現在位置を取得"}
                 </Button>
+                <Button type="button" variant="ghost" size="sm" onClick={() => setArrivalNote("店舗前に到着しました。整理券 A-27 を取得済みです。")}>
+                  例文を使う
+                </Button>
               </div>
               {gps && (
                 <div className="text-xs rounded-md border border-border bg-muted/40 p-3 space-y-1">
