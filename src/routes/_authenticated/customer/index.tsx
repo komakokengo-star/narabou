@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Trash2 } from "lucide-react";
 import { calcFee, formatYen } from "@/lib/fees";
 import { StoreSearchMap } from "@/components/StoreSearchMap";
 import { toast } from "sonner";
