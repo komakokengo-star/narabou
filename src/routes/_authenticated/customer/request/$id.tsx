@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 
 import { useTranslation } from "react-i18next";
@@ -116,11 +116,20 @@ function RequestDetail() {
     const t = setInterval(() => setNowMs(Date.now()), 1000);
     return () => clearInterval(t);
   }, [matchStatus]);
+  const autoCanceledRef = useRef<string | null>(null);
   useEffect(() => {
-    if (matchStatus === "pending_approval" && deadlineMs && nowMs >= deadlineMs && !respondMatch.isPending) {
+    if (
+      matchStatus === "pending_approval" &&
+      deadlineMs &&
+      nowMs >= deadlineMs &&
+      !respondMatch.isPending &&
+      match?.id &&
+      autoCanceledRef.current !== match.id
+    ) {
+      autoCanceledRef.current = match.id;
       respondMatch.mutate({ approve: false, autoCancel: true });
     }
-  }, [matchStatus, deadlineMs, nowMs, respondMatch]);
+  }, [matchStatus, deadlineMs, nowMs, respondMatch, match?.id]);
 
 
   // ピーク料金は依頼作成後でも、支払い前であれば依頼者がON/OFFを切り替え可能。
