@@ -62,6 +62,8 @@ function CustomerHome() {
           estimated_wait_minutes: estimatedWait,
           is_peak: isPeak,
           notes: notes || null,
+          landmark: landmark || null,
+          number_display_method: numberDisplayMethod || null,
           base_fee: fee.base,
           time_fee: fee.time,
           peak_fee: fee.peak,
