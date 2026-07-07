@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { CheckCircle2, User, Landmark, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createConnectAccount, refreshConnectStatus } from "@/lib/stripe-connect.functions";
+import { applyForRequest } from "@/lib/payments.functions";
 import { StripeEmbeddedOnboarding } from "@/components/StripeEmbeddedOnboarding";
 
 export const Route = createFileRoute("/_authenticated/worker/")({
