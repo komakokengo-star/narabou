@@ -266,6 +266,48 @@ export const respondToMatch = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// 代行者が公開中の依頼へ受注申請を送る。既存の rejected/canceled match があれば
+// unique 制約に抵触するため、サービスロールでリセットして再利用する。
+export const applyForRequest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { requestId: string }) => d)
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: isWorker } = await context.supabase
+      .rpc("has_role", { _user_id: context.userId, _role: "worker" }) as { data: boolean | null };
+    if (!isWorker) throw new Error("Forbidden");
+
+    const { data: existing } = await supabaseAdmin
+      .from("matches").select("id, status").eq("request_id", data.requestId).maybeSingle();
+
+    if (existing) {
+      if (existing.status === "pending_approval" || existing.status === "approved") {
+        throw new Error("この依頼は既に他の代行者が受注申請中です");
+      }
+      const { error: updErr } = await supabaseAdmin.from("matches").update({
+        worker_id: context.userId,
+        status: "pending_approval",
+        created_at: new Date().toISOString(),
+        approved_at: null,
+        rejected_at: null,
+        auto_canceled_at: null,
+        approval_comment: null,
+      }).eq("id", existing.id);
+      if (updErr) throw new Error(updErr.message);
+    } else {
+      const { error: insErr } = await supabaseAdmin.from("matches").insert({
+        request_id: data.requestId,
+        worker_id: context.userId,
+        status: "pending_approval",
+      });
+      if (insErr) throw new Error(insErr.message);
+    }
+
+    await supabaseAdmin.from("requests").update({ status: "matched" }).eq("id", data.requestId);
+    return { ok: true };
+  });
+
+
 
 // 代行者の完了報告時に呼ばれ、オーソリ済み決済をキャプチャして確定
 export const capturePayment = createServerFn({ method: "POST" })
