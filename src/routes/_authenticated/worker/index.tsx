@@ -246,7 +246,14 @@ function WorkerHome() {
             return (
               <Card key={r.id} className="p-4 flex items-center justify-between flex-wrap gap-3">
                 <div>
-                  <div className="font-medium">{r.store_name}</div>
+                  <div className="font-medium">
+                    {r.request_number != null && (
+                      <span className="text-xs font-mono text-muted-foreground mr-2">
+                        #{String(r.request_number).padStart(4, "0")}
+                      </span>
+                    )}
+                    {r.store_name}
+                  </div>
                   <div className="text-xs text-muted-foreground">
                     想定 {r.estimated_wait_minutes}分 · {r.is_peak ? "ピーク" : "通常"}
                   </div>
@@ -255,7 +262,7 @@ function WorkerHome() {
                   <div className="text-sm">{formatYen(f.total)}</div>
                   <div className="text-[10px] text-muted-foreground">報酬 {formatYen(Math.round(f.total * (1 - PLATFORM_RATE)))}</div>
                 </div>
-                <Button size="sm" onClick={() => accept.mutate(r.id)} disabled={!canAcceptJobs}>
+                <Button size="sm" onClick={() => setDetailJobId(r.id)} disabled={!canAcceptJobs}>
                   {t("request.actions.accept")}
                 </Button>
               </Card>
