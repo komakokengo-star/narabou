@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
+import { capturePayment } from "@/lib/payments.functions";
 
 export const Route = createFileRoute("/_authenticated/worker/job/$id")({
   component: WorkerJob,
