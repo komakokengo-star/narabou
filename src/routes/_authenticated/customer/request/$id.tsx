@@ -141,7 +141,14 @@ function RequestDetail() {
         <Card className="p-6">
           <div className="flex items-start justify-between gap-3 flex-wrap">
             <div>
-              <h1 className="font-serif text-2xl">{request.store_name}</h1>
+              <h1 className="font-serif text-2xl">
+                {request.request_number != null && (
+                  <span className="text-base font-mono text-muted-foreground mr-2">
+                    #{String(request.request_number).padStart(4, "0")}
+                  </span>
+                )}
+                {request.store_name}
+              </h1>
               <div className="text-xs text-muted-foreground mt-1">
                 {request.store_address ?? ""}
               </div>
