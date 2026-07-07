@@ -260,7 +260,7 @@ function WorkerJob() {
                 onChange={(e) => setCompletionNote(e.target.value)}
                 rows={2}
                 maxLength={300}
-                placeholder="例）ご購入完了しました。受け渡し場所は正面入口です。"
+                placeholder="例）受け渡し出来ましたので完了とさせていただきます。ありがとうございました。"
               />
               <Button variant="default" onClick={() => updateStatus.mutate({ match: { end_time: new Date().toISOString(), status: "completed", completion_note: completionNote || null }, req: { status: "completed" }, captureOnComplete: true })}>
                 {t("request.actions.complete")} & 決済確定
