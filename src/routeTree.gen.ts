@@ -25,6 +25,7 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as ApiPublicHooksTestCleanupRouteImport } from './routes/api/public/hooks/test-cleanup'
+import { Route as ApiPublicHooksAutoConfirmCompletionRouteImport } from './routes/api/public/hooks/auto-confirm-completion'
 import { Route as AuthenticatedWorkerJobIdRouteImport } from './routes/_authenticated/worker/job/$id'
 import { Route as AuthenticatedCustomerRequestIdRouteImport } from './routes/_authenticated/customer/request/$id'
 
@@ -112,6 +113,12 @@ const ApiPublicHooksTestCleanupRoute =
     path: '/api/public/hooks/test-cleanup',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksAutoConfirmCompletionRoute =
+  ApiPublicHooksAutoConfirmCompletionRouteImport.update({
+    id: '/api/public/hooks/auto-confirm-completion',
+    path: '/api/public/hooks/auto-confirm-completion',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedWorkerJobIdRoute =
   AuthenticatedWorkerJobIdRouteImport.update({
     id: '/worker/job/$id',
@@ -138,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/worker/': typeof AuthenticatedWorkerIndexRoute
   '/customer/request/$id': typeof AuthenticatedCustomerRequestIdRoute
   '/worker/job/$id': typeof AuthenticatedWorkerJobIdRoute
+  '/api/public/hooks/auto-confirm-completion': typeof ApiPublicHooksAutoConfirmCompletionRoute
   '/api/public/hooks/test-cleanup': typeof ApiPublicHooksTestCleanupRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -157,6 +165,7 @@ export interface FileRoutesByTo {
   '/worker': typeof AuthenticatedWorkerIndexRoute
   '/customer/request/$id': typeof AuthenticatedCustomerRequestIdRoute
   '/worker/job/$id': typeof AuthenticatedWorkerJobIdRoute
+  '/api/public/hooks/auto-confirm-completion': typeof ApiPublicHooksAutoConfirmCompletionRoute
   '/api/public/hooks/test-cleanup': typeof ApiPublicHooksTestCleanupRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -178,6 +187,7 @@ export interface FileRoutesById {
   '/_authenticated/worker/': typeof AuthenticatedWorkerIndexRoute
   '/_authenticated/customer/request/$id': typeof AuthenticatedCustomerRequestIdRoute
   '/_authenticated/worker/job/$id': typeof AuthenticatedWorkerJobIdRoute
+  '/api/public/hooks/auto-confirm-completion': typeof ApiPublicHooksAutoConfirmCompletionRoute
   '/api/public/hooks/test-cleanup': typeof ApiPublicHooksTestCleanupRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/worker/'
     | '/customer/request/$id'
     | '/worker/job/$id'
+    | '/api/public/hooks/auto-confirm-completion'
     | '/api/public/hooks/test-cleanup'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/auth/preview'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/worker'
     | '/customer/request/$id'
     | '/worker/job/$id'
+    | '/api/public/hooks/auto-confirm-completion'
     | '/api/public/hooks/test-cleanup'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/auth/preview'
@@ -238,6 +250,7 @@ export interface FileRouteTypes {
     | '/_authenticated/worker/'
     | '/_authenticated/customer/request/$id'
     | '/_authenticated/worker/job/$id'
+    | '/api/public/hooks/auto-confirm-completion'
     | '/api/public/hooks/test-cleanup'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/auth/preview'
@@ -251,6 +264,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   AuthForgotRoute: typeof AuthForgotRoute
   AuthResetRoute: typeof AuthResetRoute
+  ApiPublicHooksAutoConfirmCompletionRoute: typeof ApiPublicHooksAutoConfirmCompletionRoute
   ApiPublicHooksTestCleanupRoute: typeof ApiPublicHooksTestCleanupRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -372,6 +386,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksTestCleanupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/auto-confirm-completion': {
+      id: '/api/public/hooks/auto-confirm-completion'
+      path: '/api/public/hooks/auto-confirm-completion'
+      fullPath: '/api/public/hooks/auto-confirm-completion'
+      preLoaderRoute: typeof ApiPublicHooksAutoConfirmCompletionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/worker/job/$id': {
       id: '/_authenticated/worker/job/$id'
       path: '/worker/job/$id'
@@ -420,6 +441,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   AuthForgotRoute: AuthForgotRoute,
   AuthResetRoute: AuthResetRoute,
+  ApiPublicHooksAutoConfirmCompletionRoute:
+    ApiPublicHooksAutoConfirmCompletionRoute,
   ApiPublicHooksTestCleanupRoute: ApiPublicHooksTestCleanupRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
