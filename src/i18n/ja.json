@@ -96,7 +96,7 @@
     "requestNumber": "依頼番号",
     "landmark": "現地の目印",
     "landmarkPlaceholder": "例）赤い看板のラーメン屋。入口横に自販機あり。",
-    "numberDisplayMethod": "依頼番号の表示方法",
+    "numberDisplayMethod": "依頼者の確認方法",
     "numberDisplayMethodPlaceholder": "例）スマホ画面で依頼番号を提示します。／黄色い帽子をかぶっています。",
     "contactInfo": "現地コンタクト情報",
     "contactInfoDesc": "代行者が現地で依頼者を見つけやすくするための情報です。",
