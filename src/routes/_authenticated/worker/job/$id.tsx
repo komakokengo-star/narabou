@@ -105,8 +105,14 @@ function WorkerJob() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const matchFeatures = (match as unknown as { worker_features?: string | null } | null)?.worker_features ?? "";
+  useEffect(() => {
+    setWorkerFeatures(matchFeatures);
+  }, [matchFeatures]);
+
   if (!match) return <div className="p-10 text-center">{t("common.loading")}</div>;
   const req = match.requests as { id: string; store_name: string; status: string; total_fee: number };
+
 
   return (
     <div className="min-h-screen flex flex-col">
