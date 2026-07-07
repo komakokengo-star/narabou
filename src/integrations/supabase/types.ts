@@ -213,8 +213,10 @@ export type Database = {
       }
       matches: {
         Row: {
+          approval_comment: string | null
           approved_at: string | null
           arrival_time: string | null
+          auto_canceled_at: string | null
           created_at: string
           end_time: string | null
           id: string
@@ -226,8 +228,10 @@ export type Database = {
           worker_id: string
         }
         Insert: {
+          approval_comment?: string | null
           approved_at?: string | null
           arrival_time?: string | null
+          auto_canceled_at?: string | null
           created_at?: string
           end_time?: string | null
           id?: string
@@ -239,8 +243,10 @@ export type Database = {
           worker_id: string
         }
         Update: {
+          approval_comment?: string | null
           approved_at?: string | null
           arrival_time?: string | null
+          auto_canceled_at?: string | null
           created_at?: string
           end_time?: string | null
           id?: string
