@@ -364,6 +364,61 @@ function RequestDetail() {
           </Card>
         )}
 
+        {/* 受け取り確認フロー */}
+        {match && matchStatus === "awaiting_confirmation" && (() => {
+          const m = match as unknown as { confirm_deadline_at?: string | null };
+          const deadline = m.confirm_deadline_at ? new Date(m.confirm_deadline_at).getTime() : null;
+          const remainingMin = deadline ? Math.max(0, Math.ceil((deadline - nowMs) / 60_000)) : null;
+          return (
+            <Card className="p-6 mt-6 border-primary/50 bg-primary/5 space-y-3">
+              <div className="text-sm font-medium">代行者から完了報告が届きました</div>
+              <p className="text-xs text-muted-foreground">
+                内容を確認し「受け取り確認」で決済を確定してください。
+                問題がある場合は「異議を申し立てる」から管理者へ連絡できます。
+                {remainingMin !== null && (
+                  <span className="block mt-1 text-amber-700 font-medium">
+                    残り約 {remainingMin} 分。無応答の場合は自動的に確認され、決済が確定します。
+                  </span>
+                )}
+              </p>
+              {!showDispute ? (
+                <div className="flex gap-2 flex-wrap">
+                  <Button onClick={() => confirmDone.mutate()} disabled={confirmDone.isPending}>
+                    受け取り確認して決済確定
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowDispute(true)}>
+                    異議を申し立てる
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label className="text-xs">異議の内容（管理者に共有されます）</Label>
+                  <Textarea
+                    value={disputeReason}
+                    onChange={(e) => setDisputeReason(e.target.value)}
+                    rows={4}
+                    maxLength={500}
+                    placeholder="例）受け取れていない、商品が違うなど"
+                  />
+                  <div className="flex gap-2 flex-wrap">
+                    <Button variant="destructive" onClick={() => disputeDone.mutate()} disabled={disputeDone.isPending || disputeReason.trim().length < 5}>
+                      異議を送信
+                    </Button>
+                    <Button variant="ghost" onClick={() => setShowDispute(false)}>戻る</Button>
+                  </div>
+                </div>
+              )}
+            </Card>
+          );
+        })()}
+
+        {match && matchStatus === "disputed" && (
+          <Card className="p-4 mt-6 border-red-300 bg-red-50">
+            <div className="text-sm font-medium text-red-900">異議申立を受付中です</div>
+            <p className="text-xs text-red-800 mt-1">管理者が内容を確認しています。決済はまだ確定していません。</p>
+          </Card>
+        )}
+
 
         {/* Actions: ステータス連動で自動制御 */}
         {(() => {
