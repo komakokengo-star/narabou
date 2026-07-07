@@ -281,9 +281,12 @@ function WorkerJob() {
                 maxLength={300}
                 placeholder="例）受け渡し出来ましたので完了とさせていただきます。ありがとうございました。"
               />
+              <p className="text-xs text-muted-foreground">
+                完了報告後、依頼者の受け取り確認（30分以内）で決済が確定します。無応答時は自動確認されます。
+              </p>
               <div className="flex flex-wrap gap-2">
-                <Button variant="default" onClick={() => updateStatus.mutate({ match: { end_time: new Date().toISOString(), status: "completed", completion_note: completionNote || null }, req: { status: "completed" }, captureOnComplete: true })}>
-                  {t("request.actions.complete")} & 決済確定
+                <Button variant="default" onClick={() => reportCompletion.mutate()} disabled={reportCompletion.isPending}>
+                  完了報告（依頼者の確認へ）
                 </Button>
                 <Button type="button" variant="ghost" size="sm" onClick={() => setCompletionNote("受け渡し出来ましたので完了とさせていただきます。ありがとうございました。")}>
                   例文を使う
@@ -291,6 +294,28 @@ function WorkerJob() {
               </div>
             </div>
           )}
+          {(match as unknown as { status: string }).status === "awaiting_confirmation" && (() => {
+            const m = match as unknown as { confirm_deadline_at?: string | null };
+            const deadline = m.confirm_deadline_at ? new Date(m.confirm_deadline_at).getTime() : null;
+            const remaining = deadline ? Math.max(0, Math.ceil((deadline - Date.now()) / 60_000)) : null;
+            return (
+              <div className="text-sm rounded-md border border-amber-300 bg-amber-50 text-amber-900 p-3">
+                <div className="font-medium">依頼者の受け取り確認を待っています</div>
+                {remaining !== null && (
+                  <div className="text-xs mt-1">残り約 {remaining} 分。無応答の場合は自動的に完了・決済確定されます。</div>
+                )}
+              </div>
+            );
+          })()}
+          {(match as unknown as { status: string }).status === "disputed" && (() => {
+            const m = match as unknown as { dispute_reason?: string | null };
+            return (
+              <div className="text-sm rounded-md border border-red-300 bg-red-50 text-red-900 p-3 space-y-1">
+                <div className="font-medium">異議申立が届きました（管理者対応中）</div>
+                {m.dispute_reason && <p className="text-xs whitespace-pre-wrap">理由: {m.dispute_reason}</p>}
+              </div>
+            );
+          })()}
         </Card>
 
 
