@@ -302,8 +302,8 @@ function RequestDetail() {
 
         {/* Actions: ステータス連動で自動制御 */}
         {(() => {
-          const matchStatus = (match as unknown as { status?: string } | null)?.status;
           const rs = request.status;
+
           const hasPaid = payments.some((p) => p.status === "paid" && p.kind === "main");
           const hasAuth = payments.some((p) => p.status === "authorized" && p.kind === "main");
           // 支払いボタン: 承認済みでオーソリも支払いも無い時のみ
