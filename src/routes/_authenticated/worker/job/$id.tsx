@@ -59,6 +59,26 @@ function WorkerJob() {
 
   const [workerFeatures, setWorkerFeatures] = useState("");
   const [arrivalNote, setArrivalNote] = useState("");
+  const [gps, setGps] = useState<{ lat: number; lng: number; address: string | null } | null>(null);
+  const fetchGps = useMutation({
+    mutationFn: async () => {
+      const pos = await new Promise<GeolocationPosition>((res, rej) =>
+        navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 10000 }),
+      );
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      let address: string | null = null;
+      try {
+        const r = await reverseGeocode({ data: { lat, lng } });
+        address = r.address;
+      } catch (e) {
+        console.warn("reverse geocode error", e);
+      }
+      return { lat, lng, address };
+    },
+    onSuccess: (v) => setGps(v),
+    onError: (e: Error) => toast.error(e.message || "位置情報の取得に失敗しました"),
+  });
   const [startNote, setStartNote] = useState("");
   const [completionNote, setCompletionNote] = useState("");
 
