@@ -106,6 +106,19 @@ function RequestDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const [disputeReason, setDisputeReason] = useState("");
+  const [showDispute, setShowDispute] = useState(false);
+  const confirmDone = useMutation({
+    mutationFn: () => confirmCompletion({ data: { requestId: id } }),
+    onSuccess: () => { toast.success("受け取りを確認しました。決済を確定しました"); qc.invalidateQueries(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const disputeDone = useMutation({
+    mutationFn: () => disputeCompletion({ data: { requestId: id, reason: disputeReason } }),
+    onSuccess: () => { toast.success("異議を申し立てました。管理者が対応します"); setShowDispute(false); qc.invalidateQueries(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   // 5分タイムアウトで自動キャンセル
   const matchStatus = (match as unknown as { status?: string } | null)?.status;
   const matchCreatedAt = (match as unknown as { created_at?: string } | null)?.created_at;
