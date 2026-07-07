@@ -94,15 +94,34 @@ function RequestDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const [approvalComment, setApprovalComment] = useState("");
   const respondMatch = useMutation({
-    mutationFn: (approve: boolean) => respondToMatch({ data: { matchId: match!.id, approve } }),
-    onSuccess: (_r, approve) => {
-      toast.success(approve ? "承認しました。決済のオーソリへ進んでください" : "受注申請を拒否しました");
+    mutationFn: (v: { approve: boolean; autoCancel?: boolean }) =>
+      respondToMatch({ data: { matchId: match!.id, approve: v.approve, comment: approvalComment, autoCancel: v.autoCancel } }),
+    onSuccess: (_r, v) => {
+      toast.success(v.approve ? "承認しました。決済のオーソリへ進んでください" : (v.autoCancel ? "5分以内に承認されなかったため自動キャンセルしました" : "受注申請を拒否しました"));
       qc.invalidateQueries();
-      if (approve) startPay.mutate();
+      if (v.approve) startPay.mutate();
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  // 5分タイムアウトで自動キャンセル
+  const matchStatus = (match as unknown as { status?: string } | null)?.status;
+  const matchCreatedAt = (match as unknown as { created_at?: string } | null)?.created_at;
+  const deadlineMs = matchCreatedAt ? new Date(matchCreatedAt).getTime() + 5 * 60 * 1000 : null;
+  const [nowMs, setNowMs] = useState(Date.now());
+  useEffect(() => {
+    if (matchStatus !== "pending_approval") return;
+    const t = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [matchStatus]);
+  useEffect(() => {
+    if (matchStatus === "pending_approval" && deadlineMs && nowMs >= deadlineMs && !respondMatch.isPending) {
+      respondMatch.mutate({ approve: false, autoCancel: true });
+    }
+  }, [matchStatus, deadlineMs, nowMs, respondMatch]);
+
 
   // ピーク料金は依頼作成後でも、支払い前であれば依頼者がON/OFFを切り替え可能。
   // 切り替えると peak_fee と total_fee を再計算して requests テーブルに反映する。
