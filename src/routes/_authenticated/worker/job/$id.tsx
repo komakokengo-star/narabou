@@ -112,11 +112,27 @@ function WorkerJob() {
           </div>
         </Card>
 
+        {(match as unknown as { approval_comment?: string | null }).approval_comment && (
+          <Card className="p-4 mt-6 border-primary/40 bg-primary/5">
+            <div className="text-xs font-medium mb-1">依頼者からのコメント</div>
+            <p className="text-sm whitespace-pre-wrap">{(match as unknown as { approval_comment: string }).approval_comment}</p>
+          </Card>
+        )}
+
+        {(match as unknown as { auto_canceled_at?: string | null }).auto_canceled_at && (
+          <Card className="p-4 mt-6 border-amber-300 bg-amber-50">
+            <div className="text-sm font-medium text-amber-900">この受注は自動キャンセルされました</div>
+            <p className="text-xs text-amber-800 mt-1">
+              依頼者が5分以内に承認しなかったため、受注申請は自動的にキャンセルされました。他の依頼をご確認ください。
+            </p>
+          </Card>
+        )}
+
         <Card className="p-6 mt-6 space-y-3">
           <div className="font-medium mb-2">ステータス操作</div>
           {(match as unknown as { status: string }).status === "pending_approval" && (
             <div className="text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-800 p-3">
-              依頼者の承認をお待ちください。承認されるとオーソリ（与信確保）が実行され、業務を開始できます。
+              依頼者の承認をお待ちください（5分以内に承認されない場合は自動キャンセルとなります）。承認されるとオーソリ（与信確保）が実行され、業務を開始できます。
             </div>
           )}
           {(match as unknown as { status: string }).status !== "pending_approval" && !match.arrival_time && (
