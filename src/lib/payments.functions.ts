@@ -156,6 +156,21 @@ export const cancelRequest = createServerFn({ method: "POST" })
     const { data: match } = await supabaseAdmin
       .from("matches").select("*").eq("request_id", req.id).maybeSingle();
 
+    // 認可済みだが未キャプチャの決済は void（無料キャンセル）
+    const { data: authPayments } = await supabaseAdmin
+      .from("payments").select("*").eq("request_id", req.id)
+      .in("status", ["authorized", "pending"]);
+    for (const p of authPayments ?? []) {
+      if (!p.stripe_payment_intent_id) continue;
+      try {
+        await stripe.paymentIntents.cancel(p.stripe_payment_intent_id);
+        await supabaseAdmin.from("payments")
+          .update({ status: "canceled" }).eq("id", p.id);
+      } catch (e) {
+        console.error("void authorization failed", e);
+      }
+    }
+
     const { data: payments } = await supabaseAdmin
       .from("payments").select("*").eq("request_id", req.id).eq("status", "paid");
     const totalPaid = (payments ?? []).reduce((s, p) => s + p.amount, 0);
@@ -169,7 +184,7 @@ export const cancelRequest = createServerFn({ method: "POST" })
       totalPaid,
     });
 
-    // refund proportionally across paid intents (simplest: full refund of the latest until limit reached)
+    // refund proportionally across paid intents
     let remaining = refund;
     for (const p of (payments ?? []).slice().reverse()) {
       if (remaining <= 0 || !p.stripe_payment_intent_id) break;
@@ -190,6 +205,11 @@ export const cancelRequest = createServerFn({ method: "POST" })
       }
     }
 
+    // マッチもキャンセル
+    if (match) {
+      await supabaseAdmin.from("matches")
+        .update({ status: "canceled" }).eq("id", match.id);
+    }
     await supabaseAdmin.from("requests").update({ status: "canceled" }).eq("id", req.id);
 
     try {
@@ -201,6 +221,7 @@ export const cancelRequest = createServerFn({ method: "POST" })
         details: {
           refunded: refund,
           total_paid: totalPaid,
+          voided_authorizations: (authPayments ?? []).length,
           by_admin: !!isAdmin && data.force === true,
           previous_status: req.status,
         },
@@ -211,3 +232,70 @@ export const cancelRequest = createServerFn({ method: "POST" })
 
     return { refunded: refund };
   });
+
+// 依頼者が受注申請を承認/拒否
+export const respondToMatch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { matchId: string; approve: boolean }) => d)
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: match } = await context.supabase
+      .from("matches").select("*, requests(customer_id, status)")
+      .eq("id", data.matchId).maybeSingle();
+    if (!match) throw new Error("Match not found");
+    const req = (match as unknown as { requests: { customer_id: string; status: string } }).requests;
+    if (req.customer_id !== context.userId) throw new Error("Forbidden");
+    if ((match as unknown as { status: string }).status !== "pending_approval") {
+      throw new Error("既に処理済みです");
+    }
+    const now = new Date().toISOString();
+    if (data.approve) {
+      await supabaseAdmin.from("matches").update({
+        status: "approved", approved_at: now,
+      }).eq("id", data.matchId);
+      await supabaseAdmin.from("requests").update({ status: "matched" }).eq("id", match.request_id);
+    } else {
+      await supabaseAdmin.from("matches").update({
+        status: "rejected", rejected_at: now,
+      }).eq("id", data.matchId);
+      // 依頼を再オープン
+      await supabaseAdmin.from("requests").update({ status: "open" }).eq("id", match.request_id);
+    }
+    return { ok: true };
+  });
+
+// 代行者の完了報告時に呼ばれ、オーソリ済み決済をキャプチャして確定
+export const capturePayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { requestId: string }) => d)
+  .handler(async ({ data, context }) => {
+    const { getStripe } = await import("@/lib/stripe.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const stripe = getStripe();
+
+    // 代行者/管理者のみ実行可
+    const { data: match } = await context.supabase
+      .from("matches").select("worker_id").eq("request_id", data.requestId).maybeSingle();
+    const { data: isAdmin } = await context.supabase
+      .rpc("has_role", { _user_id: context.userId, _role: "admin" }) as { data: boolean | null };
+    if (!isAdmin && (!match || match.worker_id !== context.userId)) throw new Error("Forbidden");
+
+    const { data: authPayments } = await supabaseAdmin
+      .from("payments").select("*").eq("request_id", data.requestId).eq("status", "authorized");
+    let capturedTotal = 0;
+    for (const p of authPayments ?? []) {
+      if (!p.stripe_payment_intent_id) continue;
+      try {
+        await stripe.paymentIntents.capture(p.stripe_payment_intent_id);
+        await supabaseAdmin.from("payments").update({
+          status: "paid", captured_at: new Date().toISOString(),
+        }).eq("id", p.id);
+        capturedTotal += p.amount;
+      } catch (e) {
+        console.error("capture failed", e);
+        throw new Error("決済の確定に失敗しました");
+      }
+    }
+    return { capturedTotal, count: (authPayments ?? []).length };
+  });
+
