@@ -400,7 +400,7 @@ export const requestCompletion = createServerFn({ method: "POST" })
       confirm_deadline_at: deadline.toISOString(),
     }).eq("id", match.id);
     if (mErr) throw new Error(mErr.message);
-    await supabaseAdmin.from("requests").update({ status: "awaiting_confirmation" }).eq("id", data.requestId);
+    // request.status は in_progress のまま。UI は match.status で判定する
     return { ok: true, deadline: deadline.toISOString() };
   });
 
