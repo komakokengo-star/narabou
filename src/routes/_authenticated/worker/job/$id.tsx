@@ -181,9 +181,14 @@ function WorkerJob() {
             maxLength={300}
             placeholder="例）黒キャップ・青いリュック / 整理券 A-27"
           />
-          <Button size="sm" variant="outline" onClick={() => saveFeatures.mutate(workerFeatures)} disabled={saveFeatures.isPending}>
-            特徴を保存
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" onClick={() => saveFeatures.mutate(workerFeatures)} disabled={saveFeatures.isPending}>
+              特徴を保存
+            </Button>
+            <Button size="sm" variant="ghost" type="button" onClick={() => setWorkerFeatures("黒キャップ・青いリュック / 整理券 A-27")}>
+              例文を使う
+            </Button>
+          </div>
         </Card>
 
         <Card className="p-6 mt-6 space-y-4">
@@ -210,6 +215,9 @@ function WorkerJob() {
                 <Button type="button" variant="outline" size="sm" onClick={() => fetchGps.mutate()} disabled={fetchGps.isPending}>
                   <MapPin className="w-4 h-4 mr-1" />
                   {fetchGps.isPending ? "取得中..." : "現在位置を取得"}
+                </Button>
+                <Button type="button" variant="ghost" size="sm" onClick={() => setArrivalNote("店舗前に到着しました。整理券 A-27 を取得済みです。")}>
+                  例文を使う
                 </Button>
               </div>
               {gps && (
@@ -247,9 +255,14 @@ function WorkerJob() {
                 maxLength={300}
                 placeholder="例）列に並び始めました。現在の待ち時間は約30分です。"
               />
-              <Button onClick={() => updateStatus.mutate({ match: { start_time: new Date().toISOString(), status: "in_progress", start_note: startNote || null }, req: { status: "in_progress" } })}>
-                {t("request.actions.startQueue")}
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={() => updateStatus.mutate({ match: { start_time: new Date().toISOString(), status: "in_progress", start_note: startNote || null }, req: { status: "in_progress" } })}>
+                  {t("request.actions.startQueue")}
+                </Button>
+                <Button type="button" variant="ghost" size="sm" onClick={() => setStartNote("列に並び始めました。現在の待ち時間は約30分です。")}>
+                  例文を使う
+                </Button>
+              </div>
             </div>
           )}
           {match.start_time && !match.end_time && (
@@ -262,9 +275,14 @@ function WorkerJob() {
                 maxLength={300}
                 placeholder="例）受け渡し出来ましたので完了とさせていただきます。ありがとうございました。"
               />
-              <Button variant="default" onClick={() => updateStatus.mutate({ match: { end_time: new Date().toISOString(), status: "completed", completion_note: completionNote || null }, req: { status: "completed" }, captureOnComplete: true })}>
-                {t("request.actions.complete")} & 決済確定
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="default" onClick={() => updateStatus.mutate({ match: { end_time: new Date().toISOString(), status: "completed", completion_note: completionNote || null }, req: { status: "completed" }, captureOnComplete: true })}>
+                  {t("request.actions.complete")} & 決済確定
+                </Button>
+                <Button type="button" variant="ghost" size="sm" onClick={() => setCompletionNote("受け渡し出来ましたので完了とさせていただきます。ありがとうございました。")}>
+                  例文を使う
+                </Button>
+              </div>
             </div>
           )}
         </Card>
