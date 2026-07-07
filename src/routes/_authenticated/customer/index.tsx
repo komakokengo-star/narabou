@@ -58,7 +58,7 @@ function CustomerHome() {
           customer_id: user.id,
           store_name: storeName,
           store_address: storeAddress || null,
-          desired_time: desiredTime || null,
+          desired_time: desiredTime ? new Date(desiredTime).toISOString() : null,
           estimated_wait_minutes: estimatedWait,
           is_peak: isPeak,
           notes: notes || null,
