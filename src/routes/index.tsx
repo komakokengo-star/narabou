@@ -38,7 +38,7 @@ function Landing() {
                 <Button size="lg" className="rounded-full px-8">はじめる</Button>
               </Link>
               <Link to="/dashboard">
-                <Button size="lg" variant="outline" className="rounded-full px-8">ダッシュボード</Button>
+                <Button size="lg" variant="outline" className="rounded-full px-8">メニュー</Button>
               </Link>
             </div>
           </div>

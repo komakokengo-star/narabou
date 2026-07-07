@@ -5,7 +5,7 @@
   },
   "nav": {
     "home": "ホーム",
-    "dashboard": "ダッシュボード",
+    "dashboard": "メニュー",
     "customer": "依頼者",
     "worker": "代行者",
     "admin": "管理者",
@@ -168,7 +168,7 @@
     }
   },
   "admin": {
-    "title": "管理者ダッシュボード",
+    "title": "管理者メニュー",
     "requests": "依頼管理",
     "workers": "代行者管理",
     "payments": "決済管理",
