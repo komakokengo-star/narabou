@@ -1,4 +1,5 @@
 import { createFileRoute, redirect, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +11,7 @@ import { formatYen, PLATFORM_RATE } from "@/lib/fees";
 import { toast } from "sonner";
 import { cancelRequest } from "@/lib/payments.functions";
 import { adminListConnectStatuses, type ConnectStatus } from "@/lib/stripe-connect.functions";
-import { CheckCircle2, Clock, AlertTriangle, Circle, RefreshCw } from "lucide-react";
+import { CheckCircle2, Clock, AlertTriangle, Circle, RefreshCw, Bell, BellRing } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   ssr: false,
@@ -34,6 +35,54 @@ function AdminHome() {
       return data ?? [];
     },
     refetchInterval: 10000,
+  });
+
+  type Notification = {
+    id: string; kind: string; severity: string; title: string; body: string | null;
+    request_id: string | null; details: Record<string, unknown>; read_at: string | null; created_at: string;
+  };
+  const { data: notifications = [] } = useQuery<Notification[]>({
+    queryKey: ["admin-notifications"],
+    queryFn: async () => {
+      const { data } = await supabase.from("admin_notifications" as never)
+        .select("*").order("created_at", { ascending: false }).limit(50);
+      return (data ?? []) as unknown as Notification[];
+    },
+    refetchInterval: 15000,
+  });
+
+  // Realtime購読
+  useEffect(() => {
+    const channel = supabase.channel("admin-realtime")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "admin_notifications" },
+        (payload) => {
+          const n = payload.new as Notification;
+          if (n.severity === "alert") toast.error(`🚨 ${n.title}`, { description: n.body ?? undefined });
+          else if (n.severity === "warn") toast.warning(n.title, { description: n.body ?? undefined });
+          else toast.info(n.title, { description: n.body ?? undefined });
+          qc.invalidateQueries({ queryKey: ["admin-notifications"] });
+        })
+      .on("postgres_changes", { event: "*", schema: "public", table: "requests" },
+        () => qc.invalidateQueries({ queryKey: ["admin-requests"] }))
+      .on("postgres_changes", { event: "*", schema: "public", table: "payments" },
+        () => qc.invalidateQueries({ queryKey: ["admin-payments"] }))
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [qc]);
+
+  const markRead = useMutation({
+    mutationFn: async (id: string) => {
+      await supabase.from("admin_notifications" as never)
+        .update({ read_at: new Date().toISOString() } as never).eq("id", id);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-notifications"] }),
+  });
+  const markAllRead = useMutation({
+    mutationFn: async () => {
+      await supabase.from("admin_notifications" as never)
+        .update({ read_at: new Date().toISOString() } as never).is("read_at", null);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-notifications"] }),
   });
 
   const { data: payments = [] } = useQuery({
@@ -122,6 +171,58 @@ function AdminHome() {
             <div className="font-serif text-2xl mt-1">{requests.length}</div>
           </Card>
         </div>
+
+        {/* リアルタイム通知フィード */}
+        <Card className="p-4 mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 font-medium">
+              {notifications.some(n => !n.read_at)
+                ? <BellRing className="w-4 h-4 text-primary animate-pulse" />
+                : <Bell className="w-4 h-4 text-muted-foreground" />}
+              リアルタイム通知
+              {notifications.filter(n => !n.read_at).length > 0 && (
+                <Badge>{notifications.filter(n => !n.read_at).length} 未読</Badge>
+              )}
+            </div>
+            {notifications.some(n => !n.read_at) && (
+              <Button size="sm" variant="ghost" onClick={() => markAllRead.mutate()}>
+                すべて既読
+              </Button>
+            )}
+          </div>
+          <div className="max-h-72 overflow-y-auto space-y-1">
+            {notifications.length === 0 && (
+              <div className="text-xs text-muted-foreground text-center py-6">通知はありません</div>
+            )}
+            {notifications.map(n => (
+              <div
+                key={n.id}
+                className={`p-2 rounded-md text-sm flex items-start gap-2 border ${
+                  !n.read_at ? "bg-primary/5 border-primary/20" : "border-transparent"
+                }`}
+              >
+                <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                  n.severity === "alert" ? "bg-destructive" :
+                  n.severity === "warn" ? "bg-amber-500" : "bg-emerald-500"
+                }`} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium">{n.title}</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {new Date(n.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                  {n.body && <div className="text-xs text-muted-foreground">{n.body}</div>}
+                </div>
+                {!n.read_at && (
+                  <Button size="sm" variant="ghost" className="h-6 px-2 text-xs"
+                    onClick={() => markRead.mutate(n.id)}>既読</Button>
+                )}
+              </div>
+            ))}
+          </div>
+        </Card>
+
 
         <h2 className="font-medium mb-3">{t("admin.requests")}</h2>
         <div className="space-y-2 mb-8">

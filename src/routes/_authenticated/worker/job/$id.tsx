@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
+import { capturePayment } from "@/lib/payments.functions";
 
 export const Route = createFileRoute("/_authenticated/worker/job/$id")({
   component: WorkerJob,
@@ -40,13 +41,16 @@ function WorkerJob() {
     refetchInterval: 10000,
   });
 
-  type MatchUpdate = Partial<{ arrival_time: string; start_time: string; end_time: string }>;
+  type MatchUpdate = Partial<{ arrival_time: string; start_time: string; end_time: string; status: string }>;
   type RequestUpdate = Partial<{ status: "open" | "matched" | "arrived" | "in_progress" | "completed" | "canceled" }>;
   const updateStatus = useMutation({
-    mutationFn: async (patch: { req?: RequestUpdate; match?: MatchUpdate }) => {
-      if (patch.match) await supabase.from("matches").update(patch.match).eq("id", matchId);
+    mutationFn: async (patch: { req?: RequestUpdate; match?: MatchUpdate; captureOnComplete?: boolean }) => {
+      if (patch.match) await supabase.from("matches").update(patch.match as never).eq("id", matchId);
       if (patch.req && match?.request_id)
         await supabase.from("requests").update(patch.req).eq("id", match.request_id);
+      if (patch.captureOnComplete && match?.request_id) {
+        await capturePayment({ data: { requestId: match.request_id } });
+      }
     },
     onSuccess: () => { qc.invalidateQueries(); toast.success("更新しました"); },
     onError: (e: Error) => toast.error(e.message),
@@ -110,19 +114,24 @@ function WorkerJob() {
 
         <Card className="p-6 mt-6 space-y-3">
           <div className="font-medium mb-2">ステータス操作</div>
-          {!match.arrival_time && (
-            <Button onClick={() => updateStatus.mutate({ match: { arrival_time: new Date().toISOString() }, req: { status: "arrived" } })}>
+          {(match as unknown as { status: string }).status === "pending_approval" && (
+            <div className="text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-800 p-3">
+              依頼者の承認をお待ちください。承認されるとオーソリ（与信確保）が実行され、業務を開始できます。
+            </div>
+          )}
+          {(match as unknown as { status: string }).status !== "pending_approval" && !match.arrival_time && (
+            <Button onClick={() => updateStatus.mutate({ match: { arrival_time: new Date().toISOString(), status: "arrived" }, req: { status: "arrived" } })}>
               {t("request.actions.arrived")}
             </Button>
           )}
           {match.arrival_time && !match.start_time && (
-            <Button onClick={() => updateStatus.mutate({ match: { start_time: new Date().toISOString() }, req: { status: "in_progress" } })}>
+            <Button onClick={() => updateStatus.mutate({ match: { start_time: new Date().toISOString(), status: "in_progress" }, req: { status: "in_progress" } })}>
               {t("request.actions.startQueue")}
             </Button>
           )}
           {match.start_time && !match.end_time && (
-            <Button variant="default" onClick={() => updateStatus.mutate({ match: { end_time: new Date().toISOString() }, req: { status: "completed" } })}>
-              {t("request.actions.complete")}
+            <Button variant="default" onClick={() => updateStatus.mutate({ match: { end_time: new Date().toISOString(), status: "completed" }, req: { status: "completed" }, captureOnComplete: true })}>
+              {t("request.actions.complete")} & 決済確定
             </Button>
           )}
         </Card>
