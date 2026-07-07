@@ -121,6 +121,30 @@ function CustomerHome() {
       <main className="flex-1 container mx-auto px-4 py-10 max-w-4xl">
         <h1 className="font-serif text-3xl mb-6">{t("role.customer")}</h1>
 
+        {pendingMatches.length > 0 && (
+          <div className="mb-6 space-y-2">
+            {pendingMatches.map((m) => {
+              const req = requests.find((r) => r.id === m.request_id);
+              const deadline = new Date(m.created_at).getTime() + 5 * 60 * 1000;
+              const remainSec = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+              return (
+                <Link key={m.id} to="/customer/request/$id" params={{ id: m.request_id }}>
+                  <Card className="p-4 border-primary/40 bg-primary/5 hover:border-primary transition">
+                    <div className="text-sm font-medium">代行者から受注申請が届いています</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {req?.store_name ?? ""} — 承認/拒否を選択してください
+                    </div>
+                    <div className="text-xs mt-1 font-medium text-amber-700">
+                      残り {remainSec} 秒以内に承認されない場合、自動キャンセルされます
+                    </div>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+
+
         <Card className="p-6 mb-8">
           <h2 className="font-medium mb-4">{t("request.create")}</h2>
           <form
