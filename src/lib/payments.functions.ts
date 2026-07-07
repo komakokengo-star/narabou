@@ -344,3 +344,143 @@ export const capturePayment = createServerFn({ method: "POST" })
     return { capturedTotal, count: (authPayments ?? []).length };
   });
 
+
+// ============================================================
+// 完了フロー（2段階承認）
+// 代行者「完了報告」→ 依頼者「受け取り確認 or 異議申立」→ 決済確定
+// 30分以内に依頼者応答が無ければ自動確認して決済確定
+// ============================================================
+
+const CONFIRM_WINDOW_MINUTES = 30;
+
+// 内部ヘルパー: オーソリ済みをキャプチャ
+async function _captureAuthorized(requestId: string) {
+  const { getStripe } = await import("@/lib/stripe.server");
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const stripe = getStripe();
+  const { data: authPayments } = await supabaseAdmin
+    .from("payments").select("*").eq("request_id", requestId).eq("status", "authorized");
+  let capturedTotal = 0;
+  for (const p of authPayments ?? []) {
+    if (!p.stripe_payment_intent_id) continue;
+    try {
+      await stripe.paymentIntents.capture(p.stripe_payment_intent_id);
+      await supabaseAdmin.from("payments").update({
+        status: "paid", captured_at: new Date().toISOString(),
+      }).eq("id", p.id);
+      capturedTotal += p.amount;
+    } catch (e) {
+      console.error("capture failed", e);
+      throw new Error("決済の確定に失敗しました");
+    }
+  }
+  return { capturedTotal, count: (authPayments ?? []).length };
+}
+
+// 代行者: 完了報告（決済はまだ確定しない）
+export const requestCompletion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { requestId: string; completionNote?: string | null }) => d)
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: match } = await context.supabase
+      .from("matches").select("id, worker_id, status").eq("request_id", data.requestId).maybeSingle();
+    if (!match) throw new Error("Match not found");
+    const { data: isAdmin } = await context.supabase
+      .rpc("has_role", { _user_id: context.userId, _role: "admin" }) as { data: boolean | null };
+    if (!isAdmin && match.worker_id !== context.userId) throw new Error("Forbidden");
+    if (match.status !== "in_progress") throw new Error("業務中のみ完了報告できます");
+
+    const now = new Date();
+    const deadline = new Date(now.getTime() + CONFIRM_WINDOW_MINUTES * 60_000);
+    const { error: mErr } = await supabaseAdmin.from("matches").update({
+      status: "awaiting_confirmation",
+      end_time: now.toISOString(),
+      completion_note: data.completionNote ?? null,
+      confirm_deadline_at: deadline.toISOString(),
+    }).eq("id", match.id);
+    if (mErr) throw new Error(mErr.message);
+    await supabaseAdmin.from("requests").update({ status: "awaiting_confirmation" }).eq("id", data.requestId);
+    return { ok: true, deadline: deadline.toISOString() };
+  });
+
+// 依頼者: 受け取り確認 → 決済確定
+export const confirmCompletion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { requestId: string }) => d)
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: req } = await context.supabase
+      .from("requests").select("customer_id, status").eq("id", data.requestId).maybeSingle();
+    if (!req) throw new Error("Request not found");
+    const { data: isAdmin } = await context.supabase
+      .rpc("has_role", { _user_id: context.userId, _role: "admin" }) as { data: boolean | null };
+    if (!isAdmin && req.customer_id !== context.userId) throw new Error("Forbidden");
+
+    const capture = await _captureAuthorized(data.requestId);
+    await supabaseAdmin.from("matches").update({
+      status: "completed",
+      confirmed_at: new Date().toISOString(),
+    }).eq("request_id", data.requestId);
+    await supabaseAdmin.from("requests").update({ status: "completed" }).eq("id", data.requestId);
+    return { ok: true, ...capture };
+  });
+
+// 依頼者: 異議申立
+export const disputeCompletion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { requestId: string; reason: string }) => d)
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const reason = (data.reason ?? "").trim();
+    if (reason.length < 5) throw new Error("異議の内容を5文字以上で入力してください");
+    const { data: req } = await context.supabase
+      .from("requests").select("customer_id, store_name, request_number").eq("id", data.requestId).maybeSingle();
+    if (!req) throw new Error("Request not found");
+    if (req.customer_id !== context.userId) throw new Error("Forbidden");
+
+    await supabaseAdmin.from("matches").update({
+      status: "disputed",
+      dispute_reason: reason,
+      disputed_at: new Date().toISOString(),
+    }).eq("request_id", data.requestId);
+    await supabaseAdmin.rpc("notify_admin", {
+      p_kind: "dispute_filed",
+      p_severity: "alert",
+      p_title: `異議申立: ${req.store_name}`,
+      p_body: `#${String(req.request_number ?? "").padStart(4, "0")} に異議申立が届きました`,
+      p_request_id: data.requestId,
+      p_actor_id: context.userId,
+      p_details: { reason },
+    });
+    return { ok: true };
+  });
+
+// 期限切れの受け取り確認を自動確定（cron から呼ぶ）
+export const autoConfirmExpired = createServerFn({ method: "POST" })
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const nowIso = new Date().toISOString();
+    const { data: rows } = await supabaseAdmin
+      .from("matches")
+      .select("id, request_id, confirm_deadline_at")
+      .eq("status", "awaiting_confirmation")
+      .lte("confirm_deadline_at", nowIso);
+    let processed = 0;
+    for (const m of rows ?? []) {
+      if (!m.request_id) continue;
+      try {
+        await _captureAuthorized(m.request_id);
+        await supabaseAdmin.from("matches").update({
+          status: "completed",
+          confirmed_at: nowIso,
+          auto_confirmed: true,
+        }).eq("id", m.id);
+        await supabaseAdmin.from("requests").update({ status: "completed" }).eq("id", m.request_id);
+        processed++;
+      } catch (e) {
+        console.error("auto-confirm failed", m.id, e);
+      }
+    }
+    return { processed, scanned: (rows ?? []).length };
+  });
