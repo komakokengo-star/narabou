@@ -85,6 +85,18 @@ function CustomerHome() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("requests").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("削除しました");
+      qc.invalidateQueries({ queryKey: ["customer-requests"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const fee = calcFee({ waitMinutes: estimatedWait, isPeak });
 
   return (
