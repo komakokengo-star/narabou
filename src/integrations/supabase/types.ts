@@ -567,6 +567,8 @@ export type Database = {
         | "in_progress"
         | "completed"
         | "canceled"
+        | "awaiting_confirmation"
+        | "disputed"
       payment_status:
         | "pending"
         | "paid"
@@ -718,6 +720,8 @@ export const Constants = {
         "in_progress",
         "completed",
         "canceled",
+        "awaiting_confirmation",
+        "disputed",
       ],
       payment_status: [
         "pending",
