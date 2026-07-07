@@ -45,6 +45,8 @@ function CustomerHome() {
   const [estimatedWait, setEstimatedWait] = useState(30);
   const [isPeak, setIsPeak] = useState(false);
   const [notes, setNotes] = useState("");
+  const [landmark, setLandmark] = useState("");
+  const [numberDisplayMethod, setNumberDisplayMethod] = useState("");
 
   const create = useMutation({
     mutationFn: async () => {
@@ -60,6 +62,8 @@ function CustomerHome() {
           estimated_wait_minutes: estimatedWait,
           is_peak: isPeak,
           notes: notes || null,
+          landmark: landmark || null,
+          number_display_method: numberDisplayMethod || null,
           base_fee: fee.base,
           time_fee: fee.time,
           peak_fee: fee.peak,
@@ -75,7 +79,7 @@ function CustomerHome() {
     onSuccess: () => {
       toast.success("依頼を作成しました");
       qc.invalidateQueries({ queryKey: ["customer-requests"] });
-      setStoreName(""); setStoreAddress(""); setNotes("");
+      setStoreName(""); setStoreAddress(""); setNotes(""); setLandmark(""); setNumberDisplayMethod("");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -131,6 +135,35 @@ function CustomerHome() {
               />
             </div>
 
+            <div className="sm:col-span-2 rounded-md border border-border/60 bg-muted/30 p-4 space-y-3">
+              <div>
+                <div className="text-sm font-medium">{t("request.contactInfo")}</div>
+                <p className="text-xs text-muted-foreground mt-1">{t("request.contactInfoDesc")}</p>
+              </div>
+              <div>
+                <Label>{t("request.landmark")}</Label>
+                <Textarea
+                  value={landmark}
+                  onChange={(e) => setLandmark(e.target.value)}
+                  maxLength={300}
+                  rows={2}
+                  placeholder={t("request.landmarkPlaceholder")}
+                  className="placeholder:text-muted-foreground/60"
+                />
+              </div>
+              <div>
+                <Label>{t("request.numberDisplayMethod")}</Label>
+                <Textarea
+                  value={numberDisplayMethod}
+                  onChange={(e) => setNumberDisplayMethod(e.target.value)}
+                  maxLength={300}
+                  rows={2}
+                  placeholder={t("request.numberDisplayMethodPlaceholder")}
+                  className="placeholder:text-muted-foreground/60"
+                />
+              </div>
+            </div>
+
             <div className="sm:col-span-2 p-4 rounded-md bg-muted/40 text-sm space-y-1">
               <Row label={t("fees.base")} v={formatYen(fee.base)} />
               <Row label={`${t("fees.time")} (${estimatedWait}${t("common.minutes")})`} v={formatYen(fee.time)} />
@@ -154,7 +187,14 @@ function CustomerHome() {
             <Link key={r.id} to="/customer/request/$id" params={{ id: r.id }}>
               <Card className="p-4 hover:border-primary transition flex items-center justify-between">
                 <div>
-                  <div className="font-medium">{r.store_name}</div>
+                  <div className="font-medium">
+                    {r.request_number != null && (
+                      <span className="text-xs font-mono text-muted-foreground mr-2">
+                        #{String(r.request_number).padStart(4, "0")}
+                      </span>
+                    )}
+                    {r.store_name}
+                  </div>
                   <div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</div>
                 </div>
                 <div className="text-right">

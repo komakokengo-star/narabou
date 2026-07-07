@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import { formatYen, calcFee, PLATFORM_RATE } from "@/lib/fees";
 import { toast } from "sonner";
@@ -29,6 +29,7 @@ function WorkerHome() {
   const { data: profile, refetch: refetchProfile } = useProfile(user?.id);
   const qc = useQueryClient();
   const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const [detailJobId, setDetailJobId] = useState<string | null>(null);
 
 
   const [displayName, setDisplayName] = useState("");
@@ -63,9 +64,11 @@ function WorkerHome() {
       if (error) throw error;
       await supabase.from("requests").update({ status: "matched" }).eq("id", requestId);
     },
-    onSuccess: () => { toast.success("受注しました"); qc.invalidateQueries(); },
+    onSuccess: () => { toast.success("受注しました"); setDetailJobId(null); qc.invalidateQueries(); },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const detailJob = openJobs.find((j) => j.id === detailJobId) ?? null;
 
   const saveName = useMutation({
     mutationFn: async () => {
@@ -243,7 +246,14 @@ function WorkerHome() {
             return (
               <Card key={r.id} className="p-4 flex items-center justify-between flex-wrap gap-3">
                 <div>
-                  <div className="font-medium">{r.store_name}</div>
+                  <div className="font-medium">
+                    {r.request_number != null && (
+                      <span className="text-xs font-mono text-muted-foreground mr-2">
+                        #{String(r.request_number).padStart(4, "0")}
+                      </span>
+                    )}
+                    {r.store_name}
+                  </div>
                   <div className="text-xs text-muted-foreground">
                     想定 {r.estimated_wait_minutes}分 · {r.is_peak ? "ピーク" : "通常"}
                   </div>
@@ -252,7 +262,7 @@ function WorkerHome() {
                   <div className="text-sm">{formatYen(f.total)}</div>
                   <div className="text-[10px] text-muted-foreground">報酬 {formatYen(Math.round(f.total * (1 - PLATFORM_RATE)))}</div>
                 </div>
-                <Button size="sm" onClick={() => accept.mutate(r.id)} disabled={!canAcceptJobs}>
+                <Button size="sm" onClick={() => setDetailJobId(r.id)} disabled={!canAcceptJobs}>
                   {t("request.actions.accept")}
                 </Button>
               </Card>
@@ -313,6 +323,73 @@ function WorkerHome() {
               onError={(msg) => toast.error(msg)}
             />
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!detailJob} onOpenChange={(o) => { if (!o) setDetailJobId(null); }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t("request.acceptDetailTitle")}</DialogTitle>
+            <DialogDescription>{t("request.acceptDetailDesc")}</DialogDescription>
+          </DialogHeader>
+          {detailJob && (
+            <div className="space-y-4 text-sm">
+              <div>
+                <div className="text-xs text-muted-foreground">{t("request.requestNumber")}</div>
+                <div className="font-mono text-base">
+                  #{detailJob.request_number != null ? String(detailJob.request_number).padStart(4, "0") : "----"}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">{t("request.storeName")}</div>
+                <div className="font-medium">{detailJob.store_name}</div>
+                {detailJob.store_address && (
+                  <div className="text-xs text-muted-foreground mt-0.5">{detailJob.store_address}</div>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <div className="text-xs text-muted-foreground">{t("request.desiredTime")}</div>
+                  <div>{detailJob.desired_time ? new Date(detailJob.desired_time).toLocaleString() : "—"}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">{t("request.estimatedWait")}</div>
+                  <div>{detailJob.estimated_wait_minutes}{t("common.minutes")} {detailJob.is_peak ? "・ピーク" : ""}</div>
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">{t("request.notes")}</div>
+                <div className="whitespace-pre-wrap rounded-md bg-muted/40 p-3 text-xs min-h-[40px]">
+                  {detailJob.notes || "—"}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">{t("request.landmark")}</div>
+                <div className="whitespace-pre-wrap rounded-md bg-muted/40 p-3 text-xs min-h-[40px]">
+                  {detailJob.landmark || "—"}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">{t("request.numberDisplayMethod")}</div>
+                <div className="whitespace-pre-wrap rounded-md bg-muted/40 p-3 text-xs min-h-[40px]">
+                  {detailJob.number_display_method || "—"}
+                </div>
+              </div>
+              <div className="flex justify-between border-t pt-3">
+                <span className="text-xs text-muted-foreground">{t("fees.total")}</span>
+                <span className="font-medium">{formatYen(detailJob.total_fee)}</span>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setDetailJobId(null)}>{t("common.cancel")}</Button>
+            <Button
+              onClick={() => detailJob && accept.mutate(detailJob.id)}
+              disabled={accept.isPending || !canAcceptJobs}
+            >
+              {t("request.confirmAccept")}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
