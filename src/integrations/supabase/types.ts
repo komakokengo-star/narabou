@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_notifications: {
+        Row: {
+          actor_id: string | null
+          body: string | null
+          created_at: string
+          details: Json
+          id: string
+          kind: string
+          read_at: string | null
+          request_id: string | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          kind: string
+          read_at?: string | null
+          request_id?: string | null
+          severity?: string
+          title: string
+        }
+        Update: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          kind?: string
+          read_at?: string | null
+          request_id?: string | null
+          severity?: string
+          title?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -174,33 +213,42 @@ export type Database = {
       }
       matches: {
         Row: {
+          approved_at: string | null
           arrival_time: string | null
           created_at: string
           end_time: string | null
           id: string
           rating: number | null
+          rejected_at: string | null
           request_id: string
           start_time: string | null
+          status: Database["public"]["Enums"]["match_status"]
           worker_id: string
         }
         Insert: {
+          approved_at?: string | null
           arrival_time?: string | null
           created_at?: string
           end_time?: string | null
           id?: string
           rating?: number | null
+          rejected_at?: string | null
           request_id: string
           start_time?: string | null
+          status?: Database["public"]["Enums"]["match_status"]
           worker_id: string
         }
         Update: {
+          approved_at?: string | null
           arrival_time?: string | null
           created_at?: string
           end_time?: string | null
           id?: string
           rating?: number | null
+          rejected_at?: string | null
           request_id?: string
           start_time?: string | null
+          status?: Database["public"]["Enums"]["match_status"]
           worker_id?: string
         }
         Relationships: [
@@ -216,6 +264,8 @@ export type Database = {
       payments: {
         Row: {
           amount: number
+          authorized_at: string | null
+          captured_at: string | null
           created_at: string
           id: string
           kind: string
@@ -229,6 +279,8 @@ export type Database = {
         }
         Insert: {
           amount: number
+          authorized_at?: string | null
+          captured_at?: string | null
           created_at?: string
           id?: string
           kind?: string
@@ -242,6 +294,8 @@ export type Database = {
         }
         Update: {
           amount?: number
+          authorized_at?: string | null
+          captured_at?: string | null
           created_at?: string
           id?: string
           kind?: string
@@ -464,6 +518,18 @@ export type Database = {
         }
         Returns: number
       }
+      notify_admin: {
+        Args: {
+          p_actor_id: string
+          p_body: string
+          p_details: Json
+          p_kind: string
+          p_request_id: string
+          p_severity: string
+          p_title: string
+        }
+        Returns: undefined
+      }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
@@ -475,12 +541,22 @@ export type Database = {
     }
     Enums: {
       app_role: "customer" | "worker" | "admin"
+      match_status:
+        | "pending_approval"
+        | "approved"
+        | "rejected"
+        | "arrived"
+        | "in_progress"
+        | "completed"
+        | "canceled"
       payment_status:
         | "pending"
         | "paid"
         | "refunded"
         | "partially_refunded"
         | "failed"
+        | "authorized"
+        | "canceled"
       request_status:
         | "open"
         | "matched"
@@ -616,12 +692,23 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["customer", "worker", "admin"],
+      match_status: [
+        "pending_approval",
+        "approved",
+        "rejected",
+        "arrived",
+        "in_progress",
+        "completed",
+        "canceled",
+      ],
       payment_status: [
         "pending",
         "paid",
         "refunded",
         "partially_refunded",
         "failed",
+        "authorized",
+        "canceled",
       ],
       request_status: [
         "open",
