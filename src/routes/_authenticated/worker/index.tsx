@@ -325,6 +325,73 @@ function WorkerHome() {
           )}
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!detailJob} onOpenChange={(o) => { if (!o) setDetailJobId(null); }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t("request.acceptDetailTitle")}</DialogTitle>
+            <DialogDescription>{t("request.acceptDetailDesc")}</DialogDescription>
+          </DialogHeader>
+          {detailJob && (
+            <div className="space-y-4 text-sm">
+              <div>
+                <div className="text-xs text-muted-foreground">{t("request.requestNumber")}</div>
+                <div className="font-mono text-base">
+                  #{detailJob.request_number != null ? String(detailJob.request_number).padStart(4, "0") : "----"}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">{t("request.storeName")}</div>
+                <div className="font-medium">{detailJob.store_name}</div>
+                {detailJob.store_address && (
+                  <div className="text-xs text-muted-foreground mt-0.5">{detailJob.store_address}</div>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <div className="text-xs text-muted-foreground">{t("request.desiredTime")}</div>
+                  <div>{detailJob.desired_time ? new Date(detailJob.desired_time).toLocaleString() : "—"}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">{t("request.estimatedWait")}</div>
+                  <div>{detailJob.estimated_wait_minutes}{t("common.minutes")} {detailJob.is_peak ? "・ピーク" : ""}</div>
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">{t("request.notes")}</div>
+                <div className="whitespace-pre-wrap rounded-md bg-muted/40 p-3 text-xs min-h-[40px]">
+                  {detailJob.notes || "—"}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">{t("request.landmark")}</div>
+                <div className="whitespace-pre-wrap rounded-md bg-muted/40 p-3 text-xs min-h-[40px]">
+                  {detailJob.landmark || "—"}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">{t("request.numberDisplayMethod")}</div>
+                <div className="whitespace-pre-wrap rounded-md bg-muted/40 p-3 text-xs min-h-[40px]">
+                  {detailJob.number_display_method || "—"}
+                </div>
+              </div>
+              <div className="flex justify-between border-t pt-3">
+                <span className="text-xs text-muted-foreground">{t("fees.total")}</span>
+                <span className="font-medium">{formatYen(detailJob.total_fee)}</span>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setDetailJobId(null)}>{t("common.cancel")}</Button>
+            <Button
+              onClick={() => detailJob && accept.mutate(detailJob.id)}
+              disabled={accept.isPending || !canAcceptJobs}
+            >
+              {t("request.confirmAccept")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 
