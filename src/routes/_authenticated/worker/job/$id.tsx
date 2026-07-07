@@ -41,7 +41,7 @@ function WorkerJob() {
     refetchInterval: 10000,
   });
 
-  type MatchUpdate = Partial<{ arrival_time: string; start_time: string; end_time: string; status: string }>;
+  type MatchUpdate = Partial<{ arrival_time: string; start_time: string; end_time: string; status: string; arrival_note: string | null; start_note: string | null; completion_note: string | null; worker_features: string | null }>;
   type RequestUpdate = Partial<{ status: "open" | "matched" | "arrived" | "in_progress" | "completed" | "canceled" }>;
   const updateStatus = useMutation({
     mutationFn: async (patch: { req?: RequestUpdate; match?: MatchUpdate; captureOnComplete?: boolean }) => {
@@ -55,6 +55,20 @@ function WorkerJob() {
     onSuccess: () => { qc.invalidateQueries(); toast.success("更新しました"); },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const [workerFeatures, setWorkerFeatures] = useState("");
+  const [arrivalNote, setArrivalNote] = useState("");
+  const [startNote, setStartNote] = useState("");
+  const [completionNote, setCompletionNote] = useState("");
+
+  const saveFeatures = useMutation({
+    mutationFn: async (v: string) => {
+      await supabase.from("matches").update({ worker_features: v || null } as never).eq("id", matchId);
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["worker-match", matchId] }); toast.success("特徴を保存しました"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const [waitTime, setWaitTime] = useState(0);
   const [note, setNote] = useState("");
