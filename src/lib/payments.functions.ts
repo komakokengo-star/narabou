@@ -233,10 +233,10 @@ export const cancelRequest = createServerFn({ method: "POST" })
     return { refunded: refund };
   });
 
-// 依頼者が受注申請を承認/拒否
+// 依頼者が受注申請を承認/拒否（コメント任意・5分タイムアウト自動キャンセル対応）
 export const respondToMatch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { matchId: string; approve: boolean }) => d)
+  .inputValidator((d: { matchId: string; approve: boolean; comment?: string; autoCancel?: boolean }) => d)
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: match } = await context.supabase
@@ -252,17 +252,20 @@ export const respondToMatch = createServerFn({ method: "POST" })
     if (data.approve) {
       await supabaseAdmin.from("matches").update({
         status: "approved", approved_at: now,
+        approval_comment: data.comment?.trim() || null,
       }).eq("id", data.matchId);
       await supabaseAdmin.from("requests").update({ status: "matched" }).eq("id", match.request_id);
     } else {
       await supabaseAdmin.from("matches").update({
         status: "rejected", rejected_at: now,
+        auto_canceled_at: data.autoCancel ? now : null,
       }).eq("id", data.matchId);
       // 依頼を再オープン
       await supabaseAdmin.from("requests").update({ status: "open" }).eq("id", match.request_id);
     }
     return { ok: true };
   });
+
 
 // 代行者の完了報告時に呼ばれ、オーソリ済み決済をキャプチャして確定
 export const capturePayment = createServerFn({ method: "POST" })

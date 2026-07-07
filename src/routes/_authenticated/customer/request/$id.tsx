@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
+
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -92,15 +94,34 @@ function RequestDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const [approvalComment, setApprovalComment] = useState("");
   const respondMatch = useMutation({
-    mutationFn: (approve: boolean) => respondToMatch({ data: { matchId: match!.id, approve } }),
-    onSuccess: (_r, approve) => {
-      toast.success(approve ? "承認しました。決済のオーソリへ進んでください" : "受注申請を拒否しました");
+    mutationFn: (v: { approve: boolean; autoCancel?: boolean }) =>
+      respondToMatch({ data: { matchId: match!.id, approve: v.approve, comment: approvalComment, autoCancel: v.autoCancel } }),
+    onSuccess: (_r, v) => {
+      toast.success(v.approve ? "承認しました。決済のオーソリへ進んでください" : (v.autoCancel ? "5分以内に承認されなかったため自動キャンセルしました" : "受注申請を拒否しました"));
       qc.invalidateQueries();
-      if (approve) startPay.mutate();
+      if (v.approve) startPay.mutate();
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  // 5分タイムアウトで自動キャンセル
+  const matchStatus = (match as unknown as { status?: string } | null)?.status;
+  const matchCreatedAt = (match as unknown as { created_at?: string } | null)?.created_at;
+  const deadlineMs = matchCreatedAt ? new Date(matchCreatedAt).getTime() + 5 * 60 * 1000 : null;
+  const [nowMs, setNowMs] = useState(Date.now());
+  useEffect(() => {
+    if (matchStatus !== "pending_approval") return;
+    const t = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [matchStatus]);
+  useEffect(() => {
+    if (matchStatus === "pending_approval" && deadlineMs && nowMs >= deadlineMs && !respondMatch.isPending) {
+      respondMatch.mutate({ approve: false, autoCancel: true });
+    }
+  }, [matchStatus, deadlineMs, nowMs, respondMatch]);
+
 
   // ピーク料金は依頼作成後でも、支払い前であれば依頼者がON/OFFを切り替え可能。
   // 切り替えると peak_fee と total_fee を再計算して requests テーブルに反映する。
@@ -233,28 +254,56 @@ function RequestDetail() {
         )}
 
         {/* 受注承認フロー: 代行者からの受注申請待ち */}
-        {match && (match as unknown as { status: string }).status === "pending_approval" && (
+        {match && matchStatus === "pending_approval" && (
           <Card className="p-6 mt-6 border-primary/40 bg-primary/5">
             <div className="text-sm font-medium mb-1">代行者から受注申請が届いています</div>
-            <p className="text-xs text-muted-foreground mb-4">
+            <p className="text-xs text-muted-foreground mb-3">
               承認すると決済のオーソリ（与信確保）を行い、代行者に業務開始の許可が出ます。
               オーソリ段階では請求は確定せず、業務完了時に確定します。キャンセル時はオーソリを解除します。
             </p>
+            {deadlineMs && (
+              <p className="text-xs mb-3 font-medium text-amber-700">
+                {nowMs < deadlineMs
+                  ? `残り ${Math.max(0, Math.ceil((deadlineMs - nowMs) / 1000))} 秒以内に承認されない場合、自動的にキャンセルされます`
+                  : "承認期限を過ぎたため自動キャンセル処理中..."}
+              </p>
+            )}
+            <div className="mb-3">
+              <label className="text-xs font-medium block mb-1">代行者へのコメント（任意）</label>
+              <Textarea
+                value={approvalComment}
+                onChange={(e) => setApprovalComment(e.target.value)}
+                rows={3}
+                maxLength={300}
+                placeholder="待ち合わせ場所や依頼のポイントなど、承認時に代行者へ伝えたい内容"
+              />
+            </div>
             <div className="flex gap-2 flex-wrap">
-              <Button onClick={() => respondMatch.mutate(true)} disabled={respondMatch.isPending}>
+              <Button onClick={() => respondMatch.mutate({ approve: true })} disabled={respondMatch.isPending}>
                 承認してオーソリへ進む
               </Button>
-              <Button variant="outline" onClick={() => respondMatch.mutate(false)} disabled={respondMatch.isPending}>
+              <Button variant="outline" onClick={() => respondMatch.mutate({ approve: false })} disabled={respondMatch.isPending}>
                 拒否する
               </Button>
             </div>
           </Card>
         )}
 
+        {/* 自動キャンセル通知 */}
+        {match && (match as unknown as { auto_canceled_at?: string | null }).auto_canceled_at && (
+          <Card className="p-4 mt-6 border-amber-300 bg-amber-50">
+            <div className="text-sm font-medium text-amber-900">受注申請は自動キャンセルされました</div>
+            <p className="text-xs text-amber-800 mt-1">
+              5分以内に承認されなかったため、受注申請を自動的にキャンセルしました。依頼は再度公開されています。
+            </p>
+          </Card>
+        )}
+
+
         {/* Actions: ステータス連動で自動制御 */}
         {(() => {
-          const matchStatus = (match as unknown as { status?: string } | null)?.status;
           const rs = request.status;
+
           const hasPaid = payments.some((p) => p.status === "paid" && p.kind === "main");
           const hasAuth = payments.some((p) => p.status === "authorized" && p.kind === "main");
           // 支払いボタン: 承認済みでオーソリも支払いも無い時のみ
