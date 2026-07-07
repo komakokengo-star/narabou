@@ -24,9 +24,11 @@ function Landing() {
       <main className="flex-1">
         <section className="container mx-auto px-4 pt-16 pb-12 sm:pt-24 sm:pb-20">
           <div className="max-w-3xl">
-            <p className="text-xs tracking-[0.3em] text-primary uppercase mb-4">福岡 · ベータ版</p>
-            <h1 className="font-serif text-4xl sm:text-6xl font-bold leading-tight">
-              {t("app.name")}
+            <p className="text-sm sm:text-base tracking-[0.2em] text-primary uppercase mb-5 font-medium">
+              福岡行列代行アプリ
+            </p>
+            <h1 className="font-serif text-5xl sm:text-7xl font-bold leading-[1.05] tracking-[0.02em]">
+              ＮＡＲＡＢＯＵ
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl">
               {t("app.tagline")}
