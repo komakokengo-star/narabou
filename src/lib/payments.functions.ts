@@ -39,6 +39,7 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
     const intent = await stripe.paymentIntents.create({
       amount: fee.total,
       currency: "jpy",
+      capture_method: "manual", // マッチ成立時にオーソリ、完了時にキャプチャ
       automatic_payment_methods: { enabled: true },
       metadata: { request_id: req.id, customer_id: context.userId, kind: "main" },
       ...(destination
@@ -49,13 +50,13 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
         : {}),
     });
 
-    // remove previous pending main payments for idempotency
+    // remove previous pending/authorized main payments for idempotency
     await supabaseAdmin
       .from("payments")
       .delete()
       .eq("request_id", req.id)
       .eq("kind", "main")
-      .eq("status", "pending");
+      .in("status", ["pending", "authorized"]);
 
     const { error: payErr } = await supabaseAdmin.from("payments").insert({
       request_id: req.id,
