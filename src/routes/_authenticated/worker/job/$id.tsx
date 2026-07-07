@@ -41,13 +41,16 @@ function WorkerJob() {
     refetchInterval: 10000,
   });
 
-  type MatchUpdate = Partial<{ arrival_time: string; start_time: string; end_time: string }>;
+  type MatchUpdate = Partial<{ arrival_time: string; start_time: string; end_time: string; status: string }>;
   type RequestUpdate = Partial<{ status: "open" | "matched" | "arrived" | "in_progress" | "completed" | "canceled" }>;
   const updateStatus = useMutation({
-    mutationFn: async (patch: { req?: RequestUpdate; match?: MatchUpdate }) => {
-      if (patch.match) await supabase.from("matches").update(patch.match).eq("id", matchId);
+    mutationFn: async (patch: { req?: RequestUpdate; match?: MatchUpdate; captureOnComplete?: boolean }) => {
+      if (patch.match) await supabase.from("matches").update(patch.match as never).eq("id", matchId);
       if (patch.req && match?.request_id)
         await supabase.from("requests").update(patch.req).eq("id", match.request_id);
+      if (patch.captureOnComplete && match?.request_id) {
+        await capturePayment({ data: { requestId: match.request_id } });
+      }
     },
     onSuccess: () => { qc.invalidateQueries(); toast.success("更新しました"); },
     onError: (e: Error) => toast.error(e.message),
