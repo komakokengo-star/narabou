@@ -64,9 +64,11 @@ function WorkerHome() {
       if (error) throw error;
       await supabase.from("requests").update({ status: "matched" }).eq("id", requestId);
     },
-    onSuccess: () => { toast.success("受注しました"); qc.invalidateQueries(); },
+    onSuccess: () => { toast.success("受注しました"); setDetailJobId(null); qc.invalidateQueries(); },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const detailJob = openJobs.find((j) => j.id === detailJobId) ?? null;
 
   const saveName = useMutation({
     mutationFn: async () => {
