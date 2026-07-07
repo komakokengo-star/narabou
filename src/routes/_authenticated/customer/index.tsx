@@ -45,6 +45,8 @@ function CustomerHome() {
   const [estimatedWait, setEstimatedWait] = useState(30);
   const [isPeak, setIsPeak] = useState(false);
   const [notes, setNotes] = useState("");
+  const [landmark, setLandmark] = useState("");
+  const [numberDisplayMethod, setNumberDisplayMethod] = useState("");
 
   const create = useMutation({
     mutationFn: async () => {
