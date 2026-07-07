@@ -223,6 +223,49 @@ function RequestDetail() {
           </div>
         </Card>
 
+        {/* 代行者からのメッセージ */}
+        {match && (() => {
+          const m = match as unknown as {
+            worker_features?: string | null;
+            arrival_note?: string | null;
+            start_note?: string | null;
+            completion_note?: string | null;
+          };
+          const hasAny = m.worker_features || m.arrival_note || m.start_note || m.completion_note;
+          if (!hasAny) return null;
+          return (
+            <Card className="p-6 mt-6 space-y-3">
+              <div className="text-sm font-medium">代行者からのお知らせ</div>
+              {m.worker_features && (
+                <div>
+                  <div className="text-xs text-muted-foreground">特徴 / 整理券番号</div>
+                  <p className="text-sm whitespace-pre-wrap">{m.worker_features}</p>
+                </div>
+              )}
+              {m.arrival_note && (
+                <div>
+                  <div className="text-xs text-muted-foreground">現地到着時</div>
+                  <p className="text-sm whitespace-pre-wrap">{m.arrival_note}</p>
+                </div>
+              )}
+              {m.start_note && (
+                <div>
+                  <div className="text-xs text-muted-foreground">業務開始時</div>
+                  <p className="text-sm whitespace-pre-wrap">{m.start_note}</p>
+                </div>
+              )}
+              {m.completion_note && (
+                <div>
+                  <div className="text-xs text-muted-foreground">完了時</div>
+                  <p className="text-sm whitespace-pre-wrap">{m.completion_note}</p>
+                </div>
+              )}
+            </Card>
+          );
+        })()}
+
+
+
 
         {/* Map */}
         {latest?.location_lat && latest?.location_lng && (
