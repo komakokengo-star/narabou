@@ -40,6 +40,22 @@ function CustomerHome() {
     },
   });
 
+  const { data: pendingMatches = [] } = useQuery({
+    queryKey: ["customer-pending-matches", user?.id],
+    enabled: !!user && requests.length > 0,
+    refetchInterval: 8000,
+    queryFn: async () => {
+      const ids = requests.map((r) => r.id);
+      const { data, error } = await supabase
+        .from("matches")
+        .select("id, request_id, status, created_at")
+        .in("request_id", ids)
+        .eq("status", "pending_approval");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const [storeName, setStoreName] = useState("");
   const [storeAddress, setStoreAddress] = useState("");
   const [desiredTime, setDesiredTime] = useState("");
