@@ -187,7 +187,14 @@ function CustomerHome() {
             <Link key={r.id} to="/customer/request/$id" params={{ id: r.id }}>
               <Card className="p-4 hover:border-primary transition flex items-center justify-between">
                 <div>
-                  <div className="font-medium">{r.store_name}</div>
+                  <div className="font-medium">
+                    {r.request_number != null && (
+                      <span className="text-xs font-mono text-muted-foreground mr-2">
+                        #{String(r.request_number).padStart(4, "0")}
+                      </span>
+                    )}
+                    {r.store_name}
+                  </div>
                   <div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</div>
                 </div>
                 <div className="text-right">
