@@ -101,9 +101,6 @@ function RequestDetail() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
-    onSuccess: (r) => { toast.success(`返金額: ${formatYen(r.refunded)}`); qc.invalidateQueries(); },
-    onError: (e: Error) => toast.error(e.message),
-  });
 
   // ピーク料金は依頼作成後でも、支払い前であれば依頼者がON/OFFを切り替え可能。
   // 切り替えると peak_fee と total_fee を再計算して requests テーブルに反映する。
