@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ArrowLeft, MapPin } from "lucide-react";
-import { capturePayment } from "@/lib/payments.functions";
+import { requestCompletion } from "@/lib/payments.functions";
 import { reverseGeocode } from "@/lib/geocode.functions";
 
 export const Route = createFileRoute("/_authenticated/worker/job/$id")({
