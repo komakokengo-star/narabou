@@ -255,9 +255,14 @@ function WorkerJob() {
                 maxLength={300}
                 placeholder="例）列に並び始めました。現在の待ち時間は約30分です。"
               />
-              <Button onClick={() => updateStatus.mutate({ match: { start_time: new Date().toISOString(), status: "in_progress", start_note: startNote || null }, req: { status: "in_progress" } })}>
-                {t("request.actions.startQueue")}
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={() => updateStatus.mutate({ match: { start_time: new Date().toISOString(), status: "in_progress", start_note: startNote || null }, req: { status: "in_progress" } })}>
+                  {t("request.actions.startQueue")}
+                </Button>
+                <Button type="button" variant="ghost" size="sm" onClick={() => setStartNote("列に並び始めました。現在の待ち時間は約30分です。")}>
+                  例文を使う
+                </Button>
+              </div>
             </div>
           )}
           {match.start_time && !match.end_time && (
