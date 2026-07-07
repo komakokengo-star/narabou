@@ -172,6 +172,58 @@ function AdminHome() {
           </Card>
         </div>
 
+        {/* リアルタイム通知フィード */}
+        <Card className="p-4 mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 font-medium">
+              {notifications.some(n => !n.read_at)
+                ? <BellRing className="w-4 h-4 text-primary animate-pulse" />
+                : <Bell className="w-4 h-4 text-muted-foreground" />}
+              リアルタイム通知
+              {notifications.filter(n => !n.read_at).length > 0 && (
+                <Badge>{notifications.filter(n => !n.read_at).length} 未読</Badge>
+              )}
+            </div>
+            {notifications.some(n => !n.read_at) && (
+              <Button size="sm" variant="ghost" onClick={() => markAllRead.mutate()}>
+                すべて既読
+              </Button>
+            )}
+          </div>
+          <div className="max-h-72 overflow-y-auto space-y-1">
+            {notifications.length === 0 && (
+              <div className="text-xs text-muted-foreground text-center py-6">通知はありません</div>
+            )}
+            {notifications.map(n => (
+              <div
+                key={n.id}
+                className={`p-2 rounded-md text-sm flex items-start gap-2 border ${
+                  !n.read_at ? "bg-primary/5 border-primary/20" : "border-transparent"
+                }`}
+              >
+                <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                  n.severity === "alert" ? "bg-destructive" :
+                  n.severity === "warn" ? "bg-amber-500" : "bg-emerald-500"
+                }`} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium">{n.title}</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {new Date(n.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                  {n.body && <div className="text-xs text-muted-foreground">{n.body}</div>}
+                </div>
+                {!n.read_at && (
+                  <Button size="sm" variant="ghost" className="h-6 px-2 text-xs"
+                    onClick={() => markRead.mutate(n.id)}>既読</Button>
+                )}
+              </div>
+            ))}
+          </div>
+        </Card>
+
+
         <h2 className="font-medium mb-3">{t("admin.requests")}</h2>
         <div className="space-y-2 mb-8">
           {requests.map((r) => (
