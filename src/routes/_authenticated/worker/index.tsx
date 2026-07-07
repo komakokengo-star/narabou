@@ -29,6 +29,7 @@ function WorkerHome() {
   const { data: profile, refetch: refetchProfile } = useProfile(user?.id);
   const qc = useQueryClient();
   const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const [detailJobId, setDetailJobId] = useState<string | null>(null);
 
 
   const [displayName, setDisplayName] = useState("");
