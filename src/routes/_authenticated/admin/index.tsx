@@ -1,4 +1,5 @@
 import { createFileRoute, redirect, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +11,7 @@ import { formatYen, PLATFORM_RATE } from "@/lib/fees";
 import { toast } from "sonner";
 import { cancelRequest } from "@/lib/payments.functions";
 import { adminListConnectStatuses, type ConnectStatus } from "@/lib/stripe-connect.functions";
-import { CheckCircle2, Clock, AlertTriangle, Circle, RefreshCw } from "lucide-react";
+import { CheckCircle2, Clock, AlertTriangle, Circle, RefreshCw, Bell, BellRing } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   ssr: false,
