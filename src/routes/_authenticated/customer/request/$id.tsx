@@ -254,23 +254,51 @@ function RequestDetail() {
         )}
 
         {/* 受注承認フロー: 代行者からの受注申請待ち */}
-        {match && (match as unknown as { status: string }).status === "pending_approval" && (
+        {match && matchStatus === "pending_approval" && (
           <Card className="p-6 mt-6 border-primary/40 bg-primary/5">
             <div className="text-sm font-medium mb-1">代行者から受注申請が届いています</div>
-            <p className="text-xs text-muted-foreground mb-4">
+            <p className="text-xs text-muted-foreground mb-3">
               承認すると決済のオーソリ（与信確保）を行い、代行者に業務開始の許可が出ます。
               オーソリ段階では請求は確定せず、業務完了時に確定します。キャンセル時はオーソリを解除します。
             </p>
+            {deadlineMs && (
+              <p className="text-xs mb-3 font-medium text-amber-700">
+                {nowMs < deadlineMs
+                  ? `残り ${Math.max(0, Math.ceil((deadlineMs - nowMs) / 1000))} 秒以内に承認されない場合、自動的にキャンセルされます`
+                  : "承認期限を過ぎたため自動キャンセル処理中..."}
+              </p>
+            )}
+            <div className="mb-3">
+              <label className="text-xs font-medium block mb-1">代行者へのコメント（任意）</label>
+              <Textarea
+                value={approvalComment}
+                onChange={(e) => setApprovalComment(e.target.value)}
+                rows={3}
+                maxLength={300}
+                placeholder="待ち合わせ場所や依頼のポイントなど、承認時に代行者へ伝えたい内容"
+              />
+            </div>
             <div className="flex gap-2 flex-wrap">
-              <Button onClick={() => respondMatch.mutate(true)} disabled={respondMatch.isPending}>
+              <Button onClick={() => respondMatch.mutate({ approve: true })} disabled={respondMatch.isPending}>
                 承認してオーソリへ進む
               </Button>
-              <Button variant="outline" onClick={() => respondMatch.mutate(false)} disabled={respondMatch.isPending}>
+              <Button variant="outline" onClick={() => respondMatch.mutate({ approve: false })} disabled={respondMatch.isPending}>
                 拒否する
               </Button>
             </div>
           </Card>
         )}
+
+        {/* 自動キャンセル通知 */}
+        {match && (match as unknown as { auto_canceled_at?: string | null }).auto_canceled_at && (
+          <Card className="p-4 mt-6 border-amber-300 bg-amber-50">
+            <div className="text-sm font-medium text-amber-900">受注申請は自動キャンセルされました</div>
+            <p className="text-xs text-amber-800 mt-1">
+              5分以内に承認されなかったため、受注申請を自動的にキャンセルしました。依頼は再度公開されています。
+            </p>
+          </Card>
+        )}
+
 
         {/* Actions: ステータス連動で自動制御 */}
         {(() => {
