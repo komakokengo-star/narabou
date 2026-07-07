@@ -260,7 +260,7 @@ function WorkerHome() {
                     {r.store_name}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    想定 {r.estimated_wait_minutes}分 · {r.is_peak ? "ピーク" : "通常"}
+                    希望 {r.desired_time ? new Date(r.desired_time).toLocaleString() : "—"} · 想定 {r.estimated_wait_minutes}分 · {r.is_peak ? "ピーク" : "通常"}
                   </div>
                 </div>
                 <div className="text-right">
@@ -268,7 +268,7 @@ function WorkerHome() {
                   <div className="text-[10px] text-muted-foreground">報酬 {formatYen(Math.round(f.total * (1 - PLATFORM_RATE)))}</div>
                 </div>
                 <Button size="sm" onClick={() => setDetailJobId(r.id)} disabled={!canAcceptJobs}>
-                  {t("request.actions.accept")}
+                  {t("request.actions.details")}
                 </Button>
               </Card>
             );
