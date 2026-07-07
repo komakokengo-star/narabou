@@ -1,0 +1,1 @@
+CREATE POLICY "requests delete own finished" ON public.requests FOR DELETE TO authenticated USING (auth.uid() = customer_id AND status IN ('completed','canceled'));
