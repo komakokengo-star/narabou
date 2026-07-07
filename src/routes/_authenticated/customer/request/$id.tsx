@@ -125,7 +125,7 @@ function RequestDetail() {
   const deadlineMs = matchCreatedAt ? new Date(matchCreatedAt).getTime() + 5 * 60 * 1000 : null;
   const [nowMs, setNowMs] = useState(Date.now());
   useEffect(() => {
-    if (matchStatus !== "pending_approval") return;
+    if (matchStatus !== "pending_approval" && matchStatus !== "awaiting_confirmation") return;
     const t = setInterval(() => setNowMs(Date.now()), 1000);
     return () => clearInterval(t);
   }, [matchStatus]);
