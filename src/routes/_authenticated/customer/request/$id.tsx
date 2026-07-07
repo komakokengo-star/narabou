@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { FuzzyMap } from "@/components/FuzzyMap";
 import { StripePaymentForm } from "@/components/StripePaymentForm";
-import { createPaymentIntent, chargeExtension, cancelRequest, respondToMatch } from "@/lib/payments.functions";
+import { createPaymentIntent, chargeExtension, cancelRequest, respondToMatch, confirmCompletion, disputeCompletion } from "@/lib/payments.functions";
 import { calcCancelRefund, formatYen } from "@/lib/fees";
 import { toast } from "sonner";
 import { ArrowLeft, Clock, Camera } from "lucide-react";
