@@ -275,9 +275,14 @@ function WorkerJob() {
                 maxLength={300}
                 placeholder="例）受け渡し出来ましたので完了とさせていただきます。ありがとうございました。"
               />
-              <Button variant="default" onClick={() => updateStatus.mutate({ match: { end_time: new Date().toISOString(), status: "completed", completion_note: completionNote || null }, req: { status: "completed" }, captureOnComplete: true })}>
-                {t("request.actions.complete")} & 決済確定
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="default" onClick={() => updateStatus.mutate({ match: { end_time: new Date().toISOString(), status: "completed", completion_note: completionNote || null }, req: { status: "completed" }, captureOnComplete: true })}>
+                  {t("request.actions.complete")} & 決済確定
+                </Button>
+                <Button type="button" variant="ghost" size="sm" onClick={() => setCompletionNote("受け渡し出来ましたので完了とさせていただきます。ありがとうございました。")}>
+                  例文を使う
+                </Button>
+              </div>
             </div>
           )}
         </Card>
