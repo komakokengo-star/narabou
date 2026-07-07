@@ -135,6 +135,35 @@ function CustomerHome() {
               />
             </div>
 
+            <div className="sm:col-span-2 rounded-md border border-border/60 bg-muted/30 p-4 space-y-3">
+              <div>
+                <div className="text-sm font-medium">{t("request.contactInfo")}</div>
+                <p className="text-xs text-muted-foreground mt-1">{t("request.contactInfoDesc")}</p>
+              </div>
+              <div>
+                <Label>{t("request.landmark")}</Label>
+                <Textarea
+                  value={landmark}
+                  onChange={(e) => setLandmark(e.target.value)}
+                  maxLength={300}
+                  rows={2}
+                  placeholder={t("request.landmarkPlaceholder")}
+                  className="placeholder:text-muted-foreground/60"
+                />
+              </div>
+              <div>
+                <Label>{t("request.numberDisplayMethod")}</Label>
+                <Textarea
+                  value={numberDisplayMethod}
+                  onChange={(e) => setNumberDisplayMethod(e.target.value)}
+                  maxLength={300}
+                  rows={2}
+                  placeholder={t("request.numberDisplayMethodPlaceholder")}
+                  className="placeholder:text-muted-foreground/60"
+                />
+              </div>
+            </div>
+
             <div className="sm:col-span-2 p-4 rounded-md bg-muted/40 text-sm space-y-1">
               <Row label={t("fees.base")} v={formatYen(fee.base)} />
               <Row label={`${t("fees.time")} (${estimatedWait}${t("common.minutes")})`} v={formatYen(fee.time)} />
