@@ -181,9 +181,14 @@ function WorkerJob() {
             maxLength={300}
             placeholder="例）黒キャップ・青いリュック / 整理券 A-27"
           />
-          <Button size="sm" variant="outline" onClick={() => saveFeatures.mutate(workerFeatures)} disabled={saveFeatures.isPending}>
-            特徴を保存
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" onClick={() => saveFeatures.mutate(workerFeatures)} disabled={saveFeatures.isPending}>
+              特徴を保存
+            </Button>
+            <Button size="sm" variant="ghost" type="button" onClick={() => setWorkerFeatures("黒キャップ・青いリュック / 整理券 A-27")}>
+              例文を使う
+            </Button>
+          </div>
         </Card>
 
         <Card className="p-6 mt-6 space-y-4">
