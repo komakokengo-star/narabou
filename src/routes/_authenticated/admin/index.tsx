@@ -37,6 +37,54 @@ function AdminHome() {
     refetchInterval: 10000,
   });
 
+  type Notification = {
+    id: string; kind: string; severity: string; title: string; body: string | null;
+    request_id: string | null; details: Record<string, unknown>; read_at: string | null; created_at: string;
+  };
+  const { data: notifications = [] } = useQuery<Notification[]>({
+    queryKey: ["admin-notifications"],
+    queryFn: async () => {
+      const { data } = await supabase.from("admin_notifications" as never)
+        .select("*").order("created_at", { ascending: false }).limit(50);
+      return (data ?? []) as unknown as Notification[];
+    },
+    refetchInterval: 15000,
+  });
+
+  // Realtime購読
+  useEffect(() => {
+    const channel = supabase.channel("admin-realtime")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "admin_notifications" },
+        (payload) => {
+          const n = payload.new as Notification;
+          if (n.severity === "alert") toast.error(`🚨 ${n.title}`, { description: n.body ?? undefined });
+          else if (n.severity === "warn") toast.warning(n.title, { description: n.body ?? undefined });
+          else toast.info(n.title, { description: n.body ?? undefined });
+          qc.invalidateQueries({ queryKey: ["admin-notifications"] });
+        })
+      .on("postgres_changes", { event: "*", schema: "public", table: "requests" },
+        () => qc.invalidateQueries({ queryKey: ["admin-requests"] }))
+      .on("postgres_changes", { event: "*", schema: "public", table: "payments" },
+        () => qc.invalidateQueries({ queryKey: ["admin-payments"] }))
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [qc]);
+
+  const markRead = useMutation({
+    mutationFn: async (id: string) => {
+      await supabase.from("admin_notifications" as never)
+        .update({ read_at: new Date().toISOString() } as never).eq("id", id);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-notifications"] }),
+  });
+  const markAllRead = useMutation({
+    mutationFn: async () => {
+      await supabase.from("admin_notifications" as never)
+        .update({ read_at: new Date().toISOString() } as never).is("read_at", null);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-notifications"] }),
+  });
+
   const { data: payments = [] } = useQuery({
     queryKey: ["admin-payments"],
     queryFn: async () => {
