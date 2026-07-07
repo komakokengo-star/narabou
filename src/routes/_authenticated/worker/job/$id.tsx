@@ -143,6 +143,23 @@ function WorkerJob() {
         )}
 
         <Card className="p-6 mt-6 space-y-3">
+          <div className="font-medium mb-2">代行者の特徴（依頼者に共有）</div>
+          <p className="text-xs text-muted-foreground">
+            見た目の特徴、服装の色、整理券番号など、依頼者が現地で確認しやすい情報を入力してください。
+          </p>
+          <Textarea
+            value={workerFeatures}
+            onChange={(e) => setWorkerFeatures(e.target.value)}
+            rows={2}
+            maxLength={300}
+            placeholder="例）黒キャップ・青いリュック / 整理券 A-27"
+          />
+          <Button size="sm" variant="outline" onClick={() => saveFeatures.mutate(workerFeatures)} disabled={saveFeatures.isPending}>
+            特徴を保存
+          </Button>
+        </Card>
+
+        <Card className="p-6 mt-6 space-y-4">
           <div className="font-medium mb-2">ステータス操作</div>
           {(match as unknown as { status: string }).status === "pending_approval" && (
             <div className="text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-800 p-3">
@@ -150,21 +167,52 @@ function WorkerJob() {
             </div>
           )}
           {(match as unknown as { status: string }).status !== "pending_approval" && !match.arrival_time && (
-            <Button onClick={() => updateStatus.mutate({ match: { arrival_time: new Date().toISOString(), status: "arrived" }, req: { status: "arrived" } })}>
-              {t("request.actions.arrived")}
-            </Button>
+            <div className="space-y-2">
+              <Label>依頼者へのメッセージ（現地到着時／任意）</Label>
+              <Textarea
+                value={arrivalNote}
+                onChange={(e) => setArrivalNote(e.target.value)}
+                rows={2}
+                maxLength={300}
+                placeholder="例）店舗前に到着しました。整理券 A-27 を取得済みです。"
+              />
+              <Button onClick={() => updateStatus.mutate({ match: { arrival_time: new Date().toISOString(), status: "arrived", arrival_note: arrivalNote || null }, req: { status: "arrived" } })}>
+                {t("request.actions.arrived")}
+              </Button>
+            </div>
           )}
           {match.arrival_time && !match.start_time && (
-            <Button onClick={() => updateStatus.mutate({ match: { start_time: new Date().toISOString(), status: "in_progress" }, req: { status: "in_progress" } })}>
-              {t("request.actions.startQueue")}
-            </Button>
+            <div className="space-y-2">
+              <Label>依頼者へのメッセージ（業務開始時／任意）</Label>
+              <Textarea
+                value={startNote}
+                onChange={(e) => setStartNote(e.target.value)}
+                rows={2}
+                maxLength={300}
+                placeholder="例）列に並び始めました。現在の待ち時間は約30分です。"
+              />
+              <Button onClick={() => updateStatus.mutate({ match: { start_time: new Date().toISOString(), status: "in_progress", start_note: startNote || null }, req: { status: "in_progress" } })}>
+                {t("request.actions.startQueue")}
+              </Button>
+            </div>
           )}
           {match.start_time && !match.end_time && (
-            <Button variant="default" onClick={() => updateStatus.mutate({ match: { end_time: new Date().toISOString(), status: "completed" }, req: { status: "completed" }, captureOnComplete: true })}>
-              {t("request.actions.complete")} & 決済確定
-            </Button>
+            <div className="space-y-2">
+              <Label>依頼者へのメッセージ（完了時／任意）</Label>
+              <Textarea
+                value={completionNote}
+                onChange={(e) => setCompletionNote(e.target.value)}
+                rows={2}
+                maxLength={300}
+                placeholder="例）ご購入完了しました。受け渡し場所は正面入口です。"
+              />
+              <Button variant="default" onClick={() => updateStatus.mutate({ match: { end_time: new Date().toISOString(), status: "completed", completion_note: completionNote || null }, req: { status: "completed" }, captureOnComplete: true })}>
+                {t("request.actions.complete")} & 決済確定
+              </Button>
+            </div>
           )}
         </Card>
+
 
         <Card className="p-6 mt-6">
           <div className="font-medium mb-3">{t("request.actions.checkin")}</div>
