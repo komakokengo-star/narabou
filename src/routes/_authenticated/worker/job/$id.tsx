@@ -45,15 +45,21 @@ function WorkerJob() {
   type MatchUpdate = Partial<{ arrival_time: string; start_time: string; end_time: string; status: string; arrival_note: string | null; start_note: string | null; completion_note: string | null; worker_features: string | null }>;
   type RequestUpdate = Partial<{ status: "open" | "matched" | "arrived" | "in_progress" | "completed" | "canceled" }>;
   const updateStatus = useMutation({
-    mutationFn: async (patch: { req?: RequestUpdate; match?: MatchUpdate; captureOnComplete?: boolean }) => {
+    mutationFn: async (patch: { req?: RequestUpdate; match?: MatchUpdate }) => {
       if (patch.match) await supabase.from("matches").update(patch.match as never).eq("id", matchId);
       if (patch.req && match?.request_id)
         await supabase.from("requests").update(patch.req).eq("id", match.request_id);
-      if (patch.captureOnComplete && match?.request_id) {
-        await capturePayment({ data: { requestId: match.request_id } });
-      }
     },
     onSuccess: () => { qc.invalidateQueries(); toast.success("更新しました"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const reportCompletion = useMutation({
+    mutationFn: async () => {
+      if (!match?.request_id) throw new Error("Request not found");
+      return await requestCompletion({ data: { requestId: match.request_id, completionNote: completionNote || null } });
+    },
+    onSuccess: () => { qc.invalidateQueries(); toast.success("完了報告を送信しました。依頼者の受け取り確認をお待ちください"); },
     onError: (e: Error) => toast.error(e.message),
   });
 
