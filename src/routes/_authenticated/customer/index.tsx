@@ -79,7 +79,7 @@ function CustomerHome() {
     onSuccess: () => {
       toast.success("依頼を作成しました");
       qc.invalidateQueries({ queryKey: ["customer-requests"] });
-      setStoreName(""); setStoreAddress(""); setNotes("");
+      setStoreName(""); setStoreAddress(""); setNotes(""); setLandmark(""); setNumberDisplayMethod("");
     },
     onError: (e: Error) => toast.error(e.message),
   });
