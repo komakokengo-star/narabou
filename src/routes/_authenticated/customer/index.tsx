@@ -196,30 +196,49 @@ function CustomerHome() {
         <h2 className="font-medium mb-3">{t("request.list")}</h2>
         <div className="space-y-3">
           {requests.length === 0 && <div className="text-sm text-muted-foreground">{t("common.noData")}</div>}
-          {requests.map((r) => (
-            <Link key={r.id} to="/customer/request/$id" params={{ id: r.id }}>
-              <Card className="p-4 hover:border-primary transition flex items-center justify-between">
-                <div>
-                  <div className="font-medium">
-                    {r.request_number != null && (
-                      <span className="text-xs font-mono text-muted-foreground mr-2">
-                        #{String(r.request_number).padStart(4, "0")}
-                      </span>
-                    )}
-                    {r.store_name}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    希望 {r.desired_time ? new Date(r.desired_time).toLocaleString() : "—"}
-                  </div>
-                  <div className="text-[10px] text-muted-foreground/70">登録 {new Date(r.created_at).toLocaleString()}</div>
-                </div>
-                <div className="text-right">
-                  <Badge variant="secondary">{t(`request.status.${r.status}`)}</Badge>
-                  <div className="text-sm mt-1">{formatYen(r.total_fee)}</div>
-                </div>
-              </Card>
-            </Link>
-          ))}
+          {requests.map((r) => {
+            const canDelete = r.status === "completed" || r.status === "canceled";
+            return (
+              <div key={r.id} className="relative">
+                <Link to="/customer/request/$id" params={{ id: r.id }}>
+                  <Card className="p-4 hover:border-primary transition flex items-center justify-between">
+                    <div>
+                      <div className="font-medium">
+                        {r.request_number != null && (
+                          <span className="text-xs font-mono text-muted-foreground mr-2">
+                            #{String(r.request_number).padStart(4, "0")}
+                          </span>
+                        )}
+                        {r.store_name}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        希望 {r.desired_time ? new Date(r.desired_time).toLocaleString() : "—"}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground/70">登録 {new Date(r.created_at).toLocaleString()}</div>
+                    </div>
+                    <div className="text-right pr-8">
+                      <Badge variant="secondary">{t(`request.status.${r.status}`)}</Badge>
+                      <div className="text-sm mt-1">{formatYen(r.total_fee)}</div>
+                    </div>
+                  </Card>
+                </Link>
+                {canDelete && (
+                  <button
+                    type="button"
+                    aria-label="削除"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (confirm("この依頼を削除しますか？")) remove.mutate(r.id);
+                    }}
+                    className="absolute top-3 right-3 p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       </main>
     </div>
