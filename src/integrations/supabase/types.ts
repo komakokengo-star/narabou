@@ -215,46 +215,58 @@ export type Database = {
         Row: {
           approval_comment: string | null
           approved_at: string | null
+          arrival_note: string | null
           arrival_time: string | null
           auto_canceled_at: string | null
+          completion_note: string | null
           created_at: string
           end_time: string | null
           id: string
           rating: number | null
           rejected_at: string | null
           request_id: string
+          start_note: string | null
           start_time: string | null
           status: Database["public"]["Enums"]["match_status"]
+          worker_features: string | null
           worker_id: string
         }
         Insert: {
           approval_comment?: string | null
           approved_at?: string | null
+          arrival_note?: string | null
           arrival_time?: string | null
           auto_canceled_at?: string | null
+          completion_note?: string | null
           created_at?: string
           end_time?: string | null
           id?: string
           rating?: number | null
           rejected_at?: string | null
           request_id: string
+          start_note?: string | null
           start_time?: string | null
           status?: Database["public"]["Enums"]["match_status"]
+          worker_features?: string | null
           worker_id: string
         }
         Update: {
           approval_comment?: string | null
           approved_at?: string | null
+          arrival_note?: string | null
           arrival_time?: string | null
           auto_canceled_at?: string | null
+          completion_note?: string | null
           created_at?: string
           end_time?: string | null
           id?: string
           rating?: number | null
           rejected_at?: string | null
           request_id?: string
+          start_note?: string | null
           start_time?: string | null
           status?: Database["public"]["Enums"]["match_status"]
+          worker_features?: string | null
           worker_id?: string
         }
         Relationships: [

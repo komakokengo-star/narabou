@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,7 +41,7 @@ function WorkerJob() {
     refetchInterval: 10000,
   });
 
-  type MatchUpdate = Partial<{ arrival_time: string; start_time: string; end_time: string; status: string }>;
+  type MatchUpdate = Partial<{ arrival_time: string; start_time: string; end_time: string; status: string; arrival_note: string | null; start_note: string | null; completion_note: string | null; worker_features: string | null }>;
   type RequestUpdate = Partial<{ status: "open" | "matched" | "arrived" | "in_progress" | "completed" | "canceled" }>;
   const updateStatus = useMutation({
     mutationFn: async (patch: { req?: RequestUpdate; match?: MatchUpdate; captureOnComplete?: boolean }) => {
@@ -55,6 +55,20 @@ function WorkerJob() {
     onSuccess: () => { qc.invalidateQueries(); toast.success("更新しました"); },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const [workerFeatures, setWorkerFeatures] = useState("");
+  const [arrivalNote, setArrivalNote] = useState("");
+  const [startNote, setStartNote] = useState("");
+  const [completionNote, setCompletionNote] = useState("");
+
+  const saveFeatures = useMutation({
+    mutationFn: async (v: string) => {
+      await supabase.from("matches").update({ worker_features: v || null } as never).eq("id", matchId);
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["worker-match", matchId] }); toast.success("特徴を保存しました"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const [waitTime, setWaitTime] = useState(0);
   const [note, setNote] = useState("");
@@ -91,8 +105,14 @@ function WorkerJob() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const matchFeatures = (match as unknown as { worker_features?: string | null } | null)?.worker_features ?? "";
+  useEffect(() => {
+    setWorkerFeatures(matchFeatures);
+  }, [matchFeatures]);
+
   if (!match) return <div className="p-10 text-center">{t("common.loading")}</div>;
   const req = match.requests as { id: string; store_name: string; status: string; total_fee: number };
+
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -129,6 +149,23 @@ function WorkerJob() {
         )}
 
         <Card className="p-6 mt-6 space-y-3">
+          <div className="font-medium mb-2">代行者の特徴（依頼者に共有）</div>
+          <p className="text-xs text-muted-foreground">
+            見た目の特徴、服装の色、整理券番号など、依頼者が現地で確認しやすい情報を入力してください。
+          </p>
+          <Textarea
+            value={workerFeatures}
+            onChange={(e) => setWorkerFeatures(e.target.value)}
+            rows={2}
+            maxLength={300}
+            placeholder="例）黒キャップ・青いリュック / 整理券 A-27"
+          />
+          <Button size="sm" variant="outline" onClick={() => saveFeatures.mutate(workerFeatures)} disabled={saveFeatures.isPending}>
+            特徴を保存
+          </Button>
+        </Card>
+
+        <Card className="p-6 mt-6 space-y-4">
           <div className="font-medium mb-2">ステータス操作</div>
           {(match as unknown as { status: string }).status === "pending_approval" && (
             <div className="text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-800 p-3">
@@ -136,21 +173,52 @@ function WorkerJob() {
             </div>
           )}
           {(match as unknown as { status: string }).status !== "pending_approval" && !match.arrival_time && (
-            <Button onClick={() => updateStatus.mutate({ match: { arrival_time: new Date().toISOString(), status: "arrived" }, req: { status: "arrived" } })}>
-              {t("request.actions.arrived")}
-            </Button>
+            <div className="space-y-2">
+              <Label>依頼者へのメッセージ（現地到着時／任意）</Label>
+              <Textarea
+                value={arrivalNote}
+                onChange={(e) => setArrivalNote(e.target.value)}
+                rows={2}
+                maxLength={300}
+                placeholder="例）店舗前に到着しました。整理券 A-27 を取得済みです。"
+              />
+              <Button onClick={() => updateStatus.mutate({ match: { arrival_time: new Date().toISOString(), status: "arrived", arrival_note: arrivalNote || null }, req: { status: "arrived" } })}>
+                {t("request.actions.arrived")}
+              </Button>
+            </div>
           )}
           {match.arrival_time && !match.start_time && (
-            <Button onClick={() => updateStatus.mutate({ match: { start_time: new Date().toISOString(), status: "in_progress" }, req: { status: "in_progress" } })}>
-              {t("request.actions.startQueue")}
-            </Button>
+            <div className="space-y-2">
+              <Label>依頼者へのメッセージ（業務開始時／任意）</Label>
+              <Textarea
+                value={startNote}
+                onChange={(e) => setStartNote(e.target.value)}
+                rows={2}
+                maxLength={300}
+                placeholder="例）列に並び始めました。現在の待ち時間は約30分です。"
+              />
+              <Button onClick={() => updateStatus.mutate({ match: { start_time: new Date().toISOString(), status: "in_progress", start_note: startNote || null }, req: { status: "in_progress" } })}>
+                {t("request.actions.startQueue")}
+              </Button>
+            </div>
           )}
           {match.start_time && !match.end_time && (
-            <Button variant="default" onClick={() => updateStatus.mutate({ match: { end_time: new Date().toISOString(), status: "completed" }, req: { status: "completed" }, captureOnComplete: true })}>
-              {t("request.actions.complete")} & 決済確定
-            </Button>
+            <div className="space-y-2">
+              <Label>依頼者へのメッセージ（完了時／任意）</Label>
+              <Textarea
+                value={completionNote}
+                onChange={(e) => setCompletionNote(e.target.value)}
+                rows={2}
+                maxLength={300}
+                placeholder="例）ご購入完了しました。受け渡し場所は正面入口です。"
+              />
+              <Button variant="default" onClick={() => updateStatus.mutate({ match: { end_time: new Date().toISOString(), status: "completed", completion_note: completionNote || null }, req: { status: "completed" }, captureOnComplete: true })}>
+                {t("request.actions.complete")} & 決済確定
+              </Button>
+            </div>
           )}
         </Card>
+
 
         <Card className="p-6 mt-6">
           <div className="font-medium mb-3">{t("request.actions.checkin")}</div>
