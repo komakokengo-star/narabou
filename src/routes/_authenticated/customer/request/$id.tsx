@@ -92,6 +92,19 @@ function RequestDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const respondMatch = useMutation({
+    mutationFn: (approve: boolean) => respondToMatch({ data: { matchId: match!.id, approve } }),
+    onSuccess: (_r, approve) => {
+      toast.success(approve ? "承認しました。決済のオーソリへ進んでください" : "受注申請を拒否しました");
+      qc.invalidateQueries();
+      if (approve) startPay.mutate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+    onSuccess: (r) => { toast.success(`返金額: ${formatYen(r.refunded)}`); qc.invalidateQueries(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   // ピーク料金は依頼作成後でも、支払い前であれば依頼者がON/OFFを切り替え可能。
   // 切り替えると peak_fee と total_fee を再計算して requests テーブルに反映する。
   const hasPaidMain = payments.some((p) => p.status === "paid" && p.kind === "main");
