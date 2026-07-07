@@ -71,9 +71,21 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
           // 3) イベント種別ごとの処理（各更新はwhereで対象を絞るため二重実行しても安全）
           try {
             if (event.type === "payment_intent.succeeded") {
+              // manual capture では capture 実行後に succeeded が届く
               const pi = event.data.object as { id: string };
               await supabaseAdmin.from("payments")
-                .update({ status: "paid" })
+                .update({ status: "paid", captured_at: new Date().toISOString() })
+                .eq("stripe_payment_intent_id", pi.id);
+            } else if (event.type === "payment_intent.amount_capturable_updated") {
+              // manual capture のオーソリ成功時に発火
+              const pi = event.data.object as { id: string };
+              await supabaseAdmin.from("payments")
+                .update({ status: "authorized", authorized_at: new Date().toISOString() })
+                .eq("stripe_payment_intent_id", pi.id);
+            } else if (event.type === "payment_intent.canceled") {
+              const pi = event.data.object as { id: string };
+              await supabaseAdmin.from("payments")
+                .update({ status: "canceled" })
                 .eq("stripe_payment_intent_id", pi.id);
             } else if (event.type === "payment_intent.payment_failed") {
               const pi = event.data.object as { id: string };
