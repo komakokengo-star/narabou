@@ -203,11 +203,40 @@ function WorkerJob() {
                 maxLength={300}
                 placeholder="例）店舗前に到着しました。整理券 A-27 を取得済みです。"
               />
-              <Button onClick={() => updateStatus.mutate({ match: { arrival_time: new Date().toISOString(), status: "arrived", arrival_note: arrivalNote || null }, req: { status: "arrived" } })}>
-                {t("request.actions.arrived")}
-              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button onClick={() => updateStatus.mutate({ match: { arrival_time: new Date().toISOString(), status: "arrived", arrival_note: arrivalNote || null }, req: { status: "arrived" } })}>
+                  {t("request.actions.arrived")}
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => fetchGps.mutate()} disabled={fetchGps.isPending}>
+                  <MapPin className="w-4 h-4 mr-1" />
+                  {fetchGps.isPending ? "取得中..." : "現在位置を取得"}
+                </Button>
+              </div>
+              {gps && (
+                <div className="text-xs rounded-md border border-border bg-muted/40 p-3 space-y-1">
+                  <div className="font-mono">
+                    位置コード: {gps.lat.toFixed(6)}, {gps.lng.toFixed(6)}
+                  </div>
+                  <div className="text-muted-foreground">
+                    住所: {gps.address ?? "取得できませんでした"}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2"
+                    onClick={() => {
+                      const line = `現在位置: ${gps.lat.toFixed(6)}, ${gps.lng.toFixed(6)}${gps.address ? `（${gps.address}）` : ""}`;
+                      setArrivalNote((prev) => (prev ? `${prev}\n${line}` : line));
+                    }}
+                  >
+                    メッセージに追加
+                  </Button>
+                </div>
+              )}
             </div>
           )}
+
           {match.arrival_time && !match.start_time && (
             <div className="space-y-2">
               <Label>依頼者へのメッセージ（業務開始時／任意）</Label>
