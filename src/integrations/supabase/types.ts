@@ -218,8 +218,13 @@ export type Database = {
           arrival_note: string | null
           arrival_time: string | null
           auto_canceled_at: string | null
+          auto_confirmed: boolean
           completion_note: string | null
+          confirm_deadline_at: string | null
+          confirmed_at: string | null
           created_at: string
+          dispute_reason: string | null
+          disputed_at: string | null
           end_time: string | null
           id: string
           rating: number | null
@@ -237,8 +242,13 @@ export type Database = {
           arrival_note?: string | null
           arrival_time?: string | null
           auto_canceled_at?: string | null
+          auto_confirmed?: boolean
           completion_note?: string | null
+          confirm_deadline_at?: string | null
+          confirmed_at?: string | null
           created_at?: string
+          dispute_reason?: string | null
+          disputed_at?: string | null
           end_time?: string | null
           id?: string
           rating?: number | null
@@ -256,8 +266,13 @@ export type Database = {
           arrival_note?: string | null
           arrival_time?: string | null
           auto_canceled_at?: string | null
+          auto_confirmed?: boolean
           completion_note?: string | null
+          confirm_deadline_at?: string | null
+          confirmed_at?: string | null
           created_at?: string
+          dispute_reason?: string | null
+          disputed_at?: string | null
           end_time?: string | null
           id?: string
           rating?: number | null
@@ -567,6 +582,8 @@ export type Database = {
         | "in_progress"
         | "completed"
         | "canceled"
+        | "awaiting_confirmation"
+        | "disputed"
       payment_status:
         | "pending"
         | "paid"
@@ -718,6 +735,8 @@ export const Constants = {
         "in_progress",
         "completed",
         "canceled",
+        "awaiting_confirmation",
+        "disputed",
       ],
       payment_status: [
         "pending",
