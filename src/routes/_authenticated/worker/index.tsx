@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { CheckCircle2, User, Landmark, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createConnectAccount, refreshConnectStatus } from "@/lib/stripe-connect.functions";
+import { applyForRequest } from "@/lib/payments.functions";
 import { StripeEmbeddedOnboarding } from "@/components/StripeEmbeddedOnboarding";
 
 export const Route = createFileRoute("/_authenticated/worker/")({
@@ -60,14 +61,7 @@ function WorkerHome() {
 
   const accept = useMutation({
     mutationFn: async (requestId: string) => {
-      // 受注申請 → 依頼者の承認待ち
-      const { error } = await supabase.from("matches").insert({
-        request_id: requestId, worker_id: user!.id,
-        status: "pending_approval",
-      } as never);
-      if (error) throw error;
-      // requests.status は open のままにし、他の代行者に重複受注させないため matched に更新
-      await supabase.from("requests").update({ status: "matched" }).eq("id", requestId);
+      await applyForRequest({ data: { requestId } });
     },
     onSuccess: () => { toast.success("受注申請を送信しました。依頼者の承認をお待ちください"); setDetailJobId(null); qc.invalidateQueries(); },
     onError: (e: Error) => toast.error(e.message),
