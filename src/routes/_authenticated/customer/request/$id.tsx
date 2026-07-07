@@ -232,56 +232,106 @@ function RequestDetail() {
           </Card>
         )}
 
-        {/* Actions */}
-        <Card className="p-6 mt-6 space-y-3">
-          {!payments.some((p) => p.status === "paid" && p.kind === "main") && (
-            <Button className="w-full" onClick={() => startPay.mutate()} disabled={startPay.isPending}>
-              {t("request.actions.pay")}
-            </Button>
-          )}
+        {/* 受注承認フロー: 代行者からの受注申請待ち */}
+        {match && (match as unknown as { status: string }).status === "pending_approval" && (
+          <Card className="p-6 mt-6 border-primary/40 bg-primary/5">
+            <div className="text-sm font-medium mb-1">代行者から受注申請が届いています</div>
+            <p className="text-xs text-muted-foreground mb-4">
+              承認すると決済のオーソリ（与信確保）を行い、代行者に業務開始の許可が出ます。
+              オーソリ段階では請求は確定せず、業務完了時に確定します。キャンセル時はオーソリを解除します。
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              <Button onClick={() => respondMatch.mutate(true)} disabled={respondMatch.isPending}>
+                承認してオーソリへ進む
+              </Button>
+              <Button variant="outline" onClick={() => respondMatch.mutate(false)} disabled={respondMatch.isPending}>
+                拒否する
+              </Button>
+            </div>
+          </Card>
+        )}
 
-          {request.status !== "completed" && request.status !== "canceled" && (
-            <>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">{t("request.actions.extend")}</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader><DialogTitle>{t("request.extensionPrompt")}</DialogTitle></DialogHeader>
-                  <div className="space-y-2">
-                    <Label>{t("common.minutes")}</Label>
-                    <Input type="number" min={10} step={10} value={extMin} onChange={(e) => setExtMin(Number(e.target.value))} />
-                    <p className="text-xs text-muted-foreground">
-                      追加料金: {formatYen(Math.ceil(extMin / 10) * 200)}
-                    </p>
-                  </div>
-                  <DialogFooter>
-                    <Button onClick={() => extend.mutate()} disabled={extend.isPending}>
-                      {t("request.actions.approveExtension")}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+        {/* Actions: ステータス連動で自動制御 */}
+        {(() => {
+          const matchStatus = (match as unknown as { status?: string } | null)?.status;
+          const rs = request.status;
+          const hasPaid = payments.some((p) => p.status === "paid" && p.kind === "main");
+          const hasAuth = payments.some((p) => p.status === "authorized" && p.kind === "main");
+          // 支払いボタン: 承認済みでオーソリも支払いも無い時のみ
+          const showPay = matchStatus === "approved" && !hasPaid && !hasAuth;
+          // キャンセル可否
+          const cancelable = rs !== "completed" && rs !== "canceled";
+          const cancelHint =
+            !match || matchStatus === "pending_approval" ? "無料でキャンセルできます"
+            : matchStatus === "approved" && !hasPaid ? "オーソリを解除して無料でキャンセルします"
+            : rs === "arrived" ? "到着済のため基本料金・ピーク料金が発生します"
+            : rs === "in_progress" ? "業務中のため経過分の料金が発生します"
+            : "キャンセルできません";
+          return (
+            <Card className="p-6 mt-6 space-y-3">
+              {showPay && (
+                <Button className="w-full" onClick={() => startPay.mutate()} disabled={startPay.isPending}>
+                  {t("request.actions.pay")}（オーソリ）
+                </Button>
+              )}
+              {hasAuth && !hasPaid && (
+                <div className="text-xs rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 p-3">
+                  ✓ オーソリ済み（与信確保）。業務完了時に決済が確定します。
+                </div>
+              )}
 
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="destructive" className="w-full">{t("request.actions.cancel")}</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader><DialogTitle>{t("request.actions.cancel")}</DialogTitle></DialogHeader>
-                  <p className="text-sm">
-                    {t("request.cancelConfirm", { amount: refundEstimate.refund.toLocaleString() })}
-                  </p>
-                  <DialogFooter>
-                    <Button variant="destructive" onClick={() => cancel.mutate()} disabled={cancel.isPending}>
-                      {t("request.actions.cancel")}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </>
-          )}
-        </Card>
+              {cancelable && (
+                <>
+                  {(rs === "in_progress" || rs === "arrived") && (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="w-full">{t("request.actions.extend")}</Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader><DialogTitle>{t("request.extensionPrompt")}</DialogTitle></DialogHeader>
+                        <div className="space-y-2">
+                          <Label>{t("common.minutes")}</Label>
+                          <Input type="number" min={10} step={10} value={extMin} onChange={(e) => setExtMin(Number(e.target.value))} />
+                          <p className="text-xs text-muted-foreground">
+                            追加料金: {formatYen(Math.ceil(extMin / 10) * 200)}
+                          </p>
+                        </div>
+                        <DialogFooter>
+                          <Button onClick={() => extend.mutate()} disabled={extend.isPending}>
+                            {t("request.actions.approveExtension")}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="destructive" className="w-full">{t("request.actions.cancel")}</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader><DialogTitle>{t("request.actions.cancel")}</DialogTitle></DialogHeader>
+                      <p className="text-sm">{cancelHint}</p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {t("request.cancelConfirm", { amount: refundEstimate.refund.toLocaleString() })}
+                      </p>
+                      <DialogFooter>
+                        <Button variant="destructive" onClick={() => cancel.mutate()} disabled={cancel.isPending}>
+                          キャンセル実行
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </>
+              )}
+              {!cancelable && (
+                <div className="text-xs text-muted-foreground text-center">
+                  {rs === "completed" ? "完了済みの依頼です" : "キャンセル済みの依頼です"}
+                </div>
+              )}
+            </Card>
+          );
+        })()}
 
         {/* Payment */}
         {intent && (
