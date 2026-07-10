@@ -141,8 +141,15 @@ function WorkerJob() {
       });
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_data, _vars, ctx) => {
       toast.success("定点報告を送信しました");
+      const c = ctx as { missingLocation?: boolean } | undefined;
+      if (c?.missingLocation) {
+        toast.warning(
+          "場所が違います。代行者は依頼者に定点報告の備考で正しい位置を確認してください。",
+          { duration: 8000 },
+        );
+      }
       setNote(""); setFile(null);
       qc.invalidateQueries({ queryKey: ["worker-checkins", matchId] });
     },
