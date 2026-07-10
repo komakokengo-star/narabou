@@ -33,6 +33,9 @@ function WorkerHome() {
   const qc = useQueryClient();
   const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [detailJobId, setDetailJobId] = useState<string | null>(null);
+  const [applyComment, setApplyComment] = useState("");
+  const APPLY_COMMENT_EXAMPLE = "本件、私にお任せください。開始10分前を目安に現地入りし、目印周辺で待機します。整理券や順番は逐次ご報告いたします。";
+
 
 
   const [displayName, setDisplayName] = useState("");
