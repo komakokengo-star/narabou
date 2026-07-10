@@ -389,6 +389,31 @@ function WorkerHome() {
                 <span className="text-xs text-muted-foreground">{t("fees.total")}</span>
                 <span className="font-medium">{formatYen(detailJob.total_fee)}</span>
               </div>
+              <div className="border-t pt-3">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-medium">依頼者へのコメント（任意）</label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={() => setApplyComment(APPLY_COMMENT_EXAMPLE)}
+                  >
+                    例文を使う
+                  </Button>
+                </div>
+                <Textarea
+                  value={applyComment}
+                  onChange={(e) => setApplyComment(e.target.value)}
+                  rows={3}
+                  maxLength={300}
+                  placeholder={APPLY_COMMENT_EXAMPLE}
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  受注申請と一緒に依頼者に届き、承認画面で確認されます。
+                </p>
+              </div>
+
             </div>
           )}
           <DialogFooter className="gap-2">
