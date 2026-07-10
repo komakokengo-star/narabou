@@ -136,7 +136,11 @@ function AuthPage() {
                 </span>
               </label>
             )}
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading || (mode === "signup" && !agreed)}
+            >
               {loading ? t("common.loading") : mode === "signup" ? t("auth.signup") : t("auth.login")}
             </Button>
           </form>
