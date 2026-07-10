@@ -490,3 +490,43 @@ export const autoConfirmExpired = createServerFn({ method: "POST" })
     }
     return { processed, scanned: (rows ?? []).length };
   });
+
+// 希望日時を超過した未マッチ依頼（open）を自動キャンセル
+// 猶予: desired_time + OVERDUE_GRACE_MINUTES を経過したものが対象
+export const OVERDUE_GRACE_MINUTES = 30;
+
+export const autoCancelOverdueRequests = createServerFn({ method: "POST" })
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const cutoff = new Date(Date.now() - OVERDUE_GRACE_MINUTES * 60 * 1000).toISOString();
+    const { data: rows } = await supabaseAdmin
+      .from("requests")
+      .select("id, customer_id, store_name, request_number, desired_time")
+      .eq("status", "open")
+      .not("desired_time", "is", null)
+      .lt("desired_time", cutoff);
+    let canceled = 0;
+    for (const r of rows ?? []) {
+      const { error } = await supabaseAdmin
+        .from("requests")
+        .update({ status: "canceled" })
+        .eq("id", r.id)
+        .eq("status", "open");
+      if (error) {
+        console.error("auto-cancel overdue failed", r.id, error);
+        continue;
+      }
+      canceled++;
+      await supabaseAdmin.rpc("notify_admin", {
+        p_kind: "request_auto_canceled_overdue",
+        p_severity: "warn",
+        p_title: `希望時刻超過で自動キャンセル: ${r.store_name}`,
+        p_body: `#${String(r.request_number ?? "").padStart(4, "0")} が希望時刻超過(${OVERDUE_GRACE_MINUTES}分)で自動キャンセルされました`,
+        p_request_id: r.id,
+        p_actor_id: r.customer_id,
+        p_details: { desired_time: r.desired_time, grace_minutes: OVERDUE_GRACE_MINUTES },
+      });
+    }
+    return { scanned: (rows ?? []).length, canceled };
+  });
+
