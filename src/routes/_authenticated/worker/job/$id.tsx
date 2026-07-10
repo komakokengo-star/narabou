@@ -108,7 +108,10 @@ function WorkerJob() {
       );
       let photoUrl: string | null = null;
       if (file) {
-        const path = `${matchId}/${Date.now()}-${file.name}`;
+        const { data: userData } = await supabase.auth.getUser();
+        const uid = userData.user?.id;
+        if (!uid) throw new Error("未認証です");
+        const path = `${uid}/${matchId}/${Date.now()}-${file.name}`;
         const { error: upErr } = await supabase.storage.from("checkin-photos").upload(path, file, { upsert: true });
         if (upErr) throw upErr;
         const { data: signed } = await supabase.storage.from("checkin-photos").createSignedUrl(path, 60 * 60 * 24 * 7);
