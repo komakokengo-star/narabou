@@ -29,10 +29,13 @@ export const Route = createFileRoute("/api/public/hooks/push-dispatch")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const expected =
-          process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY ?? "";
         const provided = request.headers.get("apikey") ?? "";
-        if (!expected || provided !== expected) {
+        const allowed = [
+          process.env.SUPABASE_SERVICE_ROLE_KEY,
+          process.env.SUPABASE_PUBLISHABLE_KEY,
+          process.env.SUPABASE_ANON_KEY,
+        ].filter(Boolean) as string[];
+        if (!provided || !allowed.includes(provided)) {
           return new Response("unauthorized", { status: 401 });
         }
 
