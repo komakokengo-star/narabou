@@ -79,7 +79,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "theme-color", content: "#c0392b" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "NARABOU" },
+      { name: "mobile-web-app-capable", content: "yes" },
       { title: "福岡行列代行 — 博多・天神の行列、並ぶのは私たち" },
       { name: "description", content: "基本800円+10分200円。ピーク時は+300円。決済・追加課金・返金もアプリで完結。" },
       { property: "og:title", content: "福岡行列代行 — 博多・天神の行列、並ぶのは私たち" },
@@ -91,7 +96,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1514279e-988c-4d3e-8dfe-afab2bacef0a/id-preview-727c5693--bc84fda8-23a4-4dfd-8a53-fea4e73274e7.lovable.app-1783149629848.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1514279e-988c-4d3e-8dfe-afab2bacef0a/id-preview-727c5693--bc84fda8-23a4-4dfd-8a53-fea4e73274e7.lovable.app-1783149629848.png" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
