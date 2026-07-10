@@ -336,7 +336,7 @@ function WorkerHome() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!detailJob} onOpenChange={(o) => { if (!o) setDetailJobId(null); }}>
+      <Dialog open={!!detailJob} onOpenChange={(o) => { if (!o) { setDetailJobId(null); setApplyComment(""); } }}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t("request.acceptDetailTitle")}</DialogTitle>
