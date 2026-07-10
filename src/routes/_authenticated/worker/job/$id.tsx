@@ -43,6 +43,14 @@ function WorkerJob() {
     refetchInterval: 8000,
   });
 
+  const storeAddress = (match?.requests as { store_address?: string } | undefined)?.store_address ?? "";
+  const { data: storeCoords } = useQuery({
+    queryKey: ["store-geocode", storeAddress],
+    queryFn: async () => await forwardGeocode({ data: { address: storeAddress } }),
+    enabled: !!storeAddress,
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+
   const { data: checkins = [] } = useQuery({
     queryKey: ["worker-checkins", matchId],
     queryFn: async () => {
