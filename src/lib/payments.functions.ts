@@ -270,12 +270,14 @@ export const respondToMatch = createServerFn({ method: "POST" })
 // unique 制約に抵触するため、サービスロールでリセットして再利用する。
 export const applyForRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { requestId: string }) => d)
+  .inputValidator((d: { requestId: string; applyComment?: string }) => d)
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: isWorker } = await context.supabase
       .rpc("has_role", { _user_id: context.userId, _role: "worker" }) as { data: boolean | null };
     if (!isWorker) throw new Error("Forbidden");
+
+    const comment = data.applyComment?.trim() || null;
 
     const { data: existing } = await supabaseAdmin
       .from("matches").select("id, status").eq("request_id", data.requestId).maybeSingle();
@@ -292,6 +294,7 @@ export const applyForRequest = createServerFn({ method: "POST" })
         rejected_at: null,
         auto_canceled_at: null,
         approval_comment: null,
+        apply_comment: comment,
       }).eq("id", existing.id);
       if (updErr) throw new Error(updErr.message);
     } else {
@@ -299,6 +302,7 @@ export const applyForRequest = createServerFn({ method: "POST" })
         request_id: data.requestId,
         worker_id: context.userId,
         status: "pending_approval",
+        apply_comment: comment,
       });
       if (insErr) throw new Error(insErr.message);
     }
@@ -306,6 +310,7 @@ export const applyForRequest = createServerFn({ method: "POST" })
     await supabaseAdmin.from("requests").update({ status: "matched" }).eq("id", data.requestId);
     return { ok: true };
   });
+
 
 
 
