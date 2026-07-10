@@ -21,6 +21,10 @@ export const Route = createFileRoute("/_authenticated/customer/")({
   component: CustomerHome,
 });
 
+function stripExamplePrefix(s: string) {
+  return s.replace(/^例）\n?/, "");
+}
+
 function CustomerHome() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -177,7 +181,18 @@ function CustomerHome() {
               </p>
             </div>
             <div className="sm:col-span-2">
-              <Label>{t("request.notes")}</Label>
+              <div className="flex items-center justify-between mb-1">
+                <Label>{t("request.notes")}</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  onClick={() => setNotes(stripExamplePrefix(t("request.notesPlaceholder")))}
+                >
+                  例文を使う
+                </Button>
+              </div>
               <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -194,7 +209,18 @@ function CustomerHome() {
                 <p className="text-xs text-muted-foreground mt-1">{t("request.contactInfoDesc")}</p>
               </div>
               <div>
-                <Label>{t("request.landmark")}</Label>
+                <div className="flex items-center justify-between mb-1">
+                  <Label>{t("request.landmark")}</Label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={() => setLandmark(stripExamplePrefix(t("request.landmarkPlaceholder")))}
+                  >
+                    例文を使う
+                  </Button>
+                </div>
                 <Textarea
                   value={landmark}
                   onChange={(e) => setLandmark(e.target.value)}
@@ -205,7 +231,18 @@ function CustomerHome() {
                 />
               </div>
               <div>
-                <Label>{t("request.numberDisplayMethod")}</Label>
+                <div className="flex items-center justify-between mb-1">
+                  <Label>{t("request.numberDisplayMethod")}</Label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={() => setNumberDisplayMethod(stripExamplePrefix(t("request.numberDisplayMethodPlaceholder")))}
+                  >
+                    例文を使う
+                  </Button>
+                </div>
                 <Textarea
                   value={numberDisplayMethod}
                   onChange={(e) => setNumberDisplayMethod(e.target.value)}
