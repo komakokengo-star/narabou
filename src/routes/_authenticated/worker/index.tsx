@@ -286,15 +286,19 @@ function WorkerHome() {
           {myJobs.map((m) => {
             const r = m.requests as { id: string; store_name: string; status: string; total_fee: number } | null;
             if (!r) return null;
-            const mm = m as unknown as { status?: string; rejection_comment?: string | null };
+            const mm = m as unknown as { status?: string; rejection_comment?: string | null; force_completed_at?: string | null; force_completion_reason?: string | null };
             const isRejected = mm.status === "rejected";
             const isPendingApproval = mm.status === "pending_approval";
+            const isForceCompleted = !!mm.force_completed_at;
             const rejectionComment = mm.rejection_comment;
-            const statusLabel = isRejected
-              ? "受注申請が拒否されました"
-              : isPendingApproval
-                ? "受注申請中"
-                : t(`request.status.${r.status}`);
+            const statusLabel = isForceCompleted
+              ? "強制完了（放置）"
+              : isRejected
+                ? "受注申請が拒否されました"
+                : isPendingApproval
+                  ? "受注申請中"
+                  : t(`request.status.${r.status}`);
+            const noReward = isRejected || isForceCompleted;
             const card = (
               <Card className="p-4 hover:border-primary transition">
                 <div className="flex items-center justify-between gap-3">
@@ -303,10 +307,10 @@ function WorkerHome() {
                     <div className="text-xs text-muted-foreground">{new Date(m.created_at).toLocaleString()}</div>
                   </div>
                   <div className="text-right">
-                    <Badge variant={isRejected ? "destructive" : isPendingApproval ? "outline" : "secondary"}>
+                    <Badge variant={isRejected || isForceCompleted ? "destructive" : isPendingApproval ? "outline" : "secondary"}>
                       {statusLabel}
                     </Badge>
-                    <div className="text-sm mt-1">報酬 {isRejected ? formatYen(0) : formatYen(Math.round(r.total_fee * (1 - PLATFORM_RATE)))}</div>
+                    <div className="text-sm mt-1">報酬 {noReward ? formatYen(0) : formatYen(Math.round(r.total_fee * (1 - PLATFORM_RATE)))}</div>
                   </div>
                 </div>
                 {isRejected && rejectionComment && (
@@ -315,9 +319,16 @@ function WorkerHome() {
                     <p className="text-sm whitespace-pre-wrap">{rejectionComment}</p>
                   </div>
                 )}
+                {isForceCompleted && (
+                  <div className="mt-3 rounded-md border border-destructive/30 bg-destructive/5 p-3">
+                    <div className="text-[11px] font-medium text-destructive mb-1">システムによる強制完了</div>
+                    <p className="text-sm whitespace-pre-wrap">{mm.force_completion_reason ?? "希望日時から一定時間経過しても完了報告がなかったため、放置案件として自動的に完了扱いにしました。"}</p>
+                  </div>
+                )}
               </Card>
             );
-            return isRejected ? (
+            return isRejected || isForceCompleted ? (
+
               <div key={m.id}>{card}</div>
             ) : (
               <Link key={m.id} to="/worker/job/$id" params={{ id: m.id }}>

@@ -25,6 +25,7 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
 import { Route as ApiPublicHooksTestCleanupRouteImport } from './routes/api/public/hooks/test-cleanup'
+import { Route as ApiPublicHooksAutoForceCompleteAbandonedRouteImport } from './routes/api/public/hooks/auto-force-complete-abandoned'
 import { Route as ApiPublicHooksAutoConfirmCompletionRouteImport } from './routes/api/public/hooks/auto-confirm-completion'
 import { Route as ApiPublicHooksAutoCancelOverdueRouteImport } from './routes/api/public/hooks/auto-cancel-overdue'
 import { Route as AuthenticatedWorkerJobIdRouteImport } from './routes/_authenticated/worker/job/$id'
@@ -114,6 +115,12 @@ const ApiPublicHooksTestCleanupRoute =
     path: '/api/public/hooks/test-cleanup',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksAutoForceCompleteAbandonedRoute =
+  ApiPublicHooksAutoForceCompleteAbandonedRouteImport.update({
+    id: '/api/public/hooks/auto-force-complete-abandoned',
+    path: '/api/public/hooks/auto-force-complete-abandoned',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksAutoConfirmCompletionRoute =
   ApiPublicHooksAutoConfirmCompletionRouteImport.update({
     id: '/api/public/hooks/auto-confirm-completion',
@@ -154,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/worker/job/$id': typeof AuthenticatedWorkerJobIdRoute
   '/api/public/hooks/auto-cancel-overdue': typeof ApiPublicHooksAutoCancelOverdueRoute
   '/api/public/hooks/auto-confirm-completion': typeof ApiPublicHooksAutoConfirmCompletionRoute
+  '/api/public/hooks/auto-force-complete-abandoned': typeof ApiPublicHooksAutoForceCompleteAbandonedRoute
   '/api/public/hooks/test-cleanup': typeof ApiPublicHooksTestCleanupRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -175,6 +183,7 @@ export interface FileRoutesByTo {
   '/worker/job/$id': typeof AuthenticatedWorkerJobIdRoute
   '/api/public/hooks/auto-cancel-overdue': typeof ApiPublicHooksAutoCancelOverdueRoute
   '/api/public/hooks/auto-confirm-completion': typeof ApiPublicHooksAutoConfirmCompletionRoute
+  '/api/public/hooks/auto-force-complete-abandoned': typeof ApiPublicHooksAutoForceCompleteAbandonedRoute
   '/api/public/hooks/test-cleanup': typeof ApiPublicHooksTestCleanupRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -198,6 +207,7 @@ export interface FileRoutesById {
   '/_authenticated/worker/job/$id': typeof AuthenticatedWorkerJobIdRoute
   '/api/public/hooks/auto-cancel-overdue': typeof ApiPublicHooksAutoCancelOverdueRoute
   '/api/public/hooks/auto-confirm-completion': typeof ApiPublicHooksAutoConfirmCompletionRoute
+  '/api/public/hooks/auto-force-complete-abandoned': typeof ApiPublicHooksAutoForceCompleteAbandonedRoute
   '/api/public/hooks/test-cleanup': typeof ApiPublicHooksTestCleanupRoute
   '/api/public/webhooks/stripe': typeof ApiPublicWebhooksStripeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -221,6 +231,7 @@ export interface FileRouteTypes {
     | '/worker/job/$id'
     | '/api/public/hooks/auto-cancel-overdue'
     | '/api/public/hooks/auto-confirm-completion'
+    | '/api/public/hooks/auto-force-complete-abandoned'
     | '/api/public/hooks/test-cleanup'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/auth/preview'
@@ -242,6 +253,7 @@ export interface FileRouteTypes {
     | '/worker/job/$id'
     | '/api/public/hooks/auto-cancel-overdue'
     | '/api/public/hooks/auto-confirm-completion'
+    | '/api/public/hooks/auto-force-complete-abandoned'
     | '/api/public/hooks/test-cleanup'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/auth/preview'
@@ -264,6 +276,7 @@ export interface FileRouteTypes {
     | '/_authenticated/worker/job/$id'
     | '/api/public/hooks/auto-cancel-overdue'
     | '/api/public/hooks/auto-confirm-completion'
+    | '/api/public/hooks/auto-force-complete-abandoned'
     | '/api/public/hooks/test-cleanup'
     | '/api/public/webhooks/stripe'
     | '/lovable/email/auth/preview'
@@ -279,6 +292,7 @@ export interface RootRouteChildren {
   AuthResetRoute: typeof AuthResetRoute
   ApiPublicHooksAutoCancelOverdueRoute: typeof ApiPublicHooksAutoCancelOverdueRoute
   ApiPublicHooksAutoConfirmCompletionRoute: typeof ApiPublicHooksAutoConfirmCompletionRoute
+  ApiPublicHooksAutoForceCompleteAbandonedRoute: typeof ApiPublicHooksAutoForceCompleteAbandonedRoute
   ApiPublicHooksTestCleanupRoute: typeof ApiPublicHooksTestCleanupRoute
   ApiPublicWebhooksStripeRoute: typeof ApiPublicWebhooksStripeRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -400,6 +414,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksTestCleanupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/auto-force-complete-abandoned': {
+      id: '/api/public/hooks/auto-force-complete-abandoned'
+      path: '/api/public/hooks/auto-force-complete-abandoned'
+      fullPath: '/api/public/hooks/auto-force-complete-abandoned'
+      preLoaderRoute: typeof ApiPublicHooksAutoForceCompleteAbandonedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/auto-confirm-completion': {
       id: '/api/public/hooks/auto-confirm-completion'
       path: '/api/public/hooks/auto-confirm-completion'
@@ -465,6 +486,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksAutoCancelOverdueRoute: ApiPublicHooksAutoCancelOverdueRoute,
   ApiPublicHooksAutoConfirmCompletionRoute:
     ApiPublicHooksAutoConfirmCompletionRoute,
+  ApiPublicHooksAutoForceCompleteAbandonedRoute:
+    ApiPublicHooksAutoForceCompleteAbandonedRoute,
   ApiPublicHooksTestCleanupRoute: ApiPublicHooksTestCleanupRoute,
   ApiPublicWebhooksStripeRoute: ApiPublicWebhooksStripeRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
