@@ -118,7 +118,7 @@ export async function sendPushToUser(
   userId: string,
   payload: PushPayload,
 ): Promise<{ sent: number; failed: number; revoked: number }> {
-  const { data: tokens, error } = await supabaseAdmin
+  const { data: tokens, error } = await (supabaseAdmin as any)
     .from("device_tokens")
     .select("token")
     .eq("user_id", userId)
@@ -136,22 +136,21 @@ export async function sendPushToUser(
   const toRevoke: string[] = [];
 
   await Promise.all(
-    tokens.map(async ({ token }) => {
-      const r = await sendToToken(projectId, accessToken, token as string, payload);
+    (tokens as Array<{ token: string }>).map(async ({ token }) => {
+      const r = await sendToToken(projectId, accessToken, token, payload);
       if (r.ok) {
         sent++;
       } else {
         failed++;
-        // UNREGISTERED / INVALID_ARGUMENT → 廃止トークン
         if (r.status === 404 || r.status === 400) {
-          toRevoke.push(token as string);
+          toRevoke.push(token);
         }
       }
     }),
   );
 
   if (toRevoke.length > 0) {
-    await supabaseAdmin
+    await (supabaseAdmin as any)
       .from("device_tokens")
       .update({ revoked_at: new Date().toISOString() })
       .in("token", toRevoke);
