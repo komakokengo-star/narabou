@@ -561,12 +561,21 @@ export const autoForceCompleteAbandoned = createServerFn({ method: "POST" })
           .from("payments").select("*").eq("request_id", req.id)
           .in("status", ["authorized", "pending"]);
         for (const p of pays ?? []) {
-          if (!p.stripe_payment_intent_id) continue;
-          try {
-            await stripe.paymentIntents.cancel(p.stripe_payment_intent_id);
-            await supabaseAdmin.from("payments").update({ status: "canceled" }).eq("id", p.id);
-          } catch (e) {
-            console.error("void on force-complete failed", p.id, e);
+          let voided = !p.stripe_payment_intent_id;
+          if (p.stripe_payment_intent_id) {
+            try {
+              await stripe.paymentIntents.cancel(p.stripe_payment_intent_id);
+              voided = true;
+            } catch (e) {
+              console.error("void on force-complete failed", p.id, e);
+            }
+          }
+          if (voided) {
+            await supabaseAdmin.from("payments").update({
+              status: "canceled",
+              platform_fee: 0,
+              worker_payout: 0,
+            }).eq("id", p.id);
           }
         }
 
@@ -581,6 +590,9 @@ export const autoForceCompleteAbandoned = createServerFn({ method: "POST" })
           end_time: existingEnd ?? nowIso,
         }).eq("id", m.id);
         await supabaseAdmin.from("requests").update({ status: "completed", total_fee: 0 }).eq("id", req.id);
+        await supabaseAdmin.from("payments").update({ platform_fee: 0, worker_payout: 0 })
+          .eq("request_id", req.id)
+          .eq("status", "canceled");
 
         await supabaseAdmin.rpc("notify_admin", {
           p_kind: "match_force_completed_abandoned",
