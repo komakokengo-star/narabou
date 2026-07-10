@@ -68,6 +68,22 @@ function CustomerHome() {
   const [notes, setNotes] = useState("");
   const [landmark, setLandmark] = useState("");
   const [numberDisplayMethod, setNumberDisplayMethod] = useState("");
+  const formRef = useState<HTMLDivElement | null>(null);
+
+  const prefillFromRequest = (r: typeof requests[number]) => {
+    setStoreName(r.store_name ?? "");
+    setStoreAddress(r.store_address ?? "");
+    setDesiredTime("");
+    setEstimatedWait(r.estimated_wait_minutes ?? 30);
+    setIsPeak(!!r.is_peak);
+    setNotes(r.notes ?? "");
+    setLandmark(r.landmark ?? "");
+    setNumberDisplayMethod(r.number_display_method ?? "");
+    toast.success("依頼内容を入力欄に反映しました。希望時間を設定してください。");
+    setTimeout(() => {
+      document.getElementById("create-request-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  };
 
   const create = useMutation({
     mutationFn: async () => {
