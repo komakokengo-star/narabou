@@ -66,11 +66,17 @@ function WorkerHome() {
 
   const accept = useMutation({
     mutationFn: async (requestId: string) => {
-      await applyForRequest({ data: { requestId } });
+      await applyForRequest({ data: { requestId, applyComment: applyComment.trim() || undefined } });
     },
-    onSuccess: () => { toast.success("受注申請を送信しました。依頼者の承認をお待ちください"); setDetailJobId(null); qc.invalidateQueries(); },
+    onSuccess: () => {
+      toast.success("受注申請を送信しました。依頼者の承認をお待ちください");
+      setDetailJobId(null);
+      setApplyComment("");
+      qc.invalidateQueries();
+    },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const detailJob = openJobs.find((j) => j.id === detailJobId) ?? null;
 
