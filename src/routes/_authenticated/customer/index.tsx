@@ -68,7 +68,7 @@ function CustomerHome() {
   const [notes, setNotes] = useState("");
   const [landmark, setLandmark] = useState("");
   const [numberDisplayMethod, setNumberDisplayMethod] = useState("");
-  const formRef = useState<HTMLDivElement | null>(null);
+  
 
   const prefillFromRequest = (r: typeof requests[number]) => {
     setStoreName(r.store_name ?? "");
