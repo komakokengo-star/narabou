@@ -79,7 +79,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "theme-color", content: "#c0392b" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "NARABOU" },
+      { name: "mobile-web-app-capable", content: "yes" },
       { title: "福岡行列代行 — 博多・天神の行列、並ぶのは私たち" },
       { name: "description", content: "基本800円+10分200円。ピーク時は+300円。決済・追加課金・返金もアプリで完結。" },
       { property: "og:title", content: "福岡行列代行 — 博多・天神の行列、並ぶのは私たち" },
