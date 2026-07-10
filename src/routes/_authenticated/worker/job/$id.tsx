@@ -144,10 +144,9 @@ function WorkerJob() {
       if (error) throw error;
       return { missingLocation };
     },
-    onSuccess: (_data, _vars, ctx) => {
+    onSuccess: (data) => {
       toast.success("定点報告を送信しました");
-      const c = ctx as { missingLocation?: boolean } | undefined;
-      if (c?.missingLocation) {
+      if (data?.missingLocation) {
         toast.warning(
           "場所が違います。代行者は依頼者に定点報告の備考で正しい位置を確認してください。",
           { duration: 8000 },
