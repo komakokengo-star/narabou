@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Trash2 } from "lucide-react";
+import { Trash2, RotateCcw } from "lucide-react";
 import { calcFee, formatYen } from "@/lib/fees";
 import { StoreSearchMap } from "@/components/StoreSearchMap";
 import { toast } from "sonner";
@@ -68,6 +68,22 @@ function CustomerHome() {
   const [notes, setNotes] = useState("");
   const [landmark, setLandmark] = useState("");
   const [numberDisplayMethod, setNumberDisplayMethod] = useState("");
+  
+
+  const prefillFromRequest = (r: typeof requests[number]) => {
+    setStoreName(r.store_name ?? "");
+    setStoreAddress(r.store_address ?? "");
+    setDesiredTime("");
+    setEstimatedWait(r.estimated_wait_minutes ?? 30);
+    setIsPeak(!!r.is_peak);
+    setNotes(r.notes ?? "");
+    setLandmark(r.landmark ?? "");
+    setNumberDisplayMethod(r.number_display_method ?? "");
+    toast.success("依頼内容を入力欄に反映しました。希望時間を設定してください。");
+    setTimeout(() => {
+      document.getElementById("create-request-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  };
 
   const create = useMutation({
     mutationFn: async () => {
@@ -149,7 +165,7 @@ function CustomerHome() {
         )}
 
 
-        <Card className="p-6 mb-8">
+        <Card id="create-request-form" className="p-6 mb-8 scroll-mt-20">
           <h2 className="font-medium mb-4">{t("request.create")}</h2>
           <form
             onSubmit={(e) => { e.preventDefault(); create.mutate(); }}
@@ -293,25 +309,40 @@ function CustomerHome() {
                       </div>
                       <div className="text-[10px] text-muted-foreground/70">登録 {new Date(r.created_at).toLocaleString()}</div>
                     </div>
-                    <div className="text-right pr-8">
+                    <div className={`text-right ${canDelete ? "pr-20" : "pr-8"}`}>
                       <Badge variant="secondary">{t(`request.status.${r.status}`)}</Badge>
                       <div className="text-sm mt-1">{formatYen(r.total_fee)}</div>
                     </div>
                   </Card>
                 </Link>
                 {canDelete && (
-                  <button
-                    type="button"
-                    aria-label="削除"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (confirm("この依頼を削除しますか？")) remove.mutate(r.id);
-                    }}
-                    className="absolute top-3 right-3 p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="absolute top-3 right-3 flex items-center gap-1">
+                    <button
+                      type="button"
+                      aria-label="再依頼"
+                      title="この内容で再依頼"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        prefillFromRequest(r);
+                      }}
+                      className="p-2 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10 transition"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="削除"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (confirm("この依頼を削除しますか？")) remove.mutate(r.id);
+                      }}
+                      className="p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 )}
               </div>
             );
