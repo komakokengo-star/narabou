@@ -300,7 +300,7 @@ function WorkerHome() {
                     <Badge variant={isRejected ? "destructive" : "secondary"}>
                       {isRejected ? "受注申請が拒否されました" : t(`request.status.${r.status}`)}
                     </Badge>
-                    <div className="text-sm mt-1">報酬 {formatYen(Math.round(r.total_fee * (1 - PLATFORM_RATE)))}</div>
+                    <div className="text-sm mt-1">報酬 {isRejected ? formatYen(0) : formatYen(Math.round(r.total_fee * (1 - PLATFORM_RATE)))}</div>
                   </div>
                 </div>
                 {isRejected && rejectionComment && (
