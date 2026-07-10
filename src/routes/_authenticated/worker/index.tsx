@@ -303,8 +303,8 @@ function WorkerHome() {
                     <div className="text-xs text-muted-foreground">{new Date(m.created_at).toLocaleString()}</div>
                   </div>
                   <div className="text-right">
-                    <Badge variant={isRejected ? "destructive" : "secondary"}>
-                      {isRejected ? "受注申請が拒否されました" : t(`request.status.${r.status}`)}
+                    <Badge variant={isRejected ? "destructive" : isPendingApproval ? "outline" : "secondary"}>
+                      {statusLabel}
                     </Badge>
                     <div className="text-sm mt-1">報酬 {isRejected ? formatYen(0) : formatYen(Math.round(r.total_fee * (1 - PLATFORM_RATE)))}</div>
                   </div>
