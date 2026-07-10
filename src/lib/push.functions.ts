@@ -35,7 +35,7 @@ export const unregisterDeviceToken = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => unregisterSchema.parse(data))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("device_tokens")
       .update({ revoked_at: new Date().toISOString() })
       .eq("token", data.token);
