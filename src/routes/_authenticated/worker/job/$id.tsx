@@ -133,8 +133,8 @@ function WorkerJob() {
       }
       const { error } = await supabase.from("checkins").insert({
         match_id: matchId,
-        location_lat: pos.coords.latitude,
-        location_lng: pos.coords.longitude,
+        location_lat: lat,
+        location_lng: lng,
         wait_time: waitTime,
         note: note || null,
         photo_url: photoUrl,
