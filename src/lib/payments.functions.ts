@@ -541,7 +541,7 @@ export const autoForceCompleteAbandoned = createServerFn({ method: "POST" })
     const stripe = getStripe();
     const cutoffIso = new Date(Date.now() - ABANDON_HOURS * 60 * 60 * 1000).toISOString();
 
-    const activeStatuses = ["approved", "in_progress", "arrived", "awaiting_confirmation"];
+    const activeStatuses = ["approved", "in_progress", "arrived", "awaiting_confirmation"] as const;
     const { data: rows } = await supabaseAdmin
       .from("matches")
       .select("id, request_id, worker_id, status, end_time, requests!inner(id, status, desired_time, store_name, request_number, customer_id)")
