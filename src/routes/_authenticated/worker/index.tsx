@@ -8,6 +8,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+
 import { Label } from "@/components/ui/label";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
@@ -31,6 +33,9 @@ function WorkerHome() {
   const qc = useQueryClient();
   const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [detailJobId, setDetailJobId] = useState<string | null>(null);
+  const [applyComment, setApplyComment] = useState("");
+  const APPLY_COMMENT_EXAMPLE = "本件、私にお任せください。開始10分前を目安に現地入りし、目印周辺で待機します。整理券や順番は逐次ご報告いたします。";
+
 
 
   const [displayName, setDisplayName] = useState("");
@@ -61,11 +66,17 @@ function WorkerHome() {
 
   const accept = useMutation({
     mutationFn: async (requestId: string) => {
-      await applyForRequest({ data: { requestId } });
+      await applyForRequest({ data: { requestId, applyComment: applyComment.trim() || undefined } });
     },
-    onSuccess: () => { toast.success("受注申請を送信しました。依頼者の承認をお待ちください"); setDetailJobId(null); qc.invalidateQueries(); },
+    onSuccess: () => {
+      toast.success("受注申請を送信しました。依頼者の承認をお待ちください");
+      setDetailJobId(null);
+      setApplyComment("");
+      qc.invalidateQueries();
+    },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const detailJob = openJobs.find((j) => j.id === detailJobId) ?? null;
 
@@ -325,7 +336,7 @@ function WorkerHome() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!detailJob} onOpenChange={(o) => { if (!o) setDetailJobId(null); }}>
+      <Dialog open={!!detailJob} onOpenChange={(o) => { if (!o) { setDetailJobId(null); setApplyComment(""); } }}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t("request.acceptDetailTitle")}</DialogTitle>
@@ -378,6 +389,31 @@ function WorkerHome() {
                 <span className="text-xs text-muted-foreground">{t("fees.total")}</span>
                 <span className="font-medium">{formatYen(detailJob.total_fee)}</span>
               </div>
+              <div className="border-t pt-3">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-medium">依頼者へのコメント（任意）</label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={() => setApplyComment(APPLY_COMMENT_EXAMPLE)}
+                  >
+                    例文を使う
+                  </Button>
+                </div>
+                <Textarea
+                  value={applyComment}
+                  onChange={(e) => setApplyComment(e.target.value)}
+                  rows={3}
+                  maxLength={300}
+                  placeholder={APPLY_COMMENT_EXAMPLE}
+                />
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  受注申請と一緒に依頼者に届き、承認画面で確認されます。
+                </p>
+              </div>
+
             </div>
           )}
           <DialogFooter className="gap-2">

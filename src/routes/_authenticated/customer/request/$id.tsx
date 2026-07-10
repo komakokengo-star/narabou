@@ -333,6 +333,16 @@ function RequestDetail() {
                   : "承認期限を過ぎたため自動キャンセル処理中..."}
               </p>
             )}
+            {(match as unknown as { apply_comment?: string | null }).apply_comment && (
+
+              <div className="mb-3 rounded-md border border-primary/30 bg-background p-3">
+                <div className="text-[11px] font-medium text-primary mb-1">代行者からのコメント</div>
+                <p className="text-sm whitespace-pre-wrap">
+                  {(match as unknown as { apply_comment: string }).apply_comment}
+                </p>
+              </div>
+            )}
+
             <div className="mb-3">
               <label className="text-xs font-medium block mb-1">代行者へのコメント（任意）</label>
               <Textarea
