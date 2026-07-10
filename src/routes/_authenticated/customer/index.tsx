@@ -165,7 +165,7 @@ function CustomerHome() {
         )}
 
 
-        <Card className="p-6 mb-8">
+        <Card id="create-request-form" className="p-6 mb-8 scroll-mt-20">
           <h2 className="font-medium mb-4">{t("request.create")}</h2>
           <form
             onSubmit={(e) => { e.preventDefault(); create.mutate(); }}
