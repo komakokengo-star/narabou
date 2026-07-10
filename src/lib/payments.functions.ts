@@ -542,12 +542,15 @@ export const autoForceCompleteAbandoned = createServerFn({ method: "POST" })
     const cutoffIso = new Date(Date.now() - ABANDON_HOURS * 60 * 60 * 1000).toISOString();
 
     const activeStatuses = ["approved", "in_progress", "arrived", "awaiting_confirmation"] as const;
-    const { data: rows } = await supabaseAdmin
+    const { data: allRows } = await supabaseAdmin
       .from("matches")
-      .select("id, request_id, worker_id, status, end_time, requests!inner(id, status, desired_time, store_name, request_number, customer_id)")
-      .in("status", activeStatuses)
-      .not("requests.desired_time", "is", null)
-      .lt("requests.desired_time", cutoffIso);
+      .select("id, request_id, worker_id, status, end_time, requests(id, status, desired_time, store_name, request_number, customer_id)")
+      .in("status", activeStatuses);
+    const rows = (allRows ?? []).filter((m) => {
+      const r = (m as unknown as { requests: { desired_time: string | null } | null }).requests;
+      return r?.desired_time && r.desired_time < cutoffIso;
+    });
+
 
     let processed = 0;
     for (const m of rows ?? []) {
