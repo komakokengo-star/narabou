@@ -530,3 +530,70 @@ export const autoCancelOverdueRequests = createServerFn({ method: "POST" })
     return { scanned: (rows ?? []).length, canceled };
   });
 
+// 放置マッチの強制完了（希望日時 + ABANDON_HOURS 経過しても完了/紛争になっていないもの）
+// 顧客請求は void（¥0）、代行者報酬も¥0。
+export const ABANDON_HOURS = 2;
+
+export const autoForceCompleteAbandoned = createServerFn({ method: "POST" })
+  .handler(async () => {
+    const { getStripe } = await import("@/lib/stripe.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const stripe = getStripe();
+    const cutoffIso = new Date(Date.now() - ABANDON_HOURS * 60 * 60 * 1000).toISOString();
+
+    const activeStatuses = ["approved", "in_progress", "arrived", "awaiting_confirmation"] as const;
+    const { data: rows } = await supabaseAdmin
+      .from("matches")
+      .select("id, request_id, worker_id, status, end_time, requests!inner(id, status, desired_time, store_name, request_number, customer_id)")
+      .in("status", activeStatuses)
+      .not("requests.desired_time", "is", null)
+      .lt("requests.desired_time", cutoffIso);
+
+    let processed = 0;
+    for (const m of rows ?? []) {
+      const req = (m as unknown as { requests: { id: string; store_name: string; request_number: number | null; customer_id: string; desired_time: string } }).requests;
+      if (!req) continue;
+      try {
+        const { data: pays } = await supabaseAdmin
+          .from("payments").select("*").eq("request_id", req.id)
+          .in("status", ["authorized", "pending"]);
+        for (const p of pays ?? []) {
+          if (!p.stripe_payment_intent_id) continue;
+          try {
+            await stripe.paymentIntents.cancel(p.stripe_payment_intent_id);
+            await supabaseAdmin.from("payments").update({ status: "canceled" }).eq("id", p.id);
+          } catch (e) {
+            console.error("void on force-complete failed", p.id, e);
+          }
+        }
+
+        const nowIso = new Date().toISOString();
+        const existingEnd = (m as unknown as { end_time?: string | null }).end_time ?? null;
+        await supabaseAdmin.from("matches").update({
+          status: "completed",
+          confirmed_at: nowIso,
+          auto_confirmed: true,
+          force_completed_at: nowIso,
+          force_completion_reason: `希望日時から${ABANDON_HOURS}時間経過しても完了報告がなく、放置案件として強制完了（報酬¥0）`,
+          end_time: existingEnd ?? nowIso,
+        }).eq("id", m.id);
+        await supabaseAdmin.from("requests").update({ status: "completed", total_fee: 0 }).eq("id", req.id);
+
+        await supabaseAdmin.rpc("notify_admin", {
+          p_kind: "match_force_completed_abandoned",
+          p_severity: "alert",
+          p_title: `放置案件を強制完了: ${req.store_name}`,
+          p_body: `#${String(req.request_number ?? "").padStart(4, "0")} が希望日時+${ABANDON_HOURS}h経過で強制完了(報酬¥0)されました`,
+          p_request_id: req.id,
+          p_actor_id: (m as unknown as { worker_id: string }).worker_id,
+          p_details: { desired_time: req.desired_time, abandon_hours: ABANDON_HOURS, previous_match_status: (m as unknown as { status: string }).status },
+        });
+        processed++;
+      } catch (e) {
+        console.error("auto-force-complete failed", m.id, e);
+      }
+    }
+    return { scanned: (rows ?? []).length, processed };
+  });
+
+

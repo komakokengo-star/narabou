@@ -227,6 +227,8 @@ export type Database = {
           dispute_reason: string | null
           disputed_at: string | null
           end_time: string | null
+          force_completed_at: string | null
+          force_completion_reason: string | null
           id: string
           rating: number | null
           rejected_at: string | null
@@ -253,6 +255,8 @@ export type Database = {
           dispute_reason?: string | null
           disputed_at?: string | null
           end_time?: string | null
+          force_completed_at?: string | null
+          force_completion_reason?: string | null
           id?: string
           rating?: number | null
           rejected_at?: string | null
@@ -279,6 +283,8 @@ export type Database = {
           dispute_reason?: string | null
           disputed_at?: string | null
           end_time?: string | null
+          force_completed_at?: string | null
+          force_completion_reason?: string | null
           id?: string
           rating?: number | null
           rejected_at?: string | null
