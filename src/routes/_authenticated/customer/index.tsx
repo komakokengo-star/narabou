@@ -21,6 +21,10 @@ export const Route = createFileRoute("/_authenticated/customer/")({
   component: CustomerHome,
 });
 
+function stripExamplePrefix(s: string) {
+  return s.replace(/^例）\n?/, "");
+}
+
 function CustomerHome() {
   const { t } = useTranslation();
   const { user } = useAuth();
