@@ -103,9 +103,23 @@ function WorkerJob() {
 
   const checkin = useMutation({
     mutationFn: async () => {
-      const pos = await new Promise<GeolocationPosition>((res, rej) =>
-        navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 8000 }),
-      );
+      let lat: number | null = null;
+      let lng: number | null = null;
+      try {
+        const pos = await new Promise<GeolocationPosition>((res, rej) => {
+          if (!("geolocation" in navigator)) return rej(new Error("geolocation unsupported"));
+          navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 8000 });
+        });
+        lat = pos.coords.latitude;
+        lng = pos.coords.longitude;
+      } catch (err) {
+        const code = (err as GeolocationPositionError | undefined)?.code;
+        if (code === 1) {
+          toast.warning("位置情報が拒否されたため、位置なしで送信します。ブラウザ設定から許可すると位置も記録できます。");
+        } else {
+          toast.warning("位置情報を取得できなかったため、位置なしで送信します。");
+        }
+      }
       let photoUrl: string | null = null;
       if (file) {
         const { data: userData } = await supabase.auth.getUser();
