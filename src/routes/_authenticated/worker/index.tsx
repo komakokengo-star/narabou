@@ -288,7 +288,13 @@ function WorkerHome() {
             if (!r) return null;
             const mm = m as unknown as { status?: string; rejection_comment?: string | null };
             const isRejected = mm.status === "rejected";
+            const isPendingApproval = mm.status === "pending_approval";
             const rejectionComment = mm.rejection_comment;
+            const statusLabel = isRejected
+              ? "受注申請が拒否されました"
+              : isPendingApproval
+                ? "受注申請中"
+                : t(`request.status.${r.status}`);
             const card = (
               <Card className="p-4 hover:border-primary transition">
                 <div className="flex items-center justify-between gap-3">
@@ -297,8 +303,8 @@ function WorkerHome() {
                     <div className="text-xs text-muted-foreground">{new Date(m.created_at).toLocaleString()}</div>
                   </div>
                   <div className="text-right">
-                    <Badge variant={isRejected ? "destructive" : "secondary"}>
-                      {isRejected ? "受注申請が拒否されました" : t(`request.status.${r.status}`)}
+                    <Badge variant={isRejected ? "destructive" : isPendingApproval ? "outline" : "secondary"}>
+                      {statusLabel}
                     </Badge>
                     <div className="text-sm mt-1">報酬 {isRejected ? formatYen(0) : formatYen(Math.round(r.total_fee * (1 - PLATFORM_RATE)))}</div>
                   </div>
