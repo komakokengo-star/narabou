@@ -125,7 +125,12 @@ function AuthPage() {
                   className="mt-0.5"
                   aria-required
                 />
-                <span>{t("auth.termsAgree")}</span>
+                <span>
+                  <Link to="/terms" className="underline hover:text-foreground">利用規約</Link>
+                  と
+                  <Link to="/privacy" className="underline hover:text-foreground">プライバシーポリシー</Link>
+                  に同意します
+                </span>
               </label>
             )}
             <Button type="submit" className="w-full" disabled={loading}>
