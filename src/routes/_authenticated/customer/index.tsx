@@ -164,6 +164,49 @@ function CustomerHome() {
           </div>
         )}
 
+        {(() => {
+          const OVERDUE_GRACE_MIN = 30;
+          const now = Date.now();
+          const overdueOpen = requests.filter((r) => {
+            if (r.status !== "open" || !r.desired_time) return false;
+            return new Date(r.desired_time).getTime() < now;
+          });
+          if (overdueOpen.length === 0) return null;
+          return (
+            <div className="mb-6 space-y-2">
+              {overdueOpen.map((r) => {
+                const desiredMs = new Date(r.desired_time!).getTime();
+                const cancelAtMs = desiredMs + OVERDUE_GRACE_MIN * 60 * 1000;
+                const remainMin = Math.max(0, Math.ceil((cancelAtMs - now) / 60000));
+                return (
+                  <Link key={r.id} to="/customer/request/$id" params={{ id: r.id }}>
+                    <Card className="p-4 border-destructive/40 bg-destructive/5 hover:border-destructive transition">
+                      <div className="text-sm font-medium text-destructive">
+                        希望日時を超過しています
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {r.request_number != null && (
+                          <span className="font-mono mr-2">
+                            #{String(r.request_number).padStart(4, "0")}
+                          </span>
+                        )}
+                        {r.store_name} — 希望 {new Date(r.desired_time!).toLocaleString()}
+                      </div>
+                      <div className="text-xs mt-1 font-medium text-destructive">
+                        {remainMin > 0
+                          ? `代行者が未マッチのままです。あと約 ${remainMin} 分で自動キャンセルされます。`
+                          : `間もなく自動キャンセルされます。`}
+                      </div>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+          );
+        })()}
+
+
+
 
         <Card id="create-request-form" className="p-6 mb-8 scroll-mt-20">
           <h2 className="font-medium mb-4">{t("request.create")}</h2>
