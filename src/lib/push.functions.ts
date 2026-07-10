@@ -13,7 +13,7 @@ export const registerDeviceToken = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => registerSchema.parse(data))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { error } = await supabase.from("device_tokens").upsert(
+    const { error } = await (supabase as any).from("device_tokens").upsert(
       {
         token: data.token,
         user_id: userId,
