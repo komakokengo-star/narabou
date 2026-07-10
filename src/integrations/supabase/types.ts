@@ -230,6 +230,7 @@ export type Database = {
           id: string
           rating: number | null
           rejected_at: string | null
+          rejection_comment: string | null
           request_id: string
           start_note: string | null
           start_time: string | null
@@ -255,6 +256,7 @@ export type Database = {
           id?: string
           rating?: number | null
           rejected_at?: string | null
+          rejection_comment?: string | null
           request_id: string
           start_note?: string | null
           start_time?: string | null
@@ -280,6 +282,7 @@ export type Database = {
           id?: string
           rating?: number | null
           rejected_at?: string | null
+          rejection_comment?: string | null
           request_id?: string
           start_note?: string | null
           start_time?: string | null
