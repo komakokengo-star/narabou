@@ -350,8 +350,11 @@ function RequestDetail() {
                 onChange={(e) => setApprovalComment(e.target.value)}
                 rows={3}
                 maxLength={300}
-                placeholder="待ち合わせ場所や依頼のポイントなど、承認時に代行者へ伝えたい内容"
+                placeholder="承認時：待ち合わせ場所や依頼のポイントなど / 拒否時：見送り理由や希望条件など"
               />
+              <p className="text-[10px] text-muted-foreground mt-1">
+                承認・拒否いずれの場合も、このコメントが代行者に届きます。
+              </p>
             </div>
             <div className="flex gap-2 flex-wrap">
               <Button onClick={() => respondMatch.mutate({ approve: true })} disabled={respondMatch.isPending}>

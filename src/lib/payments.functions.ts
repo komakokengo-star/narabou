@@ -259,6 +259,7 @@ export const respondToMatch = createServerFn({ method: "POST" })
       await supabaseAdmin.from("matches").update({
         status: "rejected", rejected_at: now,
         auto_canceled_at: data.autoCancel ? now : null,
+        rejection_comment: data.autoCancel ? null : (data.comment?.trim() || null),
       }).eq("id", data.matchId);
       // 依頼を再オープン
       await supabaseAdmin.from("requests").update({ status: "open" }).eq("id", match.request_id);
