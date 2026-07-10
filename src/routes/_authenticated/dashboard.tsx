@@ -102,6 +102,9 @@ ON CONFLICT DO NOTHING;`}
             </pre>
           </Card>
         )}
+        <div className="mt-6">
+          <PushNotificationCard />
+        </div>
       </main>
     </div>
   );
