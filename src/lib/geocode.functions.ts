@@ -36,3 +36,34 @@ export const reverseGeocode = createServerFn({ method: "POST" })
     }
     return { address: json.results[0].formatted_address };
   });
+
+export const forwardGeocode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { address: string }) => {
+    if (typeof d.address !== "string" || !d.address.trim()) throw new Error("invalid address");
+    return { address: d.address.trim().slice(0, 300) };
+  })
+  .handler(async ({ data }) => {
+    const lovableKey = process.env.LOVABLE_API_KEY;
+    const gmKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!lovableKey || !gmKey) throw new Error("Google Maps 接続が未設定です");
+    const url = `${GATEWAY_URL}/maps/api/geocode/json?address=${encodeURIComponent(data.address)}&language=ja&region=jp`;
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${lovableKey}`,
+        "X-Connection-Api-Key": gmKey,
+      },
+    });
+    if (!res.ok) {
+      const body = await res.text();
+      console.error("forward geocode failed", res.status, body);
+      throw new Error(`住所座標変換に失敗しました (${res.status})`);
+    }
+    const json = (await res.json()) as {
+      status: string;
+      results?: { geometry?: { location?: { lat: number; lng: number } } }[];
+    };
+    const loc = json.results?.[0]?.geometry?.location;
+    if (json.status !== "OK" || !loc) return { lat: null as number | null, lng: null as number | null };
+    return { lat: loc.lat, lng: loc.lng };
+  });

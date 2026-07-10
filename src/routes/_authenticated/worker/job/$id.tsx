@@ -13,7 +13,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { requestCompletion } from "@/lib/payments.functions";
-import { reverseGeocode } from "@/lib/geocode.functions";
+import { reverseGeocode, forwardGeocode } from "@/lib/geocode.functions";
+
+const DISTANCE_THRESHOLD_M = 200;
+function haversineMeters(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
+  const R = 6371000;
+  const toRad = (v: number) => (v * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
 
 export const Route = createFileRoute("/_authenticated/worker/job/$id")({
   component: WorkerJob,
@@ -31,6 +41,14 @@ function WorkerJob() {
       return data;
     },
     refetchInterval: 8000,
+  });
+
+  const storeAddress = (match?.requests as { store_address?: string } | undefined)?.store_address ?? "";
+  const { data: storeCoords } = useQuery({
+    queryKey: ["store-geocode", storeAddress],
+    queryFn: async () => await forwardGeocode({ data: { address: storeAddress } }),
+    enabled: !!storeAddress,
+    staleTime: 24 * 60 * 60 * 1000,
   });
 
   const { data: checkins = [] } = useQuery({
@@ -106,6 +124,8 @@ function WorkerJob() {
       let lat: number | null = null;
       let lng: number | null = null;
       let missingLocation = false;
+      let tooFar = false;
+      let distanceM: number | null = null;
       try {
         const pos = await new Promise<GeolocationPosition>((res, rej) => {
           if (!("geolocation" in navigator)) return rej(new Error("geolocation unsupported"));
@@ -121,6 +141,10 @@ function WorkerJob() {
         } else {
           toast.warning("位置情報を取得できなかったため、位置なしで送信します。");
         }
+      }
+      if (lat != null && lng != null && storeCoords?.lat != null && storeCoords.lng != null) {
+        distanceM = haversineMeters({ lat, lng }, { lat: storeCoords.lat, lng: storeCoords.lng });
+        if (distanceM > DISTANCE_THRESHOLD_M) tooFar = true;
       }
       let photoUrl: string | null = null;
       if (file) {
@@ -142,7 +166,7 @@ function WorkerJob() {
         photo_url: photoUrl,
       });
       if (error) throw error;
-      return { missingLocation };
+      return { missingLocation, tooFar, distanceM };
     },
     onSuccess: (data) => {
       toast.success("定点報告を送信しました");
@@ -150,6 +174,12 @@ function WorkerJob() {
         toast.warning(
           "場所が違います。代行者は依頼者に定点報告の備考で正しい位置を確認してください。",
           { duration: 8000 },
+        );
+      } else if (data?.tooFar) {
+        const dist = data.distanceM != null ? `（依頼店舗から約${Math.round(data.distanceM)}m）` : "";
+        toast.warning(
+          `場所が違います${dist}。代行者は依頼者に定点報告の備考で正しい位置を確認してください。`,
+          { duration: 10000 },
         );
       }
       setNote(""); setFile(null);
