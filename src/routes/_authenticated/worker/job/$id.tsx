@@ -105,6 +105,7 @@ function WorkerJob() {
     mutationFn: async () => {
       let lat: number | null = null;
       let lng: number | null = null;
+      let missingLocation = false;
       try {
         const pos = await new Promise<GeolocationPosition>((res, rej) => {
           if (!("geolocation" in navigator)) return rej(new Error("geolocation unsupported"));
@@ -113,6 +114,7 @@ function WorkerJob() {
         lat = pos.coords.latitude;
         lng = pos.coords.longitude;
       } catch (err) {
+        missingLocation = true;
         const code = (err as GeolocationPositionError | undefined)?.code;
         if (code === 1) {
           toast.warning("位置情報が拒否されたため、位置なしで送信します。ブラウザ設定から許可すると位置も記録できます。");
@@ -140,6 +142,7 @@ function WorkerJob() {
         photo_url: photoUrl,
       });
       if (error) throw error;
+      return { missingLocation };
     },
     onSuccess: (_data, _vars, ctx) => {
       toast.success("定点報告を送信しました");
