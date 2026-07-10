@@ -63,8 +63,12 @@ function Landing() {
           <Feature icon={<ShieldCheck className="w-5 h-5" />} title="本人確認" desc="代行者を審査" />
         </section>
       </main>
-      <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
-        © 福岡行列代行 — Beta
+      <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground space-y-2">
+        <div className="flex items-center justify-center gap-4">
+          <Link to="/terms" className="hover:text-foreground">利用規約</Link>
+          <Link to="/privacy" className="hover:text-foreground">プライバシーポリシー</Link>
+        </div>
+        <div>© HIFUNON — ＮＡＲＡＢＯＵ Beta</div>
       </footer>
     </div>
   );
