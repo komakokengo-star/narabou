@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ShoppingBag, Briefcase, ShieldCheck } from "lucide-react";
+import { PushNotificationCard } from "@/components/PushNotificationCard";
 import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -101,6 +102,9 @@ ON CONFLICT DO NOTHING;`}
             </pre>
           </Card>
         )}
+        <div className="mt-6">
+          <PushNotificationCard />
+        </div>
       </main>
     </div>
   );
