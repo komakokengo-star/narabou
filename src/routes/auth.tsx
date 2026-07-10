@@ -123,13 +123,16 @@ function AuthPage() {
                   checked={agreed}
                   onCheckedChange={(v) => setAgreed(v === true)}
                   className="mt-0.5"
-                  aria-required
+                  required
+                  aria-required="true"
+                  aria-invalid={!agreed}
                 />
                 <span>
+                  <span className="text-destructive mr-0.5" aria-hidden="true">*</span>
                   <Link to="/terms" className="underline hover:text-foreground">利用規約</Link>
                   と
                   <Link to="/privacy" className="underline hover:text-foreground">プライバシーポリシー</Link>
-                  に同意します
+                  に同意します（必須）
                 </span>
               </label>
             )}
