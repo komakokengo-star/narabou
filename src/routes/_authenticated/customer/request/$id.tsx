@@ -71,12 +71,13 @@ function RequestDetail() {
     refetchInterval: 8000,
   });
 
-  const [intent, setIntent] = useState<{ clientSecret: string; amount: number } | null>(null);
+  const [intent, setIntent] = useState<{ clientSecret: string; amount: number; mode: "pay" | "authorize" } | null>(null);
   const startPay = useMutation({
     mutationFn: () => createPaymentIntent({ data: { requestId: id } }),
-    onSuccess: (r) => setIntent({ clientSecret: r.clientSecret!, amount: r.amount }),
+    onSuccess: (r) => setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: "authorize" }),
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const [extMin, setExtMin] = useState(10);
   const extend = useMutation({
