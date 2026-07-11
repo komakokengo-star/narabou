@@ -22,10 +22,12 @@ export function StripePaymentForm({
   clientSecret,
   amount,
   onSuccess,
+  mode = "pay",
 }: {
   clientSecret: string;
   amount: number;
   onSuccess?: () => void;
+  mode?: "pay" | "authorize";
 }) {
   const { data: stripeInstance } = useQuery({
     queryKey: ["stripe-instance"],
@@ -36,7 +38,7 @@ export function StripePaymentForm({
   if (!stripeInstance) return <div className="text-sm text-muted-foreground">Stripe を読み込み中…</div>;
   return (
     <Elements stripe={stripeInstance} options={options}>
-      <InnerForm amount={amount} onSuccess={onSuccess} />
+      <InnerForm amount={amount} onSuccess={onSuccess} mode={mode} />
     </Elements>
   );
 }
