@@ -257,7 +257,7 @@ function WorkerJob() {
           <div className="font-medium mb-2">ステータス操作</div>
           {(match as unknown as { status: string }).status === "pending_approval" && (
             <div className="text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-800 p-3">
-              依頼者の承認をお待ちください（5分以内に承認されない場合は自動キャンセルとなります）。承認されるとオーソリ（与信確保）が実行され、業務を開始できます。
+              依頼者の承認をお待ちください（5分以内に承認されない場合は自動キャンセルとなります）。承認されると仮押さえ（与信確保）が実行され、業務を開始できます。
             </div>
           )}
           {(match as unknown as { status: string }).status !== "pending_approval" && !match.arrival_time && (
