@@ -71,18 +71,19 @@ function RequestDetail() {
     refetchInterval: 8000,
   });
 
-  const [intent, setIntent] = useState<{ clientSecret: string; amount: number } | null>(null);
+  const [intent, setIntent] = useState<{ clientSecret: string; amount: number; mode: "pay" | "authorize" } | null>(null);
   const startPay = useMutation({
     mutationFn: () => createPaymentIntent({ data: { requestId: id } }),
-    onSuccess: (r) => setIntent({ clientSecret: r.clientSecret!, amount: r.amount }),
+    onSuccess: (r) => setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: "authorize" }),
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const [extMin, setExtMin] = useState(10);
   const extend = useMutation({
     mutationFn: () => chargeExtension({ data: { requestId: id, extraMinutes: extMin } }),
     onSuccess: (r) => {
-      setIntent({ clientSecret: r.clientSecret!, amount: r.amount });
+      setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: "pay" });
       toast.success("延長分の支払いに進んでください");
     },
     onError: (e: Error) => toast.error(e.message),
@@ -99,7 +100,7 @@ function RequestDetail() {
     mutationFn: (v: { approve: boolean; autoCancel?: boolean }) =>
       respondToMatch({ data: { matchId: match!.id, approve: v.approve, comment: approvalComment, autoCancel: v.autoCancel } }),
     onSuccess: (_r, v) => {
-      toast.success(v.approve ? "承認しました。決済のオーソリへ進んでください" : (v.autoCancel ? "5分以内に承認されなかったため自動キャンセルしました" : "受注申請を拒否しました"));
+      toast.success(v.approve ? "承認しました。決済の仮押さえへ進んでください" : (v.autoCancel ? "5分以内に承認されなかったため自動キャンセルしました" : "受注申請を拒否しました"));
       qc.invalidateQueries();
       if (v.approve) startPay.mutate();
     },
@@ -323,8 +324,8 @@ function RequestDetail() {
           <Card className="p-6 mt-6 border-primary/40 bg-primary/5">
             <div className="text-sm font-medium mb-1">代行者から受注申請が届いています</div>
             <p className="text-xs text-muted-foreground mb-3">
-              承認すると決済のオーソリ（与信確保）を行い、代行者に業務開始の許可が出ます。
-              オーソリ段階では請求は確定せず、業務完了時に確定します。キャンセル時はオーソリを解除します。
+              承認すると決済の仮押さえ（与信確保）を行い、代行者に業務開始の許可が出ます。
+              仮押さえ段階では請求は確定せず、業務完了時に確定します。キャンセル時は仮押さえを解除します。
             </p>
             {deadlineMs && (
               <p className="text-xs mb-3 font-medium text-amber-700">
@@ -358,7 +359,7 @@ function RequestDetail() {
             </div>
             <div className="flex gap-2 flex-wrap">
               <Button onClick={() => respondMatch.mutate({ approve: true })} disabled={respondMatch.isPending}>
-                承認してオーソリへ進む
+                承認して仮押さえへ進む
               </Button>
               <Button variant="outline" onClick={() => respondMatch.mutate({ approve: false })} disabled={respondMatch.isPending}>
                 拒否する
@@ -445,7 +446,7 @@ function RequestDetail() {
           const cancelable = rs !== "completed" && rs !== "canceled";
           const cancelHint =
             !match || matchStatus === "pending_approval" ? "無料でキャンセルできます"
-            : matchStatus === "approved" && !hasPaid ? "オーソリを解除して無料でキャンセルします"
+            : matchStatus === "approved" && !hasPaid ? "仮押さえを解除して無料でキャンセルします"
             : rs === "arrived" ? "到着済のため基本料金・ピーク料金が発生します"
             : rs === "in_progress" ? "業務中のため経過分の料金が発生します"
             : "キャンセルできません";
@@ -453,12 +454,12 @@ function RequestDetail() {
             <Card className="p-6 mt-6 space-y-3">
               {showPay && (
                 <Button className="w-full" onClick={() => startPay.mutate()} disabled={startPay.isPending}>
-                  {t("request.actions.pay")}（オーソリ）
+                  {t("request.actions.pay")}（仮押さえ）
                 </Button>
               )}
               {hasAuth && !hasPaid && (
                 <div className="text-xs rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 p-3">
-                  ✓ オーソリ済み（与信確保）。業務完了時に決済が確定します。
+                  ✓ 仮押さえ済み（与信確保）。業務完了時に決済が確定します。
                 </div>
               )}
 
@@ -522,6 +523,7 @@ function RequestDetail() {
             <StripePaymentForm
               clientSecret={intent.clientSecret}
               amount={intent.amount}
+              mode={intent.mode}
               onSuccess={() => { setIntent(null); refetch(); qc.invalidateQueries(); }}
             />
           </Card>
