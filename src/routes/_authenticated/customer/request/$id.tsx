@@ -523,6 +523,7 @@ function RequestDetail() {
             <StripePaymentForm
               clientSecret={intent.clientSecret}
               amount={intent.amount}
+              mode={intent.mode}
               onSuccess={() => { setIntent(null); refetch(); qc.invalidateQueries(); }}
             />
           </Card>
