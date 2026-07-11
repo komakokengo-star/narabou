@@ -207,7 +207,11 @@ function RequestDetail() {
                 {request.store_address ?? ""}
               </div>
             </div>
-            <Badge variant="secondary">{t(`request.status.${request.status}`)}</Badge>
+            <Badge variant="secondary">{
+              matchStatus === "awaiting_confirmation" ? "受け取り確認待ち"
+              : matchStatus === "disputed" ? "異議申立中"
+              : t(`request.status.${request.status}`)
+            }</Badge>
           </div>
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
             <Stat label={t("fees.total")} v={formatYen(request.total_fee)} />
