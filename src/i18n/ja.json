@@ -135,6 +135,7 @@
     "title": "お支払い",
     "testMode": "Stripe テストモードです。カード番号は 4242 4242 4242 4242 をご利用ください。",
     "pay": "{{amount}}円を支払う",
+    "authorize": "{{amount}}円を仮押さえ",
     "history": "支払い履歴"
   },
   "worker": {

@@ -124,6 +124,7 @@
     "title": "Payment",
     "testMode": "Stripe test mode. Use card 4242 4242 4242 4242.",
     "pay": "Pay {{amount}}",
+    "authorize": "Authorize {{amount}}",
     "history": "Payment history"
   },
   "worker": {
