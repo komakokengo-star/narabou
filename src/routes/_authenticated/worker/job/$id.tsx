@@ -211,7 +211,13 @@ function WorkerJob() {
               <h1 className="font-serif text-2xl">{req.store_name}</h1>
               <div className="text-xs text-muted-foreground">{new Date(match.created_at).toLocaleString()}</div>
             </div>
-            <Badge variant="secondary">{t(`request.status.${req.status}`)}</Badge>
+            <Badge variant="secondary">{(() => {
+              const ms = (match as unknown as { status?: string }).status;
+              if (ms === "awaiting_confirmation") return "受け取り確認待ち";
+              if (ms === "disputed") return "異議申立中";
+              if (ms === "completed") return t("request.status.completed");
+              return t(`request.status.${req.status}`);
+            })()}</Badge>
           </div>
         </Card>
 
