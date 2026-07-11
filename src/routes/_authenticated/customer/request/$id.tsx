@@ -83,7 +83,7 @@ function RequestDetail() {
   const extend = useMutation({
     mutationFn: () => chargeExtension({ data: { requestId: id, extraMinutes: extMin } }),
     onSuccess: (r) => {
-      setIntent({ clientSecret: r.clientSecret!, amount: r.amount });
+      setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: "pay" });
       toast.success("延長分の支払いに進んでください");
     },
     onError: (e: Error) => toast.error(e.message),
