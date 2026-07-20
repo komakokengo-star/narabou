@@ -6,7 +6,10 @@
       "name": "tanstack_start_ts",
       "dependencies": {
         "@fontsource/noto-sans-jp": "^5.2.9",
+        "@fontsource/noto-sans-kr": "^5.3.0",
+        "@fontsource/noto-sans-tc": "^5.3.0",
         "@fontsource/noto-serif-jp": "^5.2.8",
+        "@fontsource/noto-serif-tc": "^5.3.0",
         "@hookform/resolvers": "^5.2.2",
         "@lovable.dev/email-js": "^0.0.4",
         "@lovable.dev/webhooks-js": "^0.0.1",
@@ -316,7 +319,13 @@
 
     "@fontsource/noto-sans-jp": ["@fontsource/noto-sans-jp@5.2.9", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@fontsource/noto-sans-jp/-/noto-sans-jp-5.2.9.tgz", {}, "sha512-6yVGiofnrnbiJjU8ch4JGSs2HqyozxMvsVyVmFwOnDH3u//qQKLqmKM4n0lqN0637uaJNzUW9nIJqbbMgHVQzw=="],
 
+    "@fontsource/noto-sans-kr": ["@fontsource/noto-sans-kr@5.3.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@fontsource/noto-sans-kr/-/noto-sans-kr-5.3.0.tgz", {}, "sha512-/JnpTjaCOXW7xUoqOyCVYSr05VOkDy5Yla9O+WAEiS7u+yYLsmHoqj6v1W0bf91G8G3XA2+NnRS3CX2Tf/FVZg=="],
+
+    "@fontsource/noto-sans-tc": ["@fontsource/noto-sans-tc@5.3.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@fontsource/noto-sans-tc/-/noto-sans-tc-5.3.0.tgz", {}, "sha512-+0MguVH2vIxkVJLiaMHVKHk+yJZmZvMU9d8z88JdUx8C2CgMLOtm7WNloi3HYlvCNy7TpuvjIUvh5iiGp6INxQ=="],
+
     "@fontsource/noto-serif-jp": ["@fontsource/noto-serif-jp@5.2.8", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@fontsource/noto-serif-jp/-/noto-serif-jp-5.2.8.tgz", {}, "sha512-x+tGrrK+4t/hoHLxAl7Ry5nN8CVPermqz0fD7HtCXzBJSxzFKxNH9y+cuOD3gZW0tyKZ2CD7WvuAfHbISvjL5Q=="],
+
+    "@fontsource/noto-serif-tc": ["@fontsource/noto-serif-tc@5.3.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@fontsource/noto-serif-tc/-/noto-serif-tc-5.3.0.tgz", {}, "sha512-6ZvCwAxmIV9axb7PMdLFMRv9h0MAKFpgHB54dngBAt/pGXBfcdXMCV9MBhqIqPV16szpR6FFrXYGuC9fcPFJIw=="],
 
     "@grpc/grpc-js": ["@grpc/grpc-js@1.9.16", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@grpc/grpc-js/-/grpc-js-1.9.16.tgz", { "dependencies": { "@grpc/proto-loader": "^0.7.8", "@types/node": ">=12.12.47" } }, "sha512-wE4Ut/olIzfKqp631XrG+wbF0v1vWFN4YL9FyXC2LJiG33DsV7PLzURjrCvY/6je2ntdRkeLpPDluzSRGaVltQ=="],
 
