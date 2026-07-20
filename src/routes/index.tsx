@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import appI18n from "../i18n";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,8 +10,8 @@ import { Clock, MapPin, ShieldCheck, Users } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "福岡行列代行 — 博多・天神の行列、並ぶのは私たち" },
-      { name: "description", content: "基本800円+10分200円。ピーク時は+300円。決済・追加課金・返金もアプリで完結。" },
+      { title: appI18n.t("app.metaTitle") },
+      { name: "description", content: appI18n.t("app.metaDescription") },
     ],
   }),
   component: Landing,
