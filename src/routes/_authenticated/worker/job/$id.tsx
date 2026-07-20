@@ -169,16 +169,12 @@ function WorkerJob() {
       return { missingLocation, tooFar, distanceM };
     },
     onSuccess: (data) => {
-      toast.success("定点報告を送信しました");
+      toast.success(t("workerJob.checkinSent"));
       if (data?.missingLocation) {
-        toast.warning(
-          "場所が違います。代行者は依頼者に定点報告の備考で正しい位置を確認してください。",
-          { duration: 8000 },
-        );
+        toast.warning(t("workerJob.wrongLocationNoGps"), { duration: 8000 });
       } else if (data?.tooFar) {
-        const dist = data.distanceM != null ? `（依頼店舗から約${Math.round(data.distanceM)}m）` : "";
         toast.warning(
-          `場所が違います${dist}。代行者は依頼者に定点報告の備考で正しい位置を確認してください。`,
+          t("workerJob.wrongLocationDistance", { dist: data.distanceM != null ? Math.round(data.distanceM) : "?" }),
           { duration: 10000 },
         );
       }
