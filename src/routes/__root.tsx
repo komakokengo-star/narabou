@@ -154,13 +154,6 @@ function RootComponent() {
     };
   }, []);
 
-  // DEBUG: expose i18n for preview verification; remove before final
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      (window as unknown as { __i18n: typeof appI18n }).__i18n = appI18n;
-    }
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={appI18n}>
