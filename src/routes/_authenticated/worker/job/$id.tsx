@@ -68,7 +68,7 @@ function WorkerJob() {
       if (patch.req && match?.request_id)
         await supabase.from("requests").update(patch.req).eq("id", match.request_id);
     },
-    onSuccess: () => { qc.invalidateQueries(); toast.success("更新しました"); },
+    onSuccess: () => { qc.invalidateQueries(); toast.success(t("workerJob.updated")); },
     onError: (e: Error) => toast.error(e.message),
   });
 
