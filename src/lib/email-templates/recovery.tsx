@@ -16,7 +16,7 @@ interface RecoveryEmailProps {
   confirmationUrl: string
 }
 
-const PUBLIC_APP_URL = 'https://narabou.lovable.app'
+const PUBLIC_APP_URL = process.env.PUBLIC_APP_URL ?? 'https://narabou.lovable.app'
 const PASSWORD_FORGOT_URL = `${PUBLIC_APP_URL}/auth/forgot`
 
 function getRecoveryButtonUrl(confirmationUrl: string) {
