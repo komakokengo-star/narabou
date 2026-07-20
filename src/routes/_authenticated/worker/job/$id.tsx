@@ -234,23 +234,23 @@ function WorkerJob() {
         )}
 
         <Card className="p-6 mt-6 space-y-3">
-          <div className="font-medium mb-2">代行者の特徴（依頼者に共有）</div>
+          <div className="font-medium mb-2">{t("workerJob.featuresTitle")}</div>
           <p className="text-xs text-muted-foreground">
-            見た目の特徴、服装の色、整理券番号など、依頼者が現地で確認しやすい情報を入力してください。
+            {t("workerJob.featuresHint")}
           </p>
           <Textarea
             value={workerFeatures}
             onChange={(e) => setWorkerFeatures(e.target.value)}
             rows={2}
             maxLength={300}
-            placeholder="例）黒キャップ・青いリュック / 整理券 A-27"
+            placeholder={t("workerJob.featuresPlaceholder")}
           />
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="outline" onClick={() => saveFeatures.mutate(workerFeatures)} disabled={saveFeatures.isPending}>
-              特徴を保存
+              {t("workerJob.saveFeatures")}
             </Button>
-            <Button size="sm" variant="ghost" type="button" onClick={() => setWorkerFeatures("黒キャップ・青いリュック / 整理券 A-27")}>
-              例文を使う
+            <Button size="sm" variant="ghost" type="button" onClick={() => setWorkerFeatures(t("workerJob.featuresExample"))}>
+              {t("workerJob.useExample")}
             </Button>
           </div>
         </Card>
