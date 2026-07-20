@@ -15,6 +15,7 @@
   },
   "common": {
     "loading": "불러오는 중…",
+    "beta": "베타",
     "save": "저장",
     "cancel": "취소",
     "submit": "전송",

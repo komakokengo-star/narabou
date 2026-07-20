@@ -15,6 +15,7 @@
   },
   "common": {
     "loading": "讀取中…",
+    "beta": "測試版",
     "save": "儲存",
     "cancel": "取消",
     "submit": "送出",

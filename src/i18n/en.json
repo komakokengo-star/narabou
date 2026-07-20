@@ -15,6 +15,7 @@
   },
   "common": {
     "loading": "Loading…",
+    "beta": "Beta",
     "save": "Save",
     "cancel": "Cancel",
     "submit": "Submit",

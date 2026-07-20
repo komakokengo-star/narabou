@@ -15,6 +15,7 @@
   },
   "common": {
     "loading": "読み込み中…",
+    "beta": "ベータ版",
     "save": "保存",
     "cancel": "キャンセル",
     "submit": "送信",
