@@ -137,9 +137,9 @@ function WorkerJob() {
         missingLocation = true;
         const code = (err as GeolocationPositionError | undefined)?.code;
         if (code === 1) {
-          toast.warning("位置情報が拒否されたため、位置なしで送信します。ブラウザ設定から許可すると位置も記録できます。");
+          toast.warning(t("workerJob.gpsDenied"));
         } else {
-          toast.warning("位置情報を取得できなかったため、位置なしで送信します。");
+          toast.warning(t("workerJob.gpsUnavailable"));
         }
       }
       if (lat != null && lng != null && storeCoords?.lat != null && storeCoords.lng != null) {
