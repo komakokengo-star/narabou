@@ -69,8 +69,9 @@ function buildConfirmationUrl(emailType: string, rawUrl: string | null | undefin
     }
 
     if (hasRecoveryToken) {
+      const publicUrl = new URL(PUBLIC_APP_URL)
       url.protocol = 'https:'
-      url.host = 'narabou.lovable.app'
+      url.host = publicUrl.host
       url.pathname = '/auth/reset'
       return url.toString()
     }
