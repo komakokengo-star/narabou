@@ -77,7 +77,7 @@ function WorkerJob() {
       if (!match?.request_id) throw new Error("Request not found");
       return await requestCompletion({ data: { requestId: match.request_id, completionNote: completionNote || null } });
     },
-    onSuccess: () => { qc.invalidateQueries(); toast.success("完了報告を送信しました。依頼者の受け取り確認をお待ちください"); },
+    onSuccess: () => { qc.invalidateQueries(); toast.success(t("workerJob.completionSent")); },
     onError: (e: Error) => toast.error(e.message),
   });
 
