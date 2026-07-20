@@ -154,11 +154,6 @@ function RootComponent() {
     };
   }, []);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      (window as unknown as { __i18n: typeof appI18n }).__i18n = appI18n;
-    }
-  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
