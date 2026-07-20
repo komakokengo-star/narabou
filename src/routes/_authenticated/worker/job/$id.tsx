@@ -68,7 +68,7 @@ function WorkerJob() {
       if (patch.req && match?.request_id)
         await supabase.from("requests").update(patch.req).eq("id", match.request_id);
     },
-    onSuccess: () => { qc.invalidateQueries(); toast.success("更新しました"); },
+    onSuccess: () => { qc.invalidateQueries(); toast.success(t("workerJob.updated")); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -77,7 +77,7 @@ function WorkerJob() {
       if (!match?.request_id) throw new Error("Request not found");
       return await requestCompletion({ data: { requestId: match.request_id, completionNote: completionNote || null } });
     },
-    onSuccess: () => { qc.invalidateQueries(); toast.success("完了報告を送信しました。依頼者の受け取り確認をお待ちください"); },
+    onSuccess: () => { qc.invalidateQueries(); toast.success(t("workerJob.completionSent")); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -101,7 +101,7 @@ function WorkerJob() {
       return { lat, lng, address };
     },
     onSuccess: (v) => setGps(v),
-    onError: (e: Error) => toast.error(e.message || "位置情報の取得に失敗しました"),
+    onError: (e: Error) => toast.error(e.message || t("workerJob.gpsError")),
   });
   const [startNote, setStartNote] = useState("");
   const [completionNote, setCompletionNote] = useState("");
@@ -110,7 +110,7 @@ function WorkerJob() {
     mutationFn: async (v: string) => {
       await supabase.from("matches").update({ worker_features: v || null } as never).eq("id", matchId);
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["worker-match", matchId] }); toast.success("特徴を保存しました"); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["worker-match", matchId] }); toast.success(t("workerJob.featuresSaved")); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -137,9 +137,9 @@ function WorkerJob() {
         missingLocation = true;
         const code = (err as GeolocationPositionError | undefined)?.code;
         if (code === 1) {
-          toast.warning("位置情報が拒否されたため、位置なしで送信します。ブラウザ設定から許可すると位置も記録できます。");
+          toast.warning(t("workerJob.gpsDenied"));
         } else {
-          toast.warning("位置情報を取得できなかったため、位置なしで送信します。");
+          toast.warning(t("workerJob.gpsUnavailable"));
         }
       }
       if (lat != null && lng != null && storeCoords?.lat != null && storeCoords.lng != null) {
@@ -150,7 +150,7 @@ function WorkerJob() {
       if (file) {
         const { data: userData } = await supabase.auth.getUser();
         const uid = userData.user?.id;
-        if (!uid) throw new Error("未認証です");
+        if (!uid) throw new Error(t("workerJob.notAuthenticated"));
         const path = `${uid}/${matchId}/${Date.now()}-${file.name}`;
         const { error: upErr } = await supabase.storage.from("checkin-photos").upload(path, file, { upsert: true });
         if (upErr) throw upErr;
@@ -169,16 +169,12 @@ function WorkerJob() {
       return { missingLocation, tooFar, distanceM };
     },
     onSuccess: (data) => {
-      toast.success("定点報告を送信しました");
+      toast.success(t("workerJob.checkinSent"));
       if (data?.missingLocation) {
-        toast.warning(
-          "場所が違います。代行者は依頼者に定点報告の備考で正しい位置を確認してください。",
-          { duration: 8000 },
-        );
+        toast.warning(t("workerJob.wrongLocationNoGps"), { duration: 8000 });
       } else if (data?.tooFar) {
-        const dist = data.distanceM != null ? `（依頼店舗から約${Math.round(data.distanceM)}m）` : "";
         toast.warning(
-          `場所が違います${dist}。代行者は依頼者に定点報告の備考で正しい位置を確認してください。`,
+          t("workerJob.wrongLocationDistance", { dist: data.distanceM != null ? Math.round(data.distanceM) : "?" }),
           { duration: 10000 },
         );
       }
@@ -213,8 +209,8 @@ function WorkerJob() {
             </div>
             <Badge variant="secondary">{(() => {
               const ms = (match as unknown as { status?: string }).status;
-              if (ms === "awaiting_confirmation") return "受け取り確認待ち";
-              if (ms === "disputed") return "異議申立中";
+              if (ms === "awaiting_confirmation") return t("workerJob.statusAwaitingConfirmation");
+              if (ms === "disputed") return t("workerJob.statusDisputed");
               if (ms === "completed") return t("request.status.completed");
               return t(`request.status.${req.status}`);
             })()}</Badge>
@@ -223,58 +219,58 @@ function WorkerJob() {
 
         {(match as unknown as { approval_comment?: string | null }).approval_comment && (
           <Card className="p-4 mt-6 border-primary/40 bg-primary/5">
-            <div className="text-xs font-medium mb-1">依頼者からのコメント</div>
+            <div className="text-xs font-medium mb-1">{t("workerJob.customerComment")}</div>
             <p className="text-sm whitespace-pre-wrap">{(match as unknown as { approval_comment: string }).approval_comment}</p>
           </Card>
         )}
 
         {(match as unknown as { auto_canceled_at?: string | null }).auto_canceled_at && (
           <Card className="p-4 mt-6 border-amber-300 bg-amber-50">
-            <div className="text-sm font-medium text-amber-900">この受注は自動キャンセルされました</div>
+            <div className="text-sm font-medium text-amber-900">{t("workerJob.autoCanceledTitle")}</div>
             <p className="text-xs text-amber-800 mt-1">
-              依頼者が5分以内に承認しなかったため、受注申請は自動的にキャンセルされました。他の依頼をご確認ください。
+              {t("workerJob.autoCanceledDesc")}
             </p>
           </Card>
         )}
 
         <Card className="p-6 mt-6 space-y-3">
-          <div className="font-medium mb-2">代行者の特徴（依頼者に共有）</div>
+          <div className="font-medium mb-2">{t("workerJob.featuresTitle")}</div>
           <p className="text-xs text-muted-foreground">
-            見た目の特徴、服装の色、整理券番号など、依頼者が現地で確認しやすい情報を入力してください。
+            {t("workerJob.featuresHint")}
           </p>
           <Textarea
             value={workerFeatures}
             onChange={(e) => setWorkerFeatures(e.target.value)}
             rows={2}
             maxLength={300}
-            placeholder="例）黒キャップ・青いリュック / 整理券 A-27"
+            placeholder={t("workerJob.featuresPlaceholder")}
           />
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="outline" onClick={() => saveFeatures.mutate(workerFeatures)} disabled={saveFeatures.isPending}>
-              特徴を保存
+              {t("workerJob.saveFeatures")}
             </Button>
-            <Button size="sm" variant="ghost" type="button" onClick={() => setWorkerFeatures("黒キャップ・青いリュック / 整理券 A-27")}>
-              例文を使う
+            <Button size="sm" variant="ghost" type="button" onClick={() => setWorkerFeatures(t("workerJob.featuresExample"))}>
+              {t("workerJob.useExample")}
             </Button>
           </div>
         </Card>
 
         <Card className="p-6 mt-6 space-y-4">
-          <div className="font-medium mb-2">ステータス操作</div>
+          <div className="font-medium mb-2">{t("workerJob.statusOps")}</div>
           {(match as unknown as { status: string }).status === "pending_approval" && (
             <div className="text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-800 p-3">
-              依頼者の承認をお待ちください（5分以内に承認されない場合は自動キャンセルとなります）。承認されると仮押さえ（与信確保）が実行され、業務を開始できます。
+              {t("workerJob.pendingApprovalHint")}
             </div>
           )}
           {(match as unknown as { status: string }).status !== "pending_approval" && !match.arrival_time && (
             <div className="space-y-2">
-              <Label>依頼者へのメッセージ（現地到着時／任意）</Label>
+              <Label>{t("workerJob.arrivalMsgLabel")}</Label>
               <Textarea
                 value={arrivalNote}
                 onChange={(e) => setArrivalNote(e.target.value)}
                 rows={2}
                 maxLength={300}
-                placeholder="例）店舗前に到着しました。整理券 A-27 を取得済みです。"
+                placeholder={t("workerJob.arrivalPlaceholder")}
               />
               <div className="flex flex-wrap items-center gap-2">
                 <Button onClick={() => updateStatus.mutate({ match: { arrival_time: new Date().toISOString(), status: "arrived", arrival_note: arrivalNote || null }, req: { status: "arrived" } })}>
@@ -282,19 +278,19 @@ function WorkerJob() {
                 </Button>
                 <Button type="button" variant="outline" size="sm" onClick={() => fetchGps.mutate()} disabled={fetchGps.isPending}>
                   <MapPin className="w-4 h-4 mr-1" />
-                  {fetchGps.isPending ? "取得中..." : "現在位置を取得"}
+                  {fetchGps.isPending ? t("workerJob.fetching") : t("workerJob.fetchGps")}
                 </Button>
-                <Button type="button" variant="ghost" size="sm" onClick={() => setArrivalNote("店舗前に到着しました。整理券 A-27 を取得済みです。")}>
-                  例文を使う
+                <Button type="button" variant="ghost" size="sm" onClick={() => setArrivalNote(t("workerJob.arrivalExample"))}>
+                  {t("workerJob.useExample")}
                 </Button>
               </div>
               {gps && (
                 <div className="text-xs rounded-md border border-border bg-muted/40 p-3 space-y-1">
                   <div className="font-mono">
-                    位置コード: {gps.lat.toFixed(6)}, {gps.lng.toFixed(6)}
+                    {t("workerJob.gpsCode")}: {gps.lat.toFixed(6)}, {gps.lng.toFixed(6)}
                   </div>
                   <div className="text-muted-foreground">
-                    住所: {gps.address ?? "取得できませんでした"}
+                    {t("workerJob.gpsAddress")}: {gps.address ?? t("workerJob.gpsAddressUnavailable")}
                   </div>
                   <Button
                     type="button"
@@ -302,11 +298,11 @@ function WorkerJob() {
                     size="sm"
                     className="h-7 px-2"
                     onClick={() => {
-                      const line = `現在位置: ${gps.lat.toFixed(6)}, ${gps.lng.toFixed(6)}${gps.address ? `（${gps.address}）` : ""}`;
+                      const line = `${t("workerJob.gpsCurrentPositionPrefix")}: ${gps.lat.toFixed(6)}, ${gps.lng.toFixed(6)}${gps.address ? `（${gps.address}）` : ""}`;
                       setArrivalNote((prev) => (prev ? `${prev}\n${line}` : line));
                     }}
                   >
-                    メッセージに追加
+                    {t("workerJob.gpsAddToMessage")}
                   </Button>
                 </div>
               )}
@@ -315,43 +311,43 @@ function WorkerJob() {
 
           {match.arrival_time && !match.start_time && (
             <div className="space-y-2">
-              <Label>依頼者へのメッセージ（業務開始時／任意）</Label>
+              <Label>{t("workerJob.startMsgLabel")}</Label>
               <Textarea
                 value={startNote}
                 onChange={(e) => setStartNote(e.target.value)}
                 rows={2}
                 maxLength={300}
-                placeholder="例）列に並び始めました。現在の待ち時間は約30分です。"
+                placeholder={t("workerJob.startPlaceholder")}
               />
               <div className="flex flex-wrap gap-2">
                 <Button onClick={() => updateStatus.mutate({ match: { start_time: new Date().toISOString(), status: "in_progress", start_note: startNote || null }, req: { status: "in_progress" } })}>
                   {t("request.actions.startQueue")}
                 </Button>
-                <Button type="button" variant="ghost" size="sm" onClick={() => setStartNote("列に並び始めました。現在の待ち時間は約30分です。")}>
-                  例文を使う
+                <Button type="button" variant="ghost" size="sm" onClick={() => setStartNote(t("workerJob.startExample"))}>
+                  {t("workerJob.useExample")}
                 </Button>
               </div>
             </div>
           )}
           {match.start_time && !match.end_time && (
             <div className="space-y-2">
-              <Label>依頼者へのメッセージ（完了時／任意）</Label>
+              <Label>{t("workerJob.completionMsgLabel")}</Label>
               <Textarea
                 value={completionNote}
                 onChange={(e) => setCompletionNote(e.target.value)}
                 rows={2}
                 maxLength={300}
-                placeholder="例）受け渡し出来ましたので完了とさせていただきます。ありがとうございました。"
+                placeholder={t("workerJob.completionPlaceholder")}
               />
               <p className="text-xs text-muted-foreground">
-                完了報告後、依頼者の受け取り確認（30分以内）で決済が確定します。無応答時は自動確認されます。
+                {t("workerJob.completionNote")}
               </p>
               <div className="flex flex-wrap gap-2">
                 <Button variant="default" onClick={() => reportCompletion.mutate()} disabled={reportCompletion.isPending}>
-                  完了報告（依頼者の確認へ）
+                  {t("workerJob.completionButton")}
                 </Button>
-                <Button type="button" variant="ghost" size="sm" onClick={() => setCompletionNote("受け渡し出来ましたので完了とさせていただきます。ありがとうございました。")}>
-                  例文を使う
+                <Button type="button" variant="ghost" size="sm" onClick={() => setCompletionNote(t("workerJob.completionExample"))}>
+                  {t("workerJob.useExample")}
                 </Button>
               </div>
             </div>
@@ -362,9 +358,9 @@ function WorkerJob() {
             const remaining = deadline ? Math.max(0, Math.ceil((deadline - Date.now()) / 60_000)) : null;
             return (
               <div className="text-sm rounded-md border border-amber-300 bg-amber-50 text-amber-900 p-3">
-                <div className="font-medium">依頼者の受け取り確認を待っています</div>
+                <div className="font-medium">{t("workerJob.awaitingConfirmTitle")}</div>
                 {remaining !== null && (
-                  <div className="text-xs mt-1">残り約 {remaining} 分。無応答の場合は自動的に完了・決済確定されます。</div>
+                  <div className="text-xs mt-1">{t("workerJob.awaitingConfirmRemaining", { min: remaining })}</div>
                 )}
               </div>
             );
@@ -373,8 +369,8 @@ function WorkerJob() {
             const m = match as unknown as { dispute_reason?: string | null };
             return (
               <div className="text-sm rounded-md border border-red-300 bg-red-50 text-red-900 p-3 space-y-1">
-                <div className="font-medium">異議申立が届きました（管理者対応中）</div>
-                {m.dispute_reason && <p className="text-xs whitespace-pre-wrap">理由: {m.dispute_reason}</p>}
+                <div className="font-medium">{t("workerJob.disputeTitle")}</div>
+                {m.dispute_reason && <p className="text-xs whitespace-pre-wrap">{t("workerJob.disputeReason")}: {m.dispute_reason}</p>}
               </div>
             );
           })()}
@@ -382,35 +378,35 @@ function WorkerJob() {
 
 
         <Card className="p-6 mt-6">
-          <div className="font-medium mb-3">{t("request.actions.checkin")}</div>
+          <div className="font-medium mb-3">{t("workerJob.checkinTitle")}</div>
           <form onSubmit={(e) => { e.preventDefault(); checkin.mutate(); }} className="space-y-3">
             <div>
-              <Label>待ち時間 (分)</Label>
+              <Label>{t("workerJob.waitTimeLabel")}</Label>
               <Input type="number" min={0} value={waitTime} onChange={(e) => setWaitTime(Number(e.target.value))} />
             </div>
             <div>
-              <Label>備考</Label>
+              <Label>{t("workerJob.noteLabel")}</Label>
               <Textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} maxLength={300} />
             </div>
             <div>
-              <Label>写真</Label>
+              <Label>{t("workerJob.photoLabel")}</Label>
               <Input type="file" accept="image/*" capture="environment" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
             </div>
             <Button type="submit" disabled={checkin.isPending} className="w-full">
-              {checkin.isPending ? t("common.loading") : t("request.actions.checkin")}
+              {checkin.isPending ? t("common.loading") : t("workerJob.checkinTitle")}
             </Button>
           </form>
         </Card>
 
         <Card className="p-6 mt-6">
-          <div className="font-medium mb-3">履歴 ({checkins.length})</div>
+          <div className="font-medium mb-3">{t("workerJob.historyTitle")} ({checkins.length})</div>
           <div className="space-y-3">
             {checkins.map((c) => (
               <div key={c.id} className="flex gap-3 border-b border-border pb-3 last:border-0">
                 {c.photo_url && <img src={c.photo_url} alt="" className="w-16 h-16 object-cover rounded" />}
                 <div className="text-xs">
                   <div>{new Date(c.timestamp).toLocaleString()}</div>
-                  {c.wait_time != null && <div>{c.wait_time}分</div>}
+                  {c.wait_time != null && <div>{c.wait_time}{t("common.minutes")}</div>}
                   {c.note && <div className="text-muted-foreground">{c.note}</div>}
                 </div>
               </div>
