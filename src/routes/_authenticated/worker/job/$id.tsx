@@ -256,21 +256,21 @@ function WorkerJob() {
         </Card>
 
         <Card className="p-6 mt-6 space-y-4">
-          <div className="font-medium mb-2">ステータス操作</div>
+          <div className="font-medium mb-2">{t("workerJob.statusOps")}</div>
           {(match as unknown as { status: string }).status === "pending_approval" && (
             <div className="text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-800 p-3">
-              依頼者の承認をお待ちください（5分以内に承認されない場合は自動キャンセルとなります）。承認されると仮押さえ（与信確保）が実行され、業務を開始できます。
+              {t("workerJob.pendingApprovalHint")}
             </div>
           )}
           {(match as unknown as { status: string }).status !== "pending_approval" && !match.arrival_time && (
             <div className="space-y-2">
-              <Label>依頼者へのメッセージ（現地到着時／任意）</Label>
+              <Label>{t("workerJob.arrivalMsgLabel")}</Label>
               <Textarea
                 value={arrivalNote}
                 onChange={(e) => setArrivalNote(e.target.value)}
                 rows={2}
                 maxLength={300}
-                placeholder="例）店舗前に到着しました。整理券 A-27 を取得済みです。"
+                placeholder={t("workerJob.arrivalPlaceholder")}
               />
               <div className="flex flex-wrap items-center gap-2">
                 <Button onClick={() => updateStatus.mutate({ match: { arrival_time: new Date().toISOString(), status: "arrived", arrival_note: arrivalNote || null }, req: { status: "arrived" } })}>
@@ -278,19 +278,19 @@ function WorkerJob() {
                 </Button>
                 <Button type="button" variant="outline" size="sm" onClick={() => fetchGps.mutate()} disabled={fetchGps.isPending}>
                   <MapPin className="w-4 h-4 mr-1" />
-                  {fetchGps.isPending ? "取得中..." : "現在位置を取得"}
+                  {fetchGps.isPending ? t("workerJob.fetching") : t("workerJob.fetchGps")}
                 </Button>
-                <Button type="button" variant="ghost" size="sm" onClick={() => setArrivalNote("店舗前に到着しました。整理券 A-27 を取得済みです。")}>
-                  例文を使う
+                <Button type="button" variant="ghost" size="sm" onClick={() => setArrivalNote(t("workerJob.arrivalExample"))}>
+                  {t("workerJob.useExample")}
                 </Button>
               </div>
               {gps && (
                 <div className="text-xs rounded-md border border-border bg-muted/40 p-3 space-y-1">
                   <div className="font-mono">
-                    位置コード: {gps.lat.toFixed(6)}, {gps.lng.toFixed(6)}
+                    {t("workerJob.gpsCode")}: {gps.lat.toFixed(6)}, {gps.lng.toFixed(6)}
                   </div>
                   <div className="text-muted-foreground">
-                    住所: {gps.address ?? "取得できませんでした"}
+                    {t("workerJob.gpsAddress")}: {gps.address ?? t("workerJob.gpsAddressUnavailable")}
                   </div>
                   <Button
                     type="button"
@@ -298,11 +298,11 @@ function WorkerJob() {
                     size="sm"
                     className="h-7 px-2"
                     onClick={() => {
-                      const line = `現在位置: ${gps.lat.toFixed(6)}, ${gps.lng.toFixed(6)}${gps.address ? `（${gps.address}）` : ""}`;
+                      const line = `${t("workerJob.gpsCurrentPositionPrefix")}: ${gps.lat.toFixed(6)}, ${gps.lng.toFixed(6)}${gps.address ? `（${gps.address}）` : ""}`;
                       setArrivalNote((prev) => (prev ? `${prev}\n${line}` : line));
                     }}
                   >
-                    メッセージに追加
+                    {t("workerJob.gpsAddToMessage")}
                   </Button>
                 </div>
               )}
@@ -311,43 +311,43 @@ function WorkerJob() {
 
           {match.arrival_time && !match.start_time && (
             <div className="space-y-2">
-              <Label>依頼者へのメッセージ（業務開始時／任意）</Label>
+              <Label>{t("workerJob.startMsgLabel")}</Label>
               <Textarea
                 value={startNote}
                 onChange={(e) => setStartNote(e.target.value)}
                 rows={2}
                 maxLength={300}
-                placeholder="例）列に並び始めました。現在の待ち時間は約30分です。"
+                placeholder={t("workerJob.startPlaceholder")}
               />
               <div className="flex flex-wrap gap-2">
                 <Button onClick={() => updateStatus.mutate({ match: { start_time: new Date().toISOString(), status: "in_progress", start_note: startNote || null }, req: { status: "in_progress" } })}>
                   {t("request.actions.startQueue")}
                 </Button>
-                <Button type="button" variant="ghost" size="sm" onClick={() => setStartNote("列に並び始めました。現在の待ち時間は約30分です。")}>
-                  例文を使う
+                <Button type="button" variant="ghost" size="sm" onClick={() => setStartNote(t("workerJob.startExample"))}>
+                  {t("workerJob.useExample")}
                 </Button>
               </div>
             </div>
           )}
           {match.start_time && !match.end_time && (
             <div className="space-y-2">
-              <Label>依頼者へのメッセージ（完了時／任意）</Label>
+              <Label>{t("workerJob.completionMsgLabel")}</Label>
               <Textarea
                 value={completionNote}
                 onChange={(e) => setCompletionNote(e.target.value)}
                 rows={2}
                 maxLength={300}
-                placeholder="例）受け渡し出来ましたので完了とさせていただきます。ありがとうございました。"
+                placeholder={t("workerJob.completionPlaceholder")}
               />
               <p className="text-xs text-muted-foreground">
-                完了報告後、依頼者の受け取り確認（30分以内）で決済が確定します。無応答時は自動確認されます。
+                {t("workerJob.completionNote")}
               </p>
               <div className="flex flex-wrap gap-2">
                 <Button variant="default" onClick={() => reportCompletion.mutate()} disabled={reportCompletion.isPending}>
-                  完了報告（依頼者の確認へ）
+                  {t("workerJob.completionButton")}
                 </Button>
-                <Button type="button" variant="ghost" size="sm" onClick={() => setCompletionNote("受け渡し出来ましたので完了とさせていただきます。ありがとうございました。")}>
-                  例文を使う
+                <Button type="button" variant="ghost" size="sm" onClick={() => setCompletionNote(t("workerJob.completionExample"))}>
+                  {t("workerJob.useExample")}
                 </Button>
               </div>
             </div>
