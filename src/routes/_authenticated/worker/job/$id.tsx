@@ -110,7 +110,7 @@ function WorkerJob() {
     mutationFn: async (v: string) => {
       await supabase.from("matches").update({ worker_features: v || null } as never).eq("id", matchId);
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["worker-match", matchId] }); toast.success("特徴を保存しました"); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["worker-match", matchId] }); toast.success(t("workerJob.featuresSaved")); },
     onError: (e: Error) => toast.error(e.message),
   });
 
