@@ -150,7 +150,7 @@ function WorkerJob() {
       if (file) {
         const { data: userData } = await supabase.auth.getUser();
         const uid = userData.user?.id;
-        if (!uid) throw new Error("未認証です");
+        if (!uid) throw new Error(t("workerJob.notAuthenticated"));
         const path = `${uid}/${matchId}/${Date.now()}-${file.name}`;
         const { error: upErr } = await supabase.storage.from("checkin-photos").upload(path, file, { upsert: true });
         if (upErr) throw upErr;
