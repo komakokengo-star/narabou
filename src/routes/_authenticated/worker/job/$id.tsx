@@ -378,35 +378,35 @@ function WorkerJob() {
 
 
         <Card className="p-6 mt-6">
-          <div className="font-medium mb-3">{t("request.actions.checkin")}</div>
+          <div className="font-medium mb-3">{t("workerJob.checkinTitle")}</div>
           <form onSubmit={(e) => { e.preventDefault(); checkin.mutate(); }} className="space-y-3">
             <div>
-              <Label>待ち時間 (分)</Label>
+              <Label>{t("workerJob.waitTimeLabel")}</Label>
               <Input type="number" min={0} value={waitTime} onChange={(e) => setWaitTime(Number(e.target.value))} />
             </div>
             <div>
-              <Label>備考</Label>
+              <Label>{t("workerJob.noteLabel")}</Label>
               <Textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} maxLength={300} />
             </div>
             <div>
-              <Label>写真</Label>
+              <Label>{t("workerJob.photoLabel")}</Label>
               <Input type="file" accept="image/*" capture="environment" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
             </div>
             <Button type="submit" disabled={checkin.isPending} className="w-full">
-              {checkin.isPending ? t("common.loading") : t("request.actions.checkin")}
+              {checkin.isPending ? t("common.loading") : t("workerJob.checkinTitle")}
             </Button>
           </form>
         </Card>
 
         <Card className="p-6 mt-6">
-          <div className="font-medium mb-3">履歴 ({checkins.length})</div>
+          <div className="font-medium mb-3">{t("workerJob.historyTitle")} ({checkins.length})</div>
           <div className="space-y-3">
             {checkins.map((c) => (
               <div key={c.id} className="flex gap-3 border-b border-border pb-3 last:border-0">
                 {c.photo_url && <img src={c.photo_url} alt="" className="w-16 h-16 object-cover rounded" />}
                 <div className="text-xs">
                   <div>{new Date(c.timestamp).toLocaleString()}</div>
-                  {c.wait_time != null && <div>{c.wait_time}分</div>}
+                  {c.wait_time != null && <div>{c.wait_time}{t("common.minutes")}</div>}
                   {c.note && <div className="text-muted-foreground">{c.note}</div>}
                 </div>
               </div>
