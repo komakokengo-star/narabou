@@ -35,7 +35,7 @@ const SITE_NAME = "福岡行列代行"
 const SENDER_DOMAIN = "notify.narabou.jp"
 const ROOT_DOMAIN = "narabou.jp"
 const FROM_DOMAIN = "narabou.jp"
-const PUBLIC_APP_URL = "https://narabou.lovable.app"
+const PUBLIC_APP_URL = process.env.PUBLIC_APP_URL ?? "https://narabou.lovable.app"
 const PASSWORD_RESET_URL = `${PUBLIC_APP_URL}/auth/reset`
 const PASSWORD_FORGOT_URL = `${PUBLIC_APP_URL}/auth/forgot`
 

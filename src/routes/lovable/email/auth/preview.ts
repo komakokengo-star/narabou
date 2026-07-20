@@ -20,7 +20,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 // Configuration
 const SITE_NAME = "福岡行列代行"
 const ROOT_DOMAIN = "narabou.jp"
-const PUBLIC_APP_URL = "https://narabou.lovable.app"
+const PUBLIC_APP_URL = process.env.PUBLIC_APP_URL ?? "https://narabou.lovable.app"
 
 // Sample data for preview mode ONLY (not used in actual email sending).
 // URLs are baked in at scaffold time from the project's real data.
