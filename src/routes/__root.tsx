@@ -143,6 +143,17 @@ function RootComponent() {
     return () => sub.subscription.unsubscribe();
   }, [router]);
 
+  useEffect(() => {
+    const updateLang = () => {
+      document.documentElement.lang = appI18n.language;
+    };
+    updateLang();
+    appI18n.on("languageChanged", updateLang);
+    return () => {
+      appI18n.off("languageChanged", updateLang);
+    };
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={appI18n}>
