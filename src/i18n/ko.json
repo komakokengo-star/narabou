@@ -1,7 +1,12 @@
 {
   "app": {
     "name": "ＮＡＲＡＢＯＵ",
-    "tagline": "하카타·텐진 인기 가게, 줄 서는 건 우리가 합니다."
+    "tagline": "하카타·텐진 인기 가게, 줄 서는 건 우리가 합니다.",
+    "metaTitle": "후쿠오카 줄 서기 대행 — 하카타·텐진의 인기 가게, 줄 서는 건 우리가",
+    "metaDescription": "기본 800원 + 10분당 200원. 피크 시 300원 추가. 결제·연장·환불도 앱에서 완료.",
+    "heroSubtitle": "후쿠오카 줄 서기 대행 앱",
+    "startButton": "시작하기",
+    "menuButton": "메뉴"
   },
   "nav": {
     "home": "홈",
@@ -77,7 +82,12 @@
     "total": "합계",
     "platformFee": "운영 수수료 (20%)",
     "workerPayout": "대행자 보수 (80%)",
-    "estimate": "견적"
+    "estimate": "견적",
+    "transparentTitle": "투명한 요금",
+    "baseHint": "현지 도착 시 확정",
+    "timeHint": "올림 계산",
+    "peakHint": "혼잡 시에만",
+    "disclaimer": "운영 수수료 20% / 대행자 보수 80%. Stripe 테스트 모드로 동작."
   },
   "request": {
     "title": "의뢰",
@@ -226,5 +236,20 @@
   },
   "map": {
     "approx": "위치 정보는 안전을 위해 약 50-100m 흐리게 처리되어 있습니다."
+  },
+  "features": {
+    "threeRoles": "3개 역할",
+    "threeRolesDesc": "의뢰인·대행자·관리자",
+    "checkin": "정점 보고",
+    "checkinDesc": "위치 정보 + 사진",
+    "extensionRefund": "연장/환불",
+    "extensionRefundDesc": "앱에서 완결",
+    "verification": "본인 확인",
+    "verificationDesc": "대행자 심사"
+  },
+  "footer": {
+    "terms": "이용약관",
+    "privacy": "개인정보처리방침",
+    "copyright": "© HIFUNON — ＮＡＲＡＢＯＵ Beta"
   }
 }

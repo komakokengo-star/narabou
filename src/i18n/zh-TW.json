@@ -1,7 +1,12 @@
 {
   "app": {
     "name": "ＮＡＲＡＢＯＵ",
-    "tagline": "博多、天神的超人氣店家，排隊交給我們。"
+    "tagline": "博多、天神的超人氣店家，排隊交給我們。",
+    "metaTitle": "福岡排隊代行 — 博多、天神的超人氣店家，排隊交給我們",
+    "metaDescription": "基本 800 元 + 每 10 分鐘 200 元。尖峰時段加 300 元。付款、延長、退款都在 App 內完成。",
+    "heroSubtitle": "福岡排隊代行應用程式",
+    "startButton": "開始使用",
+    "menuButton": "選單"
   },
   "nav": {
     "home": "首頁",
@@ -77,7 +82,12 @@
     "total": "合計",
     "platformFee": "平台手續費 (20%)",
     "workerPayout": "代排者報酬 (80%)",
-    "estimate": "估價"
+    "estimate": "估價",
+    "transparentTitle": "透明計費",
+    "baseHint": "抵達現地後確定",
+    "timeHint": "進位計算",
+    "peakHint": "僅尖峰時段",
+    "disclaimer": "平台手續費 20% / 代排者報酬 80%。Stripe 測試模式運作。"
   },
   "request": {
     "title": "委託",
@@ -226,5 +236,20 @@
   },
   "map": {
     "approx": "為了安全，位置資訊已模糊處理約 50-100 公尺。"
+  },
+  "features": {
+    "threeRoles": "3 種角色",
+    "threeRolesDesc": "委託人・代排者・管理者",
+    "checkin": "定點回報",
+    "checkinDesc": "位置資訊＋照片",
+    "extensionRefund": "延長/退款",
+    "extensionRefundDesc": "App 內完成",
+    "verification": "身份驗證",
+    "verificationDesc": "審核代排者"
+  },
+  "footer": {
+    "terms": "服務條款",
+    "privacy": "隱私政策",
+    "copyright": "© HIFUNON — ＮＡＲＡＢＯＵ Beta"
   }
 }

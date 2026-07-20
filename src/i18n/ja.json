@@ -1,7 +1,12 @@
 {
   "app": {
     "name": "ＮＡＲＡＢＯＵ",
-    "tagline": "博多・天神の人気店、並ぶのは私たち。"
+    "tagline": "博多・天神の人気店、並ぶのは私たち。",
+    "metaTitle": "福岡行列代行 — 博多・天神の行列、並ぶのは私たち",
+    "metaDescription": "基本800円+10分200円。ピーク時は+300円。決済・追加課金・返金もアプリで完結。",
+    "heroSubtitle": "福岡行列代行アプリ",
+    "startButton": "はじめる",
+    "menuButton": "メニュー"
   },
   "nav": {
     "home": "ホーム",
@@ -61,7 +66,6 @@
     "passwordUpdated": "パスワードを更新しました。ログインしてください。",
     "resetLinkInvalid": "この再設定リンクは無効か有効期限が切れています。"
   },
-
   "role": {
     "customer": "依頼者",
     "worker": "代行者",
@@ -78,7 +82,12 @@
     "total": "合計",
     "platformFee": "運営手数料 (20%)",
     "workerPayout": "代行者報酬 (80%)",
-    "estimate": "見積もり"
+    "estimate": "見積もり",
+    "transparentTitle": "明朗会計",
+    "baseHint": "現地到着で確定",
+    "timeHint": "切上げ計算",
+    "peakHint": "混雑時のみ",
+    "disclaimer": "運営手数料 20% / 代行者報酬 80%。Stripe テストモードで動作。"
   },
   "request": {
     "title": "依頼",
@@ -164,7 +173,6 @@
       "invalidKey": "決済システムの接続に問題があります。しばらく経ってから再度お試しください。",
       "help": "口座情報は暗号化され、当社サーバーには保存されません。"
     },
-
     "verification": {
       "title": "本人確認",
       "upload": "本人確認書類をアップロード",
@@ -228,5 +236,20 @@
   },
   "map": {
     "approx": "位置情報は安全のため約50-100mぼかしています"
+  },
+  "features": {
+    "threeRoles": "3ロール",
+    "threeRolesDesc": "依頼者・代行者・管理者",
+    "checkin": "定点報告",
+    "checkinDesc": "位置情報＋写真",
+    "extensionRefund": "延長/返金",
+    "extensionRefundDesc": "アプリで完結",
+    "verification": "本人確認",
+    "verificationDesc": "代行者を審査"
+  },
+  "footer": {
+    "terms": "利用規約",
+    "privacy": "プライバシーポリシー",
+    "copyright": "© HIFUNON — ＮＡＲＡＢＯＵ Beta"
   }
 }

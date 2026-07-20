@@ -1,7 +1,12 @@
 {
   "app": {
     "name": "Fukuoka Queue Concierge",
-    "tagline": "We stand in line for Hakata & Tenjin's most-loved restaurants."
+    "tagline": "We stand in line for Hakata & Tenjin's most-loved restaurants.",
+    "metaTitle": "Fukuoka Queue Concierge — We stand in line for Hakata & Tenjin",
+    "metaDescription": "Base ¥800 + ¥200 per 10 min. Peak +¥300. Payments, extensions and refunds handled in-app.",
+    "heroSubtitle": "Fukuoka Queue Concierge App",
+    "startButton": "Get Started",
+    "menuButton": "Menu"
   },
   "nav": {
     "home": "Home",
@@ -61,7 +66,6 @@
     "passwordUpdated": "Password updated. You can now log in.",
     "resetLinkInvalid": "This reset link is invalid or has expired."
   },
-
   "role": {
     "customer": "Customer",
     "worker": "Worker",
@@ -78,7 +82,12 @@
     "total": "Total",
     "platformFee": "Platform fee (20%)",
     "workerPayout": "Worker payout (80%)",
-    "estimate": "Estimate"
+    "estimate": "Estimate",
+    "transparentTitle": "Transparent Pricing",
+    "baseHint": "Locked on arrival",
+    "timeHint": "Rounded up per 10 min",
+    "peakHint": "Busy hours only",
+    "disclaimer": "Platform fee 20% / Worker payout 80%. Runs in Stripe test mode."
   },
   "request": {
     "title": "Request",
@@ -216,5 +225,20 @@
   },
   "map": {
     "approx": "Location is fuzzed by ~50-100m for safety."
+  },
+  "features": {
+    "threeRoles": "3 Roles",
+    "threeRolesDesc": "Customer · Worker · Admin",
+    "checkin": "Check-in",
+    "checkinDesc": "Location + photo",
+    "extensionRefund": "Extension / Refund",
+    "extensionRefundDesc": "All in the app",
+    "verification": "Identity Verification",
+    "verificationDesc": "Workers are screened"
+  },
+  "footer": {
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "copyright": "© HIFUNON — NARABOU Beta"
   }
 }
