@@ -101,7 +101,7 @@ function WorkerJob() {
       return { lat, lng, address };
     },
     onSuccess: (v) => setGps(v),
-    onError: (e: Error) => toast.error(e.message || "位置情報の取得に失敗しました"),
+    onError: (e: Error) => toast.error(e.message || t("workerJob.gpsError")),
   });
   const [startNote, setStartNote] = useState("");
   const [completionNote, setCompletionNote] = useState("");
