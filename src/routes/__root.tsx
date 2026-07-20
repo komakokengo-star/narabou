@@ -14,6 +14,14 @@ import "@fontsource/noto-sans-jp/500.css";
 import "@fontsource/noto-sans-jp/700.css";
 import "@fontsource/noto-serif-jp/600.css";
 import "@fontsource/noto-serif-jp/700.css";
+import "@fontsource/noto-sans-kr/400.css";
+import "@fontsource/noto-sans-kr/500.css";
+import "@fontsource/noto-sans-kr/700.css";
+import "@fontsource/noto-sans-tc/400.css";
+import "@fontsource/noto-sans-tc/500.css";
+import "@fontsource/noto-sans-tc/700.css";
+import "@fontsource/noto-serif-tc/600.css";
+import "@fontsource/noto-serif-tc/700.css";
 
 import appI18n from "../i18n";
 import appCss from "../styles.css?url";
@@ -111,7 +119,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="ja">
+    <html lang={appI18n.language}>
       <head><HeadContent /></head>
       <body>
         <script dangerouslySetInnerHTML={{ __html: recoveryRedirectScript }} />
