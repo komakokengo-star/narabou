@@ -358,9 +358,9 @@ function WorkerJob() {
             const remaining = deadline ? Math.max(0, Math.ceil((deadline - Date.now()) / 60_000)) : null;
             return (
               <div className="text-sm rounded-md border border-amber-300 bg-amber-50 text-amber-900 p-3">
-                <div className="font-medium">依頼者の受け取り確認を待っています</div>
+                <div className="font-medium">{t("workerJob.awaitingConfirmTitle")}</div>
                 {remaining !== null && (
-                  <div className="text-xs mt-1">残り約 {remaining} 分。無応答の場合は自動的に完了・決済確定されます。</div>
+                  <div className="text-xs mt-1">{t("workerJob.awaitingConfirmRemaining", { min: remaining })}</div>
                 )}
               </div>
             );
@@ -369,8 +369,8 @@ function WorkerJob() {
             const m = match as unknown as { dispute_reason?: string | null };
             return (
               <div className="text-sm rounded-md border border-red-300 bg-red-50 text-red-900 p-3 space-y-1">
-                <div className="font-medium">異議申立が届きました（管理者対応中）</div>
-                {m.dispute_reason && <p className="text-xs whitespace-pre-wrap">理由: {m.dispute_reason}</p>}
+                <div className="font-medium">{t("workerJob.disputeTitle")}</div>
+                {m.dispute_reason && <p className="text-xs whitespace-pre-wrap">{t("workerJob.disputeReason")}: {m.dispute_reason}</p>}
               </div>
             );
           })()}
