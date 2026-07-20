@@ -26,7 +26,7 @@ function Landing() {
         <section className="container mx-auto px-4 pt-16 pb-12 sm:pt-24 sm:pb-20">
           <div className="max-w-3xl">
             <p className="text-sm sm:text-base tracking-[0.2em] text-primary uppercase mb-5 font-medium">
-              福岡行列代行アプリ
+              {t("app.heroSubtitle")}
             </p>
             <h1 className="font-serif text-5xl sm:text-7xl font-bold leading-[1.05] tracking-[0.02em]">
               ＮＡＲＡＢＯＵ
@@ -36,40 +36,40 @@ function Landing() {
             </p>
             <div className="mt-10 flex gap-3">
               <Link to="/auth">
-                <Button size="lg" className="rounded-full px-8">はじめる</Button>
+                <Button size="lg" className="rounded-full px-8">{t("app.startButton")}</Button>
               </Link>
               <Link to="/dashboard">
-                <Button size="lg" variant="outline" className="rounded-full px-8">メニュー</Button>
+                <Button size="lg" variant="outline" className="rounded-full px-8">{t("app.menuButton")}</Button>
               </Link>
             </div>
           </div>
         </section>
 
         <section className="container mx-auto px-4 py-12">
-          <h2 className="font-serif text-2xl sm:text-3xl mb-8">明朗会計</h2>
+          <h2 className="font-serif text-2xl sm:text-3xl mb-8">{t("fees.transparentTitle")}</h2>
           <div className="grid sm:grid-cols-3 gap-4">
-            <FeeCard label="基本料金" value={`¥${BASE_FEE}`} hint="現地到着で確定" />
-            <FeeCard label="時間課金" value={`¥${TIME_BLOCK_FEE} / 10分`} hint="切上げ計算" />
-            <FeeCard label="ピーク料金" value={`+¥${PEAK_FEE}`} hint="混雑時のみ" />
+            <FeeCard label={t("fees.base")} value={`¥${BASE_FEE}`} hint={t("fees.baseHint")} />
+            <FeeCard label={t("fees.time")} value={`¥${TIME_BLOCK_FEE} / 10${t("common.minute")}`} hint={t("fees.timeHint")} />
+            <FeeCard label={t("fees.peak")} value={`+¥${PEAK_FEE}`} hint={t("fees.peakHint")} />
           </div>
           <p className="text-xs text-muted-foreground mt-4">
-            運営手数料 20% / 代行者報酬 80%。Stripe テストモードで動作。
+            {t("fees.disclaimer")}
           </p>
         </section>
 
         <section className="container mx-auto px-4 py-12 grid sm:grid-cols-4 gap-4">
-          <Feature icon={<Users className="w-5 h-5" />} title="3ロール" desc="依頼者・代行者・管理者" />
-          <Feature icon={<MapPin className="w-5 h-5" />} title="定点報告" desc="位置情報＋写真" />
-          <Feature icon={<Clock className="w-5 h-5" />} title="延長/返金" desc="アプリで完結" />
-          <Feature icon={<ShieldCheck className="w-5 h-5" />} title="本人確認" desc="代行者を審査" />
+          <Feature icon={<Users className="w-5 h-5" />} title={t("features.threeRoles")} desc={t("features.threeRolesDesc")} />
+          <Feature icon={<MapPin className="w-5 h-5" />} title={t("features.checkin")} desc={t("features.checkinDesc")} />
+          <Feature icon={<Clock className="w-5 h-5" />} title={t("features.extensionRefund")} desc={t("features.extensionRefundDesc")} />
+          <Feature icon={<ShieldCheck className="w-5 h-5" />} title={t("features.verification")} desc={t("features.verificationDesc")} />
         </section>
       </main>
       <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground space-y-2">
         <div className="flex items-center justify-center gap-4">
-          <Link to="/terms" className="hover:text-foreground">利用規約</Link>
-          <Link to="/privacy" className="hover:text-foreground">プライバシーポリシー</Link>
+          <Link to="/terms" className="hover:text-foreground">{t("footer.terms")}</Link>
+          <Link to="/privacy" className="hover:text-foreground">{t("footer.privacy")}</Link>
         </div>
-        <div>© HIFUNON — ＮＡＲＡＢＯＵ Beta</div>
+        <div>{t("footer.copyright")}</div>
       </footer>
     </div>
   );
