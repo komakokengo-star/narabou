@@ -209,8 +209,8 @@ function WorkerJob() {
             </div>
             <Badge variant="secondary">{(() => {
               const ms = (match as unknown as { status?: string }).status;
-              if (ms === "awaiting_confirmation") return "受け取り確認待ち";
-              if (ms === "disputed") return "異議申立中";
+              if (ms === "awaiting_confirmation") return t("workerJob.statusAwaitingConfirmation");
+              if (ms === "disputed") return t("workerJob.statusDisputed");
               if (ms === "completed") return t("request.status.completed");
               return t(`request.status.${req.status}`);
             })()}</Badge>
