@@ -31,7 +31,7 @@ export function Header() {
           </div>
           <div className="leading-tight">
             <div className="font-serif font-semibold text-base">{t("app.name")}</div>
-            <div className="text-[10px] text-muted-foreground hidden sm:block">ベータ版</div>
+            <div className="text-[10px] text-muted-foreground hidden sm:block">{t("common.beta")}</div>
           </div>
         </Link>
 
@@ -57,6 +57,12 @@ export function Header() {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => i18n.changeLanguage("en")}>
                 {t("common.english")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => i18n.changeLanguage("ko")}>
+                {t("common.korean")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => i18n.changeLanguage("zh-TW")}>
+                {t("common.traditionalChinese")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
