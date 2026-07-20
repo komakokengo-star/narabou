@@ -25,6 +25,8 @@
     "language": "言語",
     "japanese": "日本語",
     "english": "English",
+    "korean": "韓国語",
+    "traditionalChinese": "繁体中文",
     "noData": "データはありません",
     "error": "エラーが発生しました",
     "confirm": "確認",
