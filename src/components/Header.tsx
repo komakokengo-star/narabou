@@ -31,7 +31,6 @@ export function Header() {
           </div>
           <div className="leading-tight">
             <div className="font-serif font-semibold text-base">{t("app.name")}</div>
-            <div className="text-[10px] text-muted-foreground hidden sm:block">{t("common.beta")}</div>
           </div>
         </Link>
 
