@@ -40,7 +40,9 @@ const recoveryRedirectScript = `
     }
     var isRecovery = params.get("type") === "recovery" || params.get("redirect_type") === "recovery";
     var hasResetToken = params.has("access_token") || params.has("refresh_token") || params.has("token_hash") || params.has("token");
-    if (window.location.pathname === "/" && isRecovery && hasResetToken) {
+    // Recovery links from emails may land on any path (especially when the redirect URL
+    // falls back to the Site URL root). Always forward them to the dedicated reset page.
+    if (window.location.pathname !== "/auth/reset" && isRecovery && hasResetToken) {
       window.location.replace("/auth/reset" + window.location.search + window.location.hash);
     }
   } catch (_) {}
