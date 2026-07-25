@@ -72,7 +72,7 @@
     "admin": "管理者",
     "switch": "切換角色",
     "becomeWorker": "註冊為代排者",
-    "becomeWorkerDesc": "測試期間內可一鍵新增代排者角色。"
+    "becomeWorkerDesc": "可一鍵新增代排者角色。"
   },
   "fees": {
     "base": "基本費用",

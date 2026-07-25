@@ -72,7 +72,7 @@
     "admin": "관리자",
     "switch": "역할 전환",
     "becomeWorker": "대행자로 등록",
-    "becomeWorkerDesc": "베타 기간 중에는 원클릭으로 대행자 역할을 추가할 수 있습니다."
+    "becomeWorkerDesc": "원클릭으로 대행자 역할을 추가할 수 있습니다."
   },
   "fees": {
     "base": "기본 요금",

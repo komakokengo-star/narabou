@@ -72,7 +72,7 @@
     "admin": "Admin",
     "switch": "Switch role",
     "becomeWorker": "Register as Worker",
-    "becomeWorkerDesc": "During the beta you can add the worker role in one click."
+    "becomeWorkerDesc": "Add the worker role in one click."
   },
   "fees": {
     "base": "Base fee",
