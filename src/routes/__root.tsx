@@ -135,11 +135,40 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
+    const clearSbStorage = () => {
+      try {
+        Object.keys(localStorage)
+          .filter((k) => k.startsWith("sb-"))
+          .forEach((k) => localStorage.removeItem(k));
+      } catch (_) {}
+    };
+
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
         router.navigate({ to: "/auth/reset" });
       }
+      if (event === "SIGNED_OUT") {
+        clearSbStorage();
+      }
     });
+
+    // Validate the stored session on load. If the JWT references a deleted
+    // or invalid user (e.g. 403 user_not_found), force sign-out so the app
+    // stops looping on /auth/v1/user and returns to the login screen.
+    (async () => {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData.session) return;
+        const { error } = await supabase.auth.getUser();
+        if (!error) return;
+        await supabase.auth.signOut().catch(() => {});
+        clearSbStorage();
+        if (typeof window !== "undefined" && window.location.pathname !== "/auth") {
+          window.location.replace("/auth");
+        }
+      } catch (_) {}
+    })();
+
     return () => sub.subscription.unsubscribe();
   }, [router]);
 
