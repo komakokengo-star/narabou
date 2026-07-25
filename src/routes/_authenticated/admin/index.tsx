@@ -145,6 +145,11 @@ function AdminHome() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-10 max-w-6xl">
+        <div className="mb-4">
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/dashboard">← {t("nav.dashboard")}</Link>
+          </Button>
+        </div>
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <h1 className="font-serif text-3xl">{t("admin.title")}</h1>
           <div className="flex gap-2">
