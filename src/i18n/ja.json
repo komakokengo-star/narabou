@@ -72,7 +72,7 @@
     "admin": "管理者",
     "switch": "ロール切替",
     "becomeWorker": "代行者として登録",
-    "becomeWorkerDesc": "ベータ期間中はワンクリックで代行者ロールを追加できます。"
+    "becomeWorkerDesc": "ワンクリックで代行者ロールを追加できます。"
   },
   "fees": {
     "base": "基本料金",
