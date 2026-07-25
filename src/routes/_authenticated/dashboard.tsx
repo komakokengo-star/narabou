@@ -68,13 +68,15 @@ function Dashboard() {
             to="/worker"
             enabled={roles.includes("worker")}
           />
-          <RoleCard
-            icon={<ShieldCheck className="w-5 h-5" />}
-            title={t("role.admin")}
-            desc="全体管理"
-            to="/admin"
-            enabled={roles.includes("admin")}
-          />
+          {roles.includes("admin") && (
+            <RoleCard
+              icon={<ShieldCheck className="w-5 h-5" />}
+              title={t("role.admin")}
+              desc="全体管理"
+              to="/admin"
+              enabled={true}
+            />
+          )}
         </div>
 
         {!roles.includes("worker") && (
@@ -92,16 +94,6 @@ function Dashboard() {
           </Card>
         )}
 
-        {!roles.includes("admin") && (
-          <Card className="mt-3 p-4 text-xs text-muted-foreground">
-            管理者権限は手動付与です。以下のSQLをデータベースで実行してください:
-            <pre className="mt-2 p-2 bg-muted rounded text-[10px] overflow-auto">
-{`INSERT INTO public.user_roles (user_id, role)
-VALUES ('${user?.id ?? "<your_user_id>"}', 'admin')
-ON CONFLICT DO NOTHING;`}
-            </pre>
-          </Card>
-        )}
         <div className="mt-6">
           <PushNotificationCard />
         </div>
