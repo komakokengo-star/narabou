@@ -49,6 +49,49 @@ const recoveryRedirectScript = `
 })();
 `;
 
+const pwaCacheRefreshScript = `
+(function () {
+  try {
+    var version = "narabou-stripe-onboarding-link-v2";
+    var key = "narabou:pwa-cache-version";
+    var reloadingKey = "narabou:pwa-cache-refreshing";
+    if (!window.localStorage || localStorage.getItem(key) === version) return;
+    localStorage.setItem(key, version);
+    if (window.sessionStorage && sessionStorage.getItem(reloadingKey) === version) return;
+    if (window.sessionStorage) sessionStorage.setItem(reloadingKey, version);
+
+    var tasks = [];
+    if ("serviceWorker" in navigator) {
+      tasks.push(
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          return Promise.allSettled(
+            registrations
+              .filter(function (registration) { return registration.scope === window.location.origin + "/"; })
+              .map(function (registration) { return registration.unregister(); })
+          );
+        }).catch(function () {})
+      );
+    }
+    if ("caches" in window) {
+      tasks.push(
+        caches.keys().then(function (names) {
+          return Promise.allSettled(
+            names
+              .filter(function (name) { return !/firebase|messaging|fcm/i.test(name); })
+              .map(function (name) { return caches.delete(name); })
+          );
+        }).catch(function () {})
+      );
+    }
+    Promise.allSettled(tasks).then(function () {
+      var url = new URL(window.location.href);
+      url.searchParams.set("app_refresh", String(Date.now()));
+      window.location.replace(url.toString());
+    });
+  } catch (_) {}
+})();
+`;
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -125,6 +168,7 @@ function RootShell({ children }: { children: ReactNode }) {
       <head><HeadContent /></head>
       <body>
         <script dangerouslySetInnerHTML={{ __html: recoveryRedirectScript }} />
+        <script dangerouslySetInnerHTML={{ __html: pwaCacheRefreshScript }} />
         {children}
         <Scripts />
       </body>
