@@ -18,9 +18,8 @@ import { formatYen, calcFee, PLATFORM_RATE } from "@/lib/fees";
 import { toast } from "sonner";
 import { CheckCircle2, User, Landmark, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
-import { createConnectAccount, refreshConnectStatus } from "@/lib/stripe-connect.functions";
+import { createAccountLink, createConnectAccount, refreshConnectStatus } from "@/lib/stripe-connect.functions";
 import { applyForRequest } from "@/lib/payments.functions";
-import { StripeEmbeddedOnboarding } from "@/components/StripeEmbeddedOnboarding";
 
 export const Route = createFileRoute("/_authenticated/worker/")({
   component: WorkerHome,
@@ -31,7 +30,6 @@ function WorkerHome() {
   const { user } = useAuth();
   const { data: profile, refetch: refetchProfile } = useProfile(user?.id);
   const qc = useQueryClient();
-  const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [detailJobId, setDetailJobId] = useState<string | null>(null);
   const [applyComment, setApplyComment] = useState("");
   const APPLY_COMMENT_EXAMPLE = "本件、私にお任せください。開始10分前を目安に現地入りし、目印周辺で待機します。整理券や順番は逐次ご報告いたします。";
@@ -91,11 +89,22 @@ function WorkerHome() {
 
   const startPayoutOnboarding = useMutation({
     mutationFn: async () => {
-      const created = await createConnectAccount();
-      if (created.error) throw new Error(created.error);
-      return true;
+      if (!profile?.stripe_account_id) {
+        const created = await createConnectAccount();
+        if (created.error) throw new Error(created.error);
+      }
+      const link = await createAccountLink({
+        data: {
+          returnPath: "/worker?payout=ready",
+          refreshPath: "/worker?payout=refresh",
+        },
+      });
+      if (link.error || !link.url) throw new Error(link.error ?? "受取口座の登録画面を開けませんでした。");
+      return link.url;
     },
-    onSuccess: () => setOnboardingOpen(true),
+    onSuccess: (url) => {
+      window.location.assign(url);
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -214,13 +223,7 @@ function WorkerHome() {
                 {!payoutReady && (
                   <div className="flex gap-2 flex-wrap">
                     <Button
-                      onClick={() => {
-                        if (profile?.stripe_account_id) {
-                          setOnboardingOpen(true);
-                        } else {
-                          startPayoutOnboarding.mutate();
-                        }
-                      }}
+                      onClick={() => startPayoutOnboarding.mutate()}
                       disabled={startPayoutOnboarding.isPending}
                     >
                       {payoutPending ? t("worker.account.continue") : t("worker.account.register")}
@@ -338,38 +341,6 @@ function WorkerHome() {
           })}
         </div>
       </main>
-
-      <Dialog
-        open={onboardingOpen}
-        onOpenChange={(o) => {
-          setOnboardingOpen(o);
-          if (!o) {
-            refreshConnectStatus().then((r) => {
-              if (!r.error) refetchProfile();
-            });
-          }
-        }}
-      >
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>受取口座の登録</DialogTitle>
-            <DialogDescription>
-              Stripe（決済パートナー）の安全なフォームで、本人確認と受取口座情報を入力してください。
-            </DialogDescription>
-          </DialogHeader>
-          {onboardingOpen && (
-            <StripeEmbeddedOnboarding
-              onExit={() => {
-                setOnboardingOpen(false);
-                refreshConnectStatus().then((r) => {
-                  if (!r.error) refetchProfile();
-                });
-              }}
-              onError={(msg) => toast.error(msg)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={!!detailJob} onOpenChange={(o) => { if (!o) { setDetailJobId(null); setApplyComment(""); } }}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">

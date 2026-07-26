@@ -13,6 +13,7 @@ describe("CONNECT_LOG_SCHEMAS", () => {
     expect(Object.keys(CONNECT_LOG_SCHEMAS).sort()).toEqual([
       "connect.account_created",
       "connect.account_reused",
+      "connect.account_session_created",
       "connect.db_error",
       "connect.forbidden",
       "connect.invalid_input",
