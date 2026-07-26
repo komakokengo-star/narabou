@@ -28,9 +28,7 @@ export const LinkInputSchema = z.object({
 
 export type StripeErr = { message?: string; code?: string; type?: string };
 
-type SupabaseLike = {
-  rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
-};
+type SupabaseLike = { rpc: unknown };
 
 type SupabaseAdminLike = {
   from: (table: string) => unknown;
@@ -42,7 +40,11 @@ type SupabaseAdminLike = {
 };
 
 export async function assertWorkerRole(supabase: SupabaseLike, userId: string): Promise<boolean> {
-  const { data, error } = await supabase.rpc("has_role", { _user_id: userId, _role: "worker" });
+  const rpc = supabase.rpc as (
+    fn: "has_role",
+    args: { _user_id: string; _role: "worker" },
+  ) => Promise<{ data: unknown; error: unknown }>;
+  const { data, error } = await rpc("has_role", { _user_id: userId, _role: "worker" });
   if (error) return false;
   return data === true;
 }
