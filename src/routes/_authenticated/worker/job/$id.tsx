@@ -86,9 +86,21 @@ function WorkerJob() {
   const [gps, setGps] = useState<{ lat: number; lng: number; address: string | null } | null>(null);
   const fetchGps = useMutation({
     mutationFn: async () => {
-      const pos = await new Promise<GeolocationPosition>((res, rej) =>
-        navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 10000 }),
-      );
+      if (typeof navigator === "undefined" || !("geolocation" in navigator)) {
+        throw new Error(t("workerJob.gpsUnavailable"));
+      }
+      const pos = await new Promise<GeolocationPosition>((res, rej) => {
+        navigator.geolocation.getCurrentPosition(res, rej, {
+          enableHighAccuracy: true,
+          timeout: 20000,
+          maximumAge: 0,
+        });
+      }).catch((err: GeolocationPositionError) => {
+        console.warn("getCurrentPosition failed", { code: err?.code, message: err?.message });
+        if (err?.code === 1) throw new Error(t("workerJob.gpsDenied"));
+        if (err?.code === 3) throw new Error(t("workerJob.gpsTimeout"));
+        throw new Error(t("workerJob.gpsUnavailable"));
+      });
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
       let address: string | null = null;
