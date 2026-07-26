@@ -11,10 +11,10 @@ const base = (event: string, fields: Record<string, unknown> = {}): Record<strin
 describe("CONNECT_LOG_SCHEMAS", () => {
   it("declares every connect.* event used by stripe-connect.functions.ts", () => {
     expect(Object.keys(CONNECT_LOG_SCHEMAS).sort()).toEqual([
-      "connect.account_created",
       "connect.account_branding_updated",
-      "connect.account_reused",
+      "connect.account_created",
       "connect.account_replaced",
+      "connect.account_reused",
       "connect.account_session_created",
       "connect.account_update_skipped",
       "connect.db_error",
