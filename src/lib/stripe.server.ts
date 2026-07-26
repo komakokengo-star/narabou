@@ -5,10 +5,11 @@ function normalizeStripeSecretKey(key: string | undefined): string {
   let value = key?.trim() ?? "";
 
   // Secure forms sometimes receive an env-style paste such as
-  // STRIPE_SECRET_KEY=sk_test_... or export STRIPE_SECRET_KEY="sk_test_...".
+  // STRIPE_SECRET_KEY=sk_test_..., STRIPE_LIVE_API_KEY=sk_live_...
+  // or export STRIPE_SECRET_KEY="sk_test_...".
   // Normalize those common forms without ever logging the raw value.
   value = value.replace(/^export\s+/i, "").trim();
-  const envAssignment = value.match(/^(?:STRIPE_SECRET_KEY|stripe_secret_key)\s*=\s*(.+)$/);
+  const envAssignment = value.match(/^(?:STRIPE_SECRET_KEY|STRIPE_LIVE_API_KEY|stripe_secret_key|stripe_live_api_key)\s*=\s*(.+)$/);
   if (envAssignment) value = envAssignment[1].trim();
 
   if (
@@ -79,8 +80,46 @@ export function validateStripeSecretKey(key: string | undefined): { ok: true; ke
   return { ok: true, key: trimmed };
 }
 
+function getConfiguredStripeSecretKey(): string | undefined {
+  const liveKeyValidation = validateStripeSecretKey(process.env.STRIPE_LIVE_API_KEY);
+  if (liveKeyValidation.ok) return liveKeyValidation.key;
+
+  const legacyKeyValidation = validateStripeSecretKey(process.env.STRIPE_SECRET_KEY);
+  if (legacyKeyValidation.ok) return legacyKeyValidation.key;
+
+  return process.env.STRIPE_LIVE_API_KEY ?? process.env.STRIPE_SECRET_KEY;
+}
+
+export function getConfiguredStripeSecretKeyDiagnostic(): ReturnType<typeof getStripeSecretKeyDiagnostic> & {
+  source: "STRIPE_LIVE_API_KEY" | "STRIPE_SECRET_KEY" | "none";
+} {
+  const liveKeyValidation = validateStripeSecretKey(process.env.STRIPE_LIVE_API_KEY);
+  if (liveKeyValidation.ok) {
+    return { ...getStripeSecretKeyDiagnostic(process.env.STRIPE_LIVE_API_KEY), source: "STRIPE_LIVE_API_KEY" };
+  }
+
+  const legacyKeyValidation = validateStripeSecretKey(process.env.STRIPE_SECRET_KEY);
+  if (legacyKeyValidation.ok) {
+    return { ...getStripeSecretKeyDiagnostic(process.env.STRIPE_SECRET_KEY), source: "STRIPE_SECRET_KEY" };
+  }
+
+  if (process.env.STRIPE_LIVE_API_KEY) {
+    return { ...getStripeSecretKeyDiagnostic(process.env.STRIPE_LIVE_API_KEY), source: "STRIPE_LIVE_API_KEY" };
+  }
+
+  if (process.env.STRIPE_SECRET_KEY) {
+    return { ...getStripeSecretKeyDiagnostic(process.env.STRIPE_SECRET_KEY), source: "STRIPE_SECRET_KEY" };
+  }
+
+  return { ...getStripeSecretKeyDiagnostic(undefined), source: "none" };
+}
+
+export function validateConfiguredStripeSecretKey(): { ok: true; key: string } | { ok: false; message: string } {
+  return validateStripeSecretKey(getConfiguredStripeSecretKey());
+}
+
 export function getStripe(): Stripe {
-  const validation = validateStripeSecretKey(process.env.STRIPE_SECRET_KEY);
+  const validation = validateConfiguredStripeSecretKey();
   if (!validation.ok) throw new Error(validation.message);
   return new Stripe(validation.key);
 }
