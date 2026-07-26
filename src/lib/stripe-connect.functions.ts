@@ -219,6 +219,23 @@ export const createAccountLink = createServerFn({ method: "POST" })
     }
 
     try {
+      // 既存アカウントの表示名が lovable.dev などの場合、NARABOU に修正してからリンク作成
+      try {
+        const existing = await stripe.accounts.retrieve(profile.stripe_account_id);
+        const currentName = existing.business_profile?.name ?? null;
+        if (!currentName || currentName.toLowerCase().includes("lovable") || currentName.toLowerCase().includes("dev")) {
+          await stripe.accounts.update(profile.stripe_account_id, {
+            business_profile: { name: "NARABOU", url: "https://app.narabou.jp" },
+          });
+        }
+      } catch (updateErr) {
+        // 更新に失敗してもリンク作成は継続
+        logJson("warn", "connect.account_update_skipped", {
+          runId, userId, accountId: profile.stripe_account_id,
+          message: (updateErr as StripeErr).message ?? "unknown",
+        });
+      }
+
       const link = await stripe.accountLinks.create({
         account: profile.stripe_account_id,
         return_url: returnUrl,
