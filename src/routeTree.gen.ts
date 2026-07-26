@@ -31,6 +31,7 @@ import { Route as ApiPublicHooksPushDispatchRouteImport } from './routes/api/pub
 import { Route as ApiPublicHooksAutoForceCompleteAbandonedRouteImport } from './routes/api/public/hooks/auto-force-complete-abandoned'
 import { Route as ApiPublicHooksAutoConfirmCompletionRouteImport } from './routes/api/public/hooks/auto-confirm-completion'
 import { Route as ApiPublicHooksAutoCancelOverdueRouteImport } from './routes/api/public/hooks/auto-cancel-overdue'
+import { Route as ApiPublicConnectOnboardingRouteImport } from './routes/api/public/connect/onboarding'
 import { Route as AuthenticatedWorkerJobIdRouteImport } from './routes/_authenticated/worker/job/$id'
 import { Route as AuthenticatedCustomerRequestIdRouteImport } from './routes/_authenticated/customer/request/$id'
 
@@ -152,6 +153,12 @@ const ApiPublicHooksAutoCancelOverdueRoute =
     path: '/api/public/hooks/auto-cancel-overdue',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicConnectOnboardingRoute =
+  ApiPublicConnectOnboardingRouteImport.update({
+    id: '/api/public/connect/onboarding',
+    path: '/api/public/connect/onboarding',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedWorkerJobIdRoute =
   AuthenticatedWorkerJobIdRouteImport.update({
     id: '/worker/job/$id',
@@ -180,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/worker/': typeof AuthenticatedWorkerIndexRoute
   '/customer/request/$id': typeof AuthenticatedCustomerRequestIdRoute
   '/worker/job/$id': typeof AuthenticatedWorkerJobIdRoute
+  '/api/public/connect/onboarding': typeof ApiPublicConnectOnboardingRoute
   '/api/public/hooks/auto-cancel-overdue': typeof ApiPublicHooksAutoCancelOverdueRoute
   '/api/public/hooks/auto-confirm-completion': typeof ApiPublicHooksAutoConfirmCompletionRoute
   '/api/public/hooks/auto-force-complete-abandoned': typeof ApiPublicHooksAutoForceCompleteAbandonedRoute
@@ -205,6 +213,7 @@ export interface FileRoutesByTo {
   '/worker': typeof AuthenticatedWorkerIndexRoute
   '/customer/request/$id': typeof AuthenticatedCustomerRequestIdRoute
   '/worker/job/$id': typeof AuthenticatedWorkerJobIdRoute
+  '/api/public/connect/onboarding': typeof ApiPublicConnectOnboardingRoute
   '/api/public/hooks/auto-cancel-overdue': typeof ApiPublicHooksAutoCancelOverdueRoute
   '/api/public/hooks/auto-confirm-completion': typeof ApiPublicHooksAutoConfirmCompletionRoute
   '/api/public/hooks/auto-force-complete-abandoned': typeof ApiPublicHooksAutoForceCompleteAbandonedRoute
@@ -232,6 +241,7 @@ export interface FileRoutesById {
   '/_authenticated/worker/': typeof AuthenticatedWorkerIndexRoute
   '/_authenticated/customer/request/$id': typeof AuthenticatedCustomerRequestIdRoute
   '/_authenticated/worker/job/$id': typeof AuthenticatedWorkerJobIdRoute
+  '/api/public/connect/onboarding': typeof ApiPublicConnectOnboardingRoute
   '/api/public/hooks/auto-cancel-overdue': typeof ApiPublicHooksAutoCancelOverdueRoute
   '/api/public/hooks/auto-confirm-completion': typeof ApiPublicHooksAutoConfirmCompletionRoute
   '/api/public/hooks/auto-force-complete-abandoned': typeof ApiPublicHooksAutoForceCompleteAbandonedRoute
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/worker/'
     | '/customer/request/$id'
     | '/worker/job/$id'
+    | '/api/public/connect/onboarding'
     | '/api/public/hooks/auto-cancel-overdue'
     | '/api/public/hooks/auto-confirm-completion'
     | '/api/public/hooks/auto-force-complete-abandoned'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/worker'
     | '/customer/request/$id'
     | '/worker/job/$id'
+    | '/api/public/connect/onboarding'
     | '/api/public/hooks/auto-cancel-overdue'
     | '/api/public/hooks/auto-confirm-completion'
     | '/api/public/hooks/auto-force-complete-abandoned'
@@ -310,6 +322,7 @@ export interface FileRouteTypes {
     | '/_authenticated/worker/'
     | '/_authenticated/customer/request/$id'
     | '/_authenticated/worker/job/$id'
+    | '/api/public/connect/onboarding'
     | '/api/public/hooks/auto-cancel-overdue'
     | '/api/public/hooks/auto-confirm-completion'
     | '/api/public/hooks/auto-force-complete-abandoned'
@@ -329,6 +342,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   AuthForgotRoute: typeof AuthForgotRoute
   AuthResetRoute: typeof AuthResetRoute
+  ApiPublicConnectOnboardingRoute: typeof ApiPublicConnectOnboardingRoute
   ApiPublicHooksAutoCancelOverdueRoute: typeof ApiPublicHooksAutoCancelOverdueRoute
   ApiPublicHooksAutoConfirmCompletionRoute: typeof ApiPublicHooksAutoConfirmCompletionRoute
   ApiPublicHooksAutoForceCompleteAbandonedRoute: typeof ApiPublicHooksAutoForceCompleteAbandonedRoute
@@ -496,6 +510,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAutoCancelOverdueRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/connect/onboarding': {
+      id: '/api/public/connect/onboarding'
+      path: '/api/public/connect/onboarding'
+      fullPath: '/api/public/connect/onboarding'
+      preLoaderRoute: typeof ApiPublicConnectOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/worker/job/$id': {
       id: '/_authenticated/worker/job/$id'
       path: '/worker/job/$id'
@@ -546,6 +567,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   AuthForgotRoute: AuthForgotRoute,
   AuthResetRoute: AuthResetRoute,
+  ApiPublicConnectOnboardingRoute: ApiPublicConnectOnboardingRoute,
   ApiPublicHooksAutoCancelOverdueRoute: ApiPublicHooksAutoCancelOverdueRoute,
   ApiPublicHooksAutoConfirmCompletionRoute:
     ApiPublicHooksAutoConfirmCompletionRoute,
