@@ -164,7 +164,7 @@ export const createAccountLink = createServerFn({ method: "POST" })
     }
 
     try {
-      let accountId = data.accountId ?? profile.stripe_account_id;
+      let accountId = data.accountId ?? profile?.stripe_account_id;
       if (!accountId) {
         return { url: null, error: "先に受取口座を作成してください。" };
       }
