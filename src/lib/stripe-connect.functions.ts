@@ -1,60 +1,22 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { getRequestHost, getRequestHeader } from "@tanstack/react-start/server";
 import { logJson } from "@/lib/log-schema";
-import { z } from "zod";
-
-// クライアントに返す共通エラーメッセージ。Stripeの生エラーは絶対に返さない（内部詳細の漏えい防止）。
-const GENERIC_ERROR = "受取口座の設定でエラーが発生しました。時間をおいて再度お試しください。";
-const SETUP_ERROR = "決済サービスの設定が未完了です。管理者にお問い合わせください。";
-const FORBIDDEN_ERROR = "この操作は代行者ロールのユーザーのみ実行できます。";
-const INVALID_INPUT_ERROR = "リダイレクト先の指定が不正です。";
-
-// リダイレクトURLはサーバーが自分の Host から組み立てる。クライアント指定はパスのみ許可し、
-// 「/」で始まる相対パスに限定する（オープンリダイレクト / フィッシング防止）。
-const PathSchema = z
-  .string()
-  .min(1)
-  .max(256)
-  .regex(/^\/[A-Za-z0-9_\-./?=&%]*$/, "path must start with / and contain only URL-safe chars")
-  .refine((p) => !p.startsWith("//"), "protocol-relative path is not allowed")
-  .refine((p) => !p.includes(".."), "path traversal is not allowed");
-
-const LinkInputSchema = z.object({
-  returnPath: PathSchema,
-  refreshPath: PathSchema,
-});
-
-type StripeErr = { message?: string; code?: string; type?: string };
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function assertWorkerRole(supabase: any, userId: string): Promise<boolean> {
-  const { data, error } = await supabase.rpc("has_role", { _user_id: userId, _role: "worker" });
-  if (error) return false;
-  return data === true;
-}
-
-function buildAbsoluteUrl(path: string): string {
-  const host = getRequestHost();
-  const proto = getRequestHeader("x-forwarded-proto") ?? "https";
-  // path は PathSchema で先頭スラッシュを保証済み
-  return `${proto}://${host}${path}`;
-}
-
-async function writeAudit(
-  admin: Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"],
-  actorId: string,
-  action: string,
-  details: Record<string, unknown>,
-) {
-  await admin.from("audit_logs").insert({
-    actor_id: actorId,
-    action,
-    target_type: "stripe_connect_account",
-    target_id: null,
-    details: details as never,
-  });
-}
+import {
+  GENERIC_ERROR,
+  SETUP_ERROR,
+  FORBIDDEN_ERROR,
+  INVALID_INPUT_ERROR,
+  LinkInputSchema,
+  assertWorkerRole,
+  buildAbsoluteUrl,
+  createReplacementConnectAccount,
+  createStripeConnectAccount,
+  ensureConnectAccountBranding,
+  getAccountPrefillEmail,
+  shouldReplaceForNetworkedOnboarding,
+  writeAudit,
+  type StripeErr,
+} from "@/lib/stripe-connect.server";
 
 export const createConnectAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -105,27 +67,10 @@ export const createConnectAccount = createServerFn({ method: "POST" })
       return { accountId: profile.stripe_account_id, error: null };
     }
 
-    // 4) Stripe アカウント作成（idempotencyKey で二重作成を防止）
-    //    business_profile.name を NARABOU に設定し、一般ユーザーが
-    //    Stripe の画面で「lovable.dev」ではなく「NARABOU」と表示されるようにする。
     let accountId: string;
     try {
-      const account = await stripe.accounts.create(
-        {
-          type: "express",
-          country: "JP",
-          business_profile: {
-            name: "NARABOU",
-            url: "https://app.narabou.jp",
-          },
-          capabilities: {
-            card_payments: { requested: true },
-            transfers: { requested: true },
-          },
-          metadata: { app_user_id: userId },
-        },
-        { idempotencyKey: `connect-account:${userId}` },
-      );
+      const email = await getAccountPrefillEmail(supabaseAdmin, userId);
+      const account = await createStripeConnectAccount(stripe, userId, email, `connect-account:${userId}:networked-skip-v1`);
       accountId = account.id;
     } catch (e) {
       const se = e as StripeErr;
@@ -219,34 +164,42 @@ export const createAccountLink = createServerFn({ method: "POST" })
     }
 
     try {
-      // 既存アカウントの表示名が lovable.dev などの場合、NARABOU に修正してからリンク作成
+      let accountId = profile.stripe_account_id;
       try {
-        const existing = await stripe.accounts.retrieve(profile.stripe_account_id);
-        const currentName = existing.business_profile?.name ?? null;
-        if (!currentName || currentName.toLowerCase().includes("lovable") || currentName.toLowerCase().includes("dev")) {
-          await stripe.accounts.update(profile.stripe_account_id, {
-            business_profile: { name: "NARABOU", url: "https://app.narabou.jp" },
+        const existing = await ensureConnectAccountBranding(stripe, runId, userId, accountId);
+        if (shouldReplaceForNetworkedOnboarding(existing)) {
+          const replacement = await createReplacementConnectAccount(stripe, supabaseAdmin, userId);
+          const { error: replaceErr } = await supabaseAdmin
+            .from("profiles")
+            .update({ stripe_account_id: replacement.id, stripe_account_ready: false })
+            .eq("id", userId);
+          if (replaceErr) throw replaceErr;
+          await writeAudit(supabaseAdmin, userId, "connect.account_replaced", {
+            runId, oldAccountId: accountId, accountId: replacement.id,
           });
+          logJson("info", "connect.account_replaced", {
+            runId, userId, oldAccountId: accountId, accountId: replacement.id,
+          });
+          accountId = replacement.id;
         }
       } catch (updateErr) {
-        // 更新に失敗してもリンク作成は継続
         logJson("warn", "connect.account_update_skipped", {
-          runId, userId, accountId: profile.stripe_account_id,
+          runId, userId, accountId,
           message: (updateErr as StripeErr).message ?? "unknown",
         });
       }
 
       const link = await stripe.accountLinks.create({
-        account: profile.stripe_account_id,
+        account: accountId,
         return_url: returnUrl,
         refresh_url: refreshUrl,
         type: "account_onboarding",
       });
       await writeAudit(supabaseAdmin, userId, "connect.link_created", {
-        runId, accountId: profile.stripe_account_id,
+        runId, accountId,
       });
       logJson("info", "connect.link_created", {
-        runId, userId, accountId: profile.stripe_account_id, durationMs: Date.now() - started,
+        runId, userId, accountId, durationMs: Date.now() - started,
       });
       return { url: link.url, error: null };
     } catch (e) {
