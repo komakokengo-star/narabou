@@ -41,11 +41,14 @@ type SupabaseAdminLike = {
 };
 
 export async function assertWorkerRole(supabase: SupabaseLike, userId: string): Promise<boolean> {
-  const rpc = supabase.rpc as (
+  const rpc = supabase.rpc as SupabaseLike["rpc"] & ((
     fn: "has_role",
     args: { _user_id: string; _role: "worker" },
-  ) => Promise<{ data: unknown; error: unknown }>;
-  const { data, error } = await rpc("has_role", { _user_id: userId, _role: "worker" });
+  ) => Promise<{ data: unknown; error: unknown }>);
+  // Keep the Supabase client as the call receiver. Destructuring/calling rpc as a
+  // standalone function loses its internal `this` binding and crashes with
+  // "Cannot read properties of undefined (reading 'rest')" in production.
+  const { data, error } = await rpc.call(supabase, "has_role", { _user_id: userId, _role: "worker" });
   if (error) return false;
   return data === true;
 }
