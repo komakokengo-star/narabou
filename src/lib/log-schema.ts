@@ -59,6 +59,15 @@ export const CONNECT_LOG_SCHEMAS: Record<string, LogSchema> = {
   "connect.account_session_created": {
     required: { runId: "string", userId: "string", accountId: "string", durationMs: "number" },
   },
+  "connect.account_branding_updated": {
+    required: { runId: "string", userId: "string", accountId: "string" },
+  },
+  "connect.account_replaced": {
+    required: { runId: "string", userId: "string", oldAccountId: "string", accountId: "string" },
+  },
+  "connect.account_update_skipped": {
+    required: { runId: "string", userId: "string", accountId: "string", message: "string" },
+  },
   "connect.link_created": {
     required: { runId: "string", userId: "string", accountId: "string", durationMs: "number" },
   },

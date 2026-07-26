@@ -12,8 +12,11 @@ describe("CONNECT_LOG_SCHEMAS", () => {
   it("declares every connect.* event used by stripe-connect.functions.ts", () => {
     expect(Object.keys(CONNECT_LOG_SCHEMAS).sort()).toEqual([
       "connect.account_created",
+      "connect.account_branding_updated",
       "connect.account_reused",
+      "connect.account_replaced",
       "connect.account_session_created",
+      "connect.account_update_skipped",
       "connect.db_error",
       "connect.forbidden",
       "connect.invalid_input",
@@ -58,6 +61,18 @@ describe("validateLog - connect.* events", () => {
       runId: "r", userId: "u", accountId: "acct_1", ready: "yes", durationMs: 5,
     }));
     expect(wrong).toContain("ready: expected boolean, got string");
+  });
+
+  it("connect.account_replaced and update diagnostics pass", () => {
+    expect(validateLog(base("connect.account_replaced", {
+      runId: "r", userId: "u", oldAccountId: "acct_old", accountId: "acct_new",
+    }))).toEqual([]);
+    expect(validateLog(base("connect.account_branding_updated", {
+      runId: "r", userId: "u", accountId: "acct_1",
+    }))).toEqual([]);
+    expect(validateLog(base("connect.account_update_skipped", {
+      runId: "r", userId: "u", accountId: "acct_1", message: "skipped",
+    }))).toEqual([]);
   });
 
   it("connect.stripe_error accepts optional code & stripeType", () => {
