@@ -143,7 +143,7 @@ export const createAccountLink = createServerFn({ method: "POST" })
       });
       return { url: null, error: GENERIC_ERROR };
     }
-    if (!profile?.stripe_account_id) {
+    if (!profile?.stripe_account_id && !data.accountId) {
       logJson("warn", "connect.invalid_input", {
         runId, userId, action: "create_link", reason: "no_account_yet",
       });
@@ -164,7 +164,10 @@ export const createAccountLink = createServerFn({ method: "POST" })
     }
 
     try {
-      let accountId = profile.stripe_account_id;
+      let accountId = data.accountId ?? profile?.stripe_account_id;
+      if (!accountId) {
+        return { url: null, error: "先に受取口座を作成してください。" };
+      }
       try {
         const existing = await ensureConnectAccountBranding(stripe, runId, userId, accountId);
         if (shouldReplaceForNetworkedOnboarding(existing)) {

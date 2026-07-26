@@ -24,6 +24,7 @@ export const PathSchema = z
 export const LinkInputSchema = z.object({
   returnPath: PathSchema,
   refreshPath: PathSchema,
+  accountId: z.string().regex(/^acct_[A-Za-z0-9]+$/).optional(),
 });
 
 export type StripeErr = { message?: string; code?: string; type?: string };

@@ -89,14 +89,17 @@ function WorkerHome() {
 
   const startPayoutOnboarding = useMutation({
     mutationFn: async () => {
-      if (!profile?.stripe_account_id) {
+      let accountId = profile?.stripe_account_id ?? null;
+      if (!accountId) {
         const created = await createConnectAccount();
         if (created.error) throw new Error(created.error);
+        accountId = created.accountId;
       }
       const link = await createAccountLink({
         data: {
           returnPath: "/worker?payout=ready",
           refreshPath: "/worker?payout=refresh",
+          accountId: accountId ?? undefined,
         },
       });
       if (link.error || !link.url) throw new Error(link.error ?? "受取口座の登録画面を開けませんでした。");
