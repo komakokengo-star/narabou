@@ -79,7 +79,7 @@ export const CONNECT_LOG_SCHEMAS: Record<string, LogSchema> = {
   },
   "connect.stripe_error": {
     required: { runId: "string", userId: "string", action: "string", message: "string" },
-    optional: { code: "string", stripeType: "string" },
+    optional: { code: "string", stripeType: "string", diagnostic: "object" },
   },
   "connect.db_error": {
     required: { runId: "string", userId: "string", stage: "string", message: "string" },
