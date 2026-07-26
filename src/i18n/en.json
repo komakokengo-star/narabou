@@ -286,6 +286,7 @@
     "featuresSaved": "Features saved",
     "gpsDenied": "Location denied — sending without location. Enable in browser settings to record location too.",
     "gpsUnavailable": "Location unavailable — sending without location.",
+    "gpsTimeout": "Location request timed out. Try again outdoors or near a window.",
     "checkinSent": "Check-in sent",
     "wrongLocationNoGps": "Location differs. Please confirm the correct location with the customer in the check-in notes.",
     "wrongLocationDistance": "Location differs (about {{dist}}m from the requested store). Please confirm the correct location with the customer in the check-in notes.",

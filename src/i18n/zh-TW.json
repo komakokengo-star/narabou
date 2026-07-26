@@ -297,6 +297,7 @@
     "featuresSaved": "已儲存特徵",
     "gpsDenied": "位置資訊被拒，將不含位置送出。可於瀏覽器設定允許後同時記錄位置。",
     "gpsUnavailable": "無法取得位置資訊，將不含位置送出。",
+    "gpsTimeout": "取得位置資訊逾時，請於戶外或窗邊再試一次。",
     "checkinSent": "已送出定點回報",
     "wrongLocationNoGps": "位置不符。代排者請於定點回報備註中向委託人確認正確位置。",
     "wrongLocationDistance": "位置不符（距離委託店家約 {{dist}} 公尺）。代排者請於定點回報備註中向委託人確認正確位置。",
