@@ -106,12 +106,18 @@ export const createConnectAccount = createServerFn({ method: "POST" })
     }
 
     // 4) Stripe アカウント作成（idempotencyKey で二重作成を防止）
+    //    business_profile.name を NARABOU に設定し、一般ユーザーが
+    //    Stripe の画面で「lovable.dev」ではなく「NARABOU」と表示されるようにする。
     let accountId: string;
     try {
       const account = await stripe.accounts.create(
         {
           type: "express",
           country: "JP",
+          business_profile: {
+            name: "NARABOU",
+            url: "https://app.narabou.jp",
+          },
           capabilities: {
             card_payments: { requested: true },
             transfers: { requested: true },
