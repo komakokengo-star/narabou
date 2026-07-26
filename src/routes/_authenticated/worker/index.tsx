@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,8 +31,14 @@ function WorkerHome() {
   const { user } = useAuth();
   const { data: profile, refetch: refetchProfile } = useProfile(user?.id);
   const qc = useQueryClient();
+  const createConnectAccountFn = useServerFn(createConnectAccount);
+  const createAccountLinkFn = useServerFn(createAccountLink);
+  const refreshConnectStatusFn = useServerFn(refreshConnectStatus);
+  const applyForRequestFn = useServerFn(applyForRequest);
   const [detailJobId, setDetailJobId] = useState<string | null>(null);
   const [applyComment, setApplyComment] = useState("");
+  const [isStartingPayout, setIsStartingPayout] = useState(false);
+  const [isRefreshingPayout, setIsRefreshingPayout] = useState(false);
   const APPLY_COMMENT_EXAMPLE = "本件、私にお任せください。開始10分前を目安に現地入りし、目印周辺で待機します。整理券や順番は逐次ご報告いたします。";
 
 
@@ -64,7 +71,7 @@ function WorkerHome() {
 
   const accept = useMutation({
     mutationFn: async (requestId: string) => {
-      await applyForRequest({ data: { requestId, applyComment: applyComment.trim() || undefined } });
+      await applyForRequestFn({ data: { requestId, applyComment: applyComment.trim() || undefined } });
     },
     onSuccess: () => {
       toast.success("受注申請を送信しました。依頼者の承認をお待ちください");
@@ -87,15 +94,17 @@ function WorkerHome() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const startPayoutOnboarding = useMutation({
-    mutationFn: async () => {
+  const startPayoutOnboarding = async () => {
+    if (isStartingPayout) return;
+    setIsStartingPayout(true);
+    try {
       let accountId = profile?.stripe_account_id ?? null;
       if (!accountId) {
-        const created = await createConnectAccount();
+        const created = await createConnectAccountFn();
         if (created.error) throw new Error(created.error);
         accountId = created.accountId;
       }
-      const link = await createAccountLink({
+      const link = await createAccountLinkFn({
         data: {
           returnPath: "/worker?payout=ready",
           refreshPath: "/worker?payout=refresh",
@@ -103,22 +112,30 @@ function WorkerHome() {
         },
       });
       if (link.error || !link.url) throw new Error(link.error ?? "受取口座の登録画面を開けませんでした。");
-      return link.url;
-    },
-    onSuccess: (url) => {
-      window.location.assign(url);
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
+      window.location.href = link.url;
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "受取口座の登録画面を開けませんでした。");
+      setIsStartingPayout(false);
+    }
+  };
 
-  const refreshPayout = useMutation({
-    mutationFn: () => refreshConnectStatus(),
-    onSuccess: (r) => {
-      if (r.error) { toast.error(r.error); return; }
+  const refreshPayout = async () => {
+    if (isRefreshingPayout) return;
+    setIsRefreshingPayout(true);
+    try {
+      const r = await refreshConnectStatusFn();
+      if (r.error) {
+        toast.error(r.error);
+        return;
+      }
       refetchProfile();
       toast.success(t("worker.account.saved"));
-    },
-  });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "状態を更新できませんでした。");
+    } finally {
+      setIsRefreshingPayout(false);
+    }
+  };
 
 
   const payoutReady = !!profile?.stripe_account_ready;
@@ -129,7 +146,7 @@ function WorkerHome() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("payout") === "ready" || params.get("payout") === "refresh") {
-      refreshConnectStatus().then((r) => {
+      refreshConnectStatusFn().then((r) => {
         if (!r.error) refetchProfile();
       });
       params.delete("payout");
@@ -137,14 +154,14 @@ function WorkerHome() {
       window.history.replaceState({}, "", window.location.pathname + (q ? `?${q}` : ""));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refreshConnectStatusFn, refetchProfile]);
 
   // 審査中は自動ポーリング（webhookが遅延した場合の保険）
   useEffect(() => {
     if (!payoutPending) return;
     let cancelled = false;
     const tick = async () => {
-      const r = await refreshConnectStatus();
+      const r = await refreshConnectStatusFn();
       if (cancelled) return;
       if (!r.error) {
         await refetchProfile();
@@ -153,7 +170,7 @@ function WorkerHome() {
     };
     const id = setInterval(tick, 8000);
     return () => { cancelled = true; clearInterval(id); };
-  }, [payoutPending, refetchProfile, t]);
+  }, [payoutPending, refreshConnectStatusFn, refetchProfile, t]);
   const canAcceptJobs = payoutReady;
 
   return (
@@ -226,13 +243,13 @@ function WorkerHome() {
                 {!payoutReady && (
                   <div className="flex gap-2 flex-wrap">
                     <Button
-                      onClick={() => startPayoutOnboarding.mutate()}
-                      disabled={startPayoutOnboarding.isPending}
+                      onClick={startPayoutOnboarding}
+                      disabled={isStartingPayout}
                     >
                       {payoutPending ? t("worker.account.continue") : t("worker.account.register")}
                     </Button>
                     {payoutPending && (
-                      <Button variant="outline" onClick={() => refreshPayout.mutate()} disabled={refreshPayout.isPending}>
+                      <Button variant="outline" onClick={refreshPayout} disabled={isRefreshingPayout}>
                         {t("worker.account.refresh")}
                       </Button>
                     )}

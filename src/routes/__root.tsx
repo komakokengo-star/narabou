@@ -52,7 +52,7 @@ const recoveryRedirectScript = `
 const pwaCacheRefreshScript = `
 (function () {
   try {
-    var version = "narabou-stripe-onboarding-link-v2";
+    var version = "narabou-stripe-onboarding-link-v3";
     var key = "narabou:pwa-cache-version";
     var reloadingKey = "narabou:pwa-cache-refreshing";
     if (!window.localStorage || localStorage.getItem(key) === version) return;
@@ -106,7 +106,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: Error; reset?: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -118,7 +118,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <h1 className="text-xl font-semibold">エラーが発生しました</h1>
         <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
         <button
-          onClick={() => { router.invalidate(); reset(); }}
+          onClick={() => { router.invalidate(); reset?.(); }}
           className="mt-6 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground"
         >
           再試行

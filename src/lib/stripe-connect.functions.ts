@@ -105,7 +105,18 @@ export const createConnectAccount = createServerFn({ method: "POST" })
 
 export const createAccountLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => LinkInputSchema.parse(d))
+  .validator((d: unknown) => {
+    const parsed = LinkInputSchema.safeParse(d);
+    if (!parsed.success) {
+      logJson("warn", "connect.invalid_input", {
+        action: "create_link",
+        reason: "schema_parse_failed",
+        issues: parsed.error.issues.map((issue) => ({ path: issue.path.join("."), code: issue.code })),
+      });
+      throw new Error(INVALID_INPUT_ERROR);
+    }
+    return parsed.data;
+  })
   .handler(async ({ data, context }) => {
     const runId = crypto.randomUUID();
     const userId = context.userId;
