@@ -281,6 +281,22 @@ export const createConnectAccountSession = createServerFn({ method: "POST" })
     }
 
     try {
+      const publishableKey = (process.env.STRIPE_LIVE_PUBLISHABLE_KEY ?? process.env.STRIPE_PUBLISHABLE_KEY ?? "").trim();
+      const secretKeyIsLive = validation.key.startsWith("sk_live_");
+      const publishableKeyIsTest = publishableKey.startsWith("pk_test_");
+      if (secretKeyIsLive && publishableKeyIsTest) {
+        logJson("warn", "connect.invalid_input", {
+          runId,
+          userId,
+          action: "create_account_session",
+          reason: "publishable_secret_mode_mismatch",
+        });
+        return {
+          clientSecret: null,
+          error: "Stripe公開キーがテスト用のままです。STRIPE_PUBLISHABLE_KEYをpk_live_で始まる本番公開キーに更新してください。",
+        };
+      }
+
       const session = await stripe.accountSessions.create({
         account: profile.stripe_account_id,
         components: {
