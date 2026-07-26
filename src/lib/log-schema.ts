@@ -56,6 +56,9 @@ export const CONNECT_LOG_SCHEMAS: Record<string, LogSchema> = {
   "connect.account_reused": {
     required: { runId: "string", userId: "string", accountId: "string" },
   },
+  "connect.account_session_created": {
+    required: { runId: "string", userId: "string", accountId: "string", durationMs: "number" },
+  },
   "connect.link_created": {
     required: { runId: "string", userId: "string", accountId: "string", durationMs: "number" },
   },
