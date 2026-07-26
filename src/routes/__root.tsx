@@ -52,7 +52,7 @@ const recoveryRedirectScript = `
 const pwaCacheRefreshScript = `
 (function () {
   try {
-    var version = "narabou-stripe-onboarding-link-v3";
+    var version = "narabou-stripe-onboarding-api-v4";
     var key = "narabou:pwa-cache-version";
     var reloadingKey = "narabou:pwa-cache-refreshing";
     if (!window.localStorage || localStorage.getItem(key) === version) return;

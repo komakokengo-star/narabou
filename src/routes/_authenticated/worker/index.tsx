@@ -19,7 +19,7 @@ import { formatYen, calcFee, PLATFORM_RATE } from "@/lib/fees";
 import { toast } from "sonner";
 import { CheckCircle2, User, Landmark, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
-import { createAccountLink, createConnectAccount, refreshConnectStatus } from "@/lib/stripe-connect.functions";
+import { refreshConnectStatus } from "@/lib/stripe-connect.functions";
 import { applyForRequest } from "@/lib/payments.functions";
 
 export const Route = createFileRoute("/_authenticated/worker/")({
@@ -31,8 +31,6 @@ function WorkerHome() {
   const { user } = useAuth();
   const { data: profile, refetch: refetchProfile } = useProfile(user?.id);
   const qc = useQueryClient();
-  const createConnectAccountFn = useServerFn(createConnectAccount);
-  const createAccountLinkFn = useServerFn(createAccountLink);
   const refreshConnectStatusFn = useServerFn(refreshConnectStatus);
   const applyForRequestFn = useServerFn(applyForRequest);
   const [detailJobId, setDetailJobId] = useState<string | null>(null);
@@ -98,21 +96,27 @@ function WorkerHome() {
     if (isStartingPayout) return;
     setIsStartingPayout(true);
     try {
-      let accountId = profile?.stripe_account_id ?? null;
-      if (!accountId) {
-        const created = await createConnectAccountFn();
-        if (created.error) throw new Error(created.error);
-        accountId = created.accountId;
-      }
-      const link = await createAccountLinkFn({
-        data: {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) throw new Error("ログイン状態を確認できません。再ログインしてください。");
+
+      const response = await fetch("/api/public/connect/onboarding", {
+        method: "POST",
+        headers: {
+          "authorization": `Bearer ${token}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
           returnPath: "/worker?payout=ready",
           refreshPath: "/worker?payout=refresh",
-          accountId: accountId ?? undefined,
-        },
+          accountId: profile?.stripe_account_id ?? undefined,
+        }),
       });
-      if (link.error || !link.url) throw new Error(link.error ?? "受取口座の登録画面を開けませんでした。");
-      window.location.href = link.url;
+      const result = await response.json().catch(() => null) as { url?: string; error?: string } | null;
+      if (!response.ok || result?.error || !result?.url) {
+        throw new Error(result?.error ?? "受取口座の登録画面を開けませんでした。");
+      }
+      window.location.assign(result.url);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "受取口座の登録画面を開けませんでした。");
       setIsStartingPayout(false);
