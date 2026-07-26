@@ -73,16 +73,16 @@ export const createConnectAccount = createServerFn({ method: "POST" })
     }
 
     // 2) Stripe キー検証（未設定・不正時は生エラーを外に出さない）
-    const { getStripe, validateStripeSecretKey, getStripeSecretKeyDiagnostic } = await import("@/lib/stripe.server");
+    const { getStripe, validateConfiguredStripeSecretKey, getConfiguredStripeSecretKeyDiagnostic } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const validation = validateStripeSecretKey(process.env.STRIPE_SECRET_KEY);
+    const validation = validateConfiguredStripeSecretKey();
     if (!validation.ok) {
       logJson("error", "connect.stripe_error", {
         runId,
         userId,
         action: "create_account",
         message: "invalid_secret_key",
-        diagnostic: getStripeSecretKeyDiagnostic(process.env.STRIPE_SECRET_KEY),
+        diagnostic: getConfiguredStripeSecretKeyDiagnostic(),
       });
       return { accountId: null, error: SETUP_ERROR };
     }
@@ -168,16 +168,16 @@ export const createAccountLink = createServerFn({ method: "POST" })
       return { url: null, error: FORBIDDEN_ERROR };
     }
 
-    const { getStripe, validateStripeSecretKey, getStripeSecretKeyDiagnostic } = await import("@/lib/stripe.server");
+    const { getStripe, validateConfiguredStripeSecretKey, getConfiguredStripeSecretKeyDiagnostic } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const validation = validateStripeSecretKey(process.env.STRIPE_SECRET_KEY);
+    const validation = validateConfiguredStripeSecretKey();
     if (!validation.ok) {
       logJson("error", "connect.stripe_error", {
         runId,
         userId,
         action: "create_link",
         message: "invalid_secret_key",
-        diagnostic: getStripeSecretKeyDiagnostic(process.env.STRIPE_SECRET_KEY),
+        diagnostic: getConfiguredStripeSecretKeyDiagnostic(),
       });
       return { url: null, error: SETUP_ERROR };
     }
@@ -254,14 +254,14 @@ export const createConnectAccountSession = createServerFn({ method: "POST" })
       return { clientSecret: null, error: FORBIDDEN_ERROR };
     }
 
-    const { getStripe, validateStripeSecretKey, getStripeSecretKeyDiagnostic } = await import("@/lib/stripe.server");
+    const { getStripe, validateConfiguredStripeSecretKey, getConfiguredStripeSecretKeyDiagnostic } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const validation = validateStripeSecretKey(process.env.STRIPE_SECRET_KEY);
+    const validation = validateConfiguredStripeSecretKey();
     if (!validation.ok) {
       logJson("error", "connect.stripe_error", {
         runId, userId, action: "create_account_session",
         message: "invalid_secret_key",
-        diagnostic: getStripeSecretKeyDiagnostic(process.env.STRIPE_SECRET_KEY),
+        diagnostic: getConfiguredStripeSecretKeyDiagnostic(),
       });
       return { clientSecret: null, error: SETUP_ERROR };
     }
@@ -322,16 +322,16 @@ export const refreshConnectStatus = createServerFn({ method: "POST" })
       return { ready: false, error: FORBIDDEN_ERROR };
     }
 
-    const { getStripe, validateStripeSecretKey, getStripeSecretKeyDiagnostic } = await import("@/lib/stripe.server");
+    const { getStripe, validateConfiguredStripeSecretKey, getConfiguredStripeSecretKeyDiagnostic } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const validation = validateStripeSecretKey(process.env.STRIPE_SECRET_KEY);
+    const validation = validateConfiguredStripeSecretKey();
     if (!validation.ok) {
       logJson("error", "connect.stripe_error", {
         runId,
         userId,
         action: "refresh_status",
         message: "invalid_secret_key",
-        diagnostic: getStripeSecretKeyDiagnostic(process.env.STRIPE_SECRET_KEY),
+        diagnostic: getConfiguredStripeSecretKeyDiagnostic(),
       });
       return { ready: false, error: SETUP_ERROR };
     }
@@ -417,9 +417,9 @@ export const adminListConnectStatuses = createServerFn({ method: "POST" })
       return { rows: [], error: FORBIDDEN_ERROR };
     }
 
-    const { getStripe, validateStripeSecretKey } = await import("@/lib/stripe.server");
+    const { getStripe, validateConfiguredStripeSecretKey } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const validation = validateStripeSecretKey(process.env.STRIPE_SECRET_KEY);
+    const validation = validateConfiguredStripeSecretKey();
     if (!validation.ok) {
       return { rows: [], error: SETUP_ERROR };
     }
