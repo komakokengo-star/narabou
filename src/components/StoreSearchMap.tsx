@@ -142,7 +142,7 @@ export function StoreSearchMap({ storeName, storeAddress, onChange }: Props) {
     setSuggestions([]);
     try {
       const { Place } = await window.google.maps.importLibrary("places");
-      const { Marker } = await window.google.maps.importLibrary("marker");
+      const { Marker } = await window.google.maps.importLibrary("maps");
       const place = new Place({ id: placeId });
       await place.fetchFields({ fields: ["displayName", "formattedAddress", "location"] });
       const name = place.displayName ?? displayText;
