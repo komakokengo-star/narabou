@@ -3,6 +3,36 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
+function checkGatewayCreds() {
+  const lovableKey = process.env.LOVABLE_API_KEY;
+  const gmKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!lovableKey || !gmKey) throw new Error("Google Maps 接続が未設定です");
+  return { lovableKey, gmKey };
+}
+
+async function handleGatewayError(res: Response) {
+  if (res.status === 403) {
+    const body = (await res.json().catch(() => ({}))) as any;
+    const reason = body?.error?.details?.find((d: any) => d.reason)?.reason;
+    if (reason === "API_KEY_HTTP_REFERRER_BLOCKED") {
+      throw new Error(
+        'Google Maps server key is referrer-restricted. In Google Cloud Console, set the server key\'s application restrictions to "None" or "IP addresses".'
+      );
+    }
+    if (reason === "API_KEY_SERVICE_BLOCKED") {
+      throw new Error(
+        "Google Maps server key does not allow this API. In Google Cloud Console, add this Maps API to the server key's allowed-APIs list."
+      );
+    }
+    throw new Error("Google Maps request was denied (403). Check the server key's restrictions in Google Cloud Console.");
+  }
+  if (!res.ok) {
+    const body = await res.text();
+    console.error("geocode failed", res.status, body);
+    throw new Error(`住所検索に失敗しました (${res.status})`);
+  }
+}
+
 export const reverseGeocode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { lat: number; lng: number }) => {
@@ -11,29 +41,15 @@ export const reverseGeocode = createServerFn({ method: "POST" })
     return d;
   })
   .handler(async ({ data }) => {
-    const ownKey = process.env.GOOGLE_API_KEY;
-    const lovableKey = process.env.LOVABLE_API_KEY;
-    const gmKey = process.env.GOOGLE_MAPS_API_KEY;
-
-    const url = ownKey
-      ? `https://maps.googleapis.com/maps/api/geocode/json?latlng=${data.lat},${data.lng}&language=ja&key=${ownKey}`
-      : `${GATEWAY_URL}/maps/api/geocode/json?latlng=${data.lat},${data.lng}&language=ja`;
-    if (!ownKey && (!lovableKey || !gmKey)) throw new Error("Google Maps 接続が未設定です");
-
+    const { lovableKey, gmKey } = checkGatewayCreds();
+    const url = `${GATEWAY_URL}/maps/api/geocode/json?latlng=${data.lat},${data.lng}&language=ja`;
     const res = await fetch(url, {
-      headers: ownKey
-        ? {}
-        : {
-            Authorization: `Bearer ${lovableKey}`,
-            "X-Connection-Api-Key": gmKey!,
-          },
+      headers: {
+        Authorization: `Bearer ${lovableKey}`,
+        "X-Connection-Api-Key": gmKey,
+      },
     });
-    if (!res.ok) {
-      const body = await res.text();
-      console.error("reverse geocode failed", res.status, body);
-      throw new Error(`住所検索に失敗しました (${res.status})`);
-    }
-
+    await handleGatewayError(res);
     const json = (await res.json()) as {
       status: string;
       results?: { formatted_address: string }[];
@@ -51,28 +67,16 @@ export const forwardGeocode = createServerFn({ method: "POST" })
     return { address: d.address.trim().slice(0, 300) };
   })
   .handler(async ({ data }) => {
-    const ownKey = process.env.GOOGLE_API_KEY;
-    const lovableKey = process.env.LOVABLE_API_KEY;
-    const gmKey = process.env.GOOGLE_MAPS_API_KEY;
-    if (!ownKey && (!lovableKey || !gmKey)) throw new Error("Google Maps 接続が未設定です");
+    const { lovableKey, gmKey } = checkGatewayCreds();
     const q = `address=${encodeURIComponent(data.address)}&language=ja&region=jp`;
-    const url = ownKey
-      ? `https://maps.googleapis.com/maps/api/geocode/json?${q}&key=${ownKey}`
-      : `${GATEWAY_URL}/maps/api/geocode/json?${q}`;
+    const url = `${GATEWAY_URL}/maps/api/geocode/json?${q}`;
     const res = await fetch(url, {
-      headers: ownKey
-        ? {}
-        : {
-            Authorization: `Bearer ${lovableKey}`,
-            "X-Connection-Api-Key": gmKey!,
-          },
+      headers: {
+        Authorization: `Bearer ${lovableKey}`,
+        "X-Connection-Api-Key": gmKey,
+      },
     });
-
-    if (!res.ok) {
-      const body = await res.text();
-      console.error("forward geocode failed", res.status, body);
-      throw new Error(`住所座標変換に失敗しました (${res.status})`);
-    }
+    await handleGatewayError(res);
     const json = (await res.json()) as {
       status: string;
       results?: { geometry?: { location?: { lat: number; lng: number } } }[];
