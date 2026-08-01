@@ -60,6 +60,25 @@ function WorkerJob() {
     refetchInterval: 10000,
   });
 
+  const requestId = match?.request_id;
+  const { data: mainPayment } = useQuery({
+    queryKey: ["worker-main-payment", requestId],
+    queryFn: async () => {
+      if (!requestId) return null;
+      const { data } = await supabase
+        .from("payments")
+        .select("status")
+        .eq("request_id", requestId)
+        .eq("kind", "main")
+        .in("status", ["authorized", "paid"])
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!requestId,
+    refetchInterval: 8000,
+  });
+  const paymentReady = mainPayment?.status === "authorized" || mainPayment?.status === "paid";
+
   type MatchUpdate = Partial<{ arrival_time: string; start_time: string; end_time: string; status: string; arrival_note: string | null; start_note: string | null; completion_note: string | null; worker_features: string | null }>;
   type RequestUpdate = Partial<{ status: "open" | "matched" | "arrived" | "in_progress" | "completed" | "canceled" }>;
   const updateStatus = useMutation({
@@ -274,7 +293,12 @@ function WorkerJob() {
               {t("workerJob.pendingApprovalHint")}
             </div>
           )}
-          {(match as unknown as { status: string }).status !== "pending_approval" && !match.arrival_time && (
+          {(match as unknown as { status: string }).status === "approved" && !paymentReady && (
+            <div className="text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-800 p-3">
+              依頼者のカード仮押さえ完了を待っています。完了後に現地到着を報告できます。
+            </div>
+          )}
+          {(match as unknown as { status: string }).status !== "pending_approval" && paymentReady && !match.arrival_time && (
             <div className="space-y-2">
               <Label>{t("workerJob.arrivalMsgLabel")}</Label>
               <Textarea

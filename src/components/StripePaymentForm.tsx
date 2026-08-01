@@ -39,12 +39,12 @@ export function StripePaymentForm({
   if (!stripeInstance) return <div className="text-sm text-muted-foreground">Stripe を読み込み中…</div>;
   return (
     <Elements stripe={stripeInstance} options={options}>
-      <InnerForm amount={amount} onSuccess={onSuccess} mode={mode} />
+      <InnerForm clientSecret={clientSecret} amount={amount} onSuccess={onSuccess} mode={mode} />
     </Elements>
   );
 }
 
-function InnerForm({ amount, onSuccess, mode }: { amount: number; onSuccess?: () => void; mode: "pay" | "authorize" }) {
+function InnerForm({ clientSecret, amount, onSuccess, mode }: { clientSecret: string; amount: number; onSuccess?: () => void; mode: "pay" | "authorize" }) {
   const stripe = useStripe();
   const elements = useElements();
   const { t } = useTranslation();
@@ -65,7 +65,7 @@ function InnerForm({ amount, onSuccess, mode }: { amount: number; onSuccess?: ()
         return;
       }
 
-      const result = await syncPaymentIntentStatus({ data: { clientSecret: clientSecretFromElements(elements) } });
+      const result = await syncPaymentIntentStatus({ data: { clientSecret } });
       if (result.status !== "authorized" && result.status !== "paid") {
         toast.error("カードの仮押さえを確認できませんでした。カード情報を確認して再度お試しください。");
         return;
