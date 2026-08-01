@@ -20,6 +20,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedWorkerIndexRouteImport } from './routes/_authenticated/worker/index'
 import { Route as AuthenticatedCustomerIndexRouteImport } from './routes/_authenticated/customer/index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as ApiPublicMapsConfigRouteImport } from './routes/api/public/maps-config'
 import { Route as AuthenticatedAdminTroublesRouteImport } from './routes/_authenticated/admin/troubles'
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin/audit'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -90,6 +91,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiPublicMapsConfigRoute = ApiPublicMapsConfigRouteImport.update({
+  id: '/api/public/maps-config',
+  path: '/api/public/maps-config',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminTroublesRoute =
   AuthenticatedAdminTroublesRouteImport.update({
@@ -182,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/auth/reset': typeof AuthResetRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/troubles': typeof AuthenticatedAdminTroublesRoute
+  '/api/public/maps-config': typeof ApiPublicMapsConfigRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/customer/': typeof AuthenticatedCustomerIndexRoute
   '/worker/': typeof AuthenticatedWorkerIndexRoute
@@ -208,6 +215,7 @@ export interface FileRoutesByTo {
   '/auth/reset': typeof AuthResetRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/troubles': typeof AuthenticatedAdminTroublesRoute
+  '/api/public/maps-config': typeof ApiPublicMapsConfigRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/customer': typeof AuthenticatedCustomerIndexRoute
   '/worker': typeof AuthenticatedWorkerIndexRoute
@@ -236,6 +244,7 @@ export interface FileRoutesById {
   '/auth_/reset': typeof AuthResetRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/_authenticated/admin/troubles': typeof AuthenticatedAdminTroublesRoute
+  '/api/public/maps-config': typeof ApiPublicMapsConfigRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/customer/': typeof AuthenticatedCustomerIndexRoute
   '/_authenticated/worker/': typeof AuthenticatedWorkerIndexRoute
@@ -264,6 +273,7 @@ export interface FileRouteTypes {
     | '/auth/reset'
     | '/admin/audit'
     | '/admin/troubles'
+    | '/api/public/maps-config'
     | '/admin/'
     | '/customer/'
     | '/worker/'
@@ -290,6 +300,7 @@ export interface FileRouteTypes {
     | '/auth/reset'
     | '/admin/audit'
     | '/admin/troubles'
+    | '/api/public/maps-config'
     | '/admin'
     | '/customer'
     | '/worker'
@@ -317,6 +328,7 @@ export interface FileRouteTypes {
     | '/auth_/reset'
     | '/_authenticated/admin/audit'
     | '/_authenticated/admin/troubles'
+    | '/api/public/maps-config'
     | '/_authenticated/admin/'
     | '/_authenticated/customer/'
     | '/_authenticated/worker/'
@@ -342,6 +354,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   AuthForgotRoute: typeof AuthForgotRoute
   AuthResetRoute: typeof AuthResetRoute
+  ApiPublicMapsConfigRoute: typeof ApiPublicMapsConfigRoute
   ApiPublicConnectOnboardingRoute: typeof ApiPublicConnectOnboardingRoute
   ApiPublicHooksAutoCancelOverdueRoute: typeof ApiPublicHooksAutoCancelOverdueRoute
   ApiPublicHooksAutoConfirmCompletionRoute: typeof ApiPublicHooksAutoConfirmCompletionRoute
@@ -432,6 +445,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/maps-config': {
+      id: '/api/public/maps-config'
+      path: '/api/public/maps-config'
+      fullPath: '/api/public/maps-config'
+      preLoaderRoute: typeof ApiPublicMapsConfigRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/troubles': {
       id: '/_authenticated/admin/troubles'
@@ -567,6 +587,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   AuthForgotRoute: AuthForgotRoute,
   AuthResetRoute: AuthResetRoute,
+  ApiPublicMapsConfigRoute: ApiPublicMapsConfigRoute,
   ApiPublicConnectOnboardingRoute: ApiPublicConnectOnboardingRoute,
   ApiPublicHooksAutoCancelOverdueRoute: ApiPublicHooksAutoCancelOverdueRoute,
   ApiPublicHooksAutoConfirmCompletionRoute:
