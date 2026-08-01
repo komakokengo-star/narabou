@@ -36,6 +36,37 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
       }
     }
 
+    const { data: activePayments } = await supabaseAdmin
+      .from("payments")
+      .select("id, amount, status, stripe_payment_intent_id, stripe_client_secret")
+      .eq("request_id", req.id)
+      .eq("kind", "main")
+      .in("status", ["pending", "authorized"])
+      .order("created_at", { ascending: false });
+
+    const authorizedPayment = activePayments?.find((payment) => payment.status === "authorized");
+    if (authorizedPayment) throw new Error("この依頼の仮押さえは完了しています");
+
+    const pendingPayment = activePayments?.find((payment) => payment.status === "pending");
+    if (pendingPayment?.stripe_payment_intent_id && pendingPayment.stripe_client_secret && pendingPayment.amount === fee.total) {
+      const existingIntent = await stripe.paymentIntents.retrieve(pendingPayment.stripe_payment_intent_id);
+      if (["requires_payment_method", "requires_confirmation", "requires_action"].includes(existingIntent.status)) {
+        return { clientSecret: pendingPayment.stripe_client_secret, amount: fee.total, breakdown: fee };
+      }
+    }
+
+    // Keep historical rows and close stale Stripe intents before replacing them.
+    for (const payment of activePayments?.filter((item) => item.status === "pending") ?? []) {
+      if (payment.stripe_payment_intent_id) {
+        try {
+          await stripe.paymentIntents.cancel(payment.stripe_payment_intent_id);
+        } catch (error) {
+          console.warn("stale PaymentIntent cancellation skipped", payment.stripe_payment_intent_id, error);
+        }
+      }
+      await supabaseAdmin.from("payments").update({ status: "canceled" }).eq("id", payment.id);
+    }
+
     const intent = await stripe.paymentIntents.create({
       amount: fee.total,
       currency: "jpy",
@@ -49,14 +80,6 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
           }
         : {}),
     });
-
-    // remove previous pending/authorized main payments for idempotency
-    await supabaseAdmin
-      .from("payments")
-      .delete()
-      .eq("request_id", req.id)
-      .eq("kind", "main")
-      .in("status", ["pending", "authorized"]);
 
     const { error: payErr } = await supabaseAdmin.from("payments").insert({
       request_id: req.id,

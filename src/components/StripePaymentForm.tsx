@@ -38,7 +38,7 @@ export function StripePaymentForm({
   const options = useMemo(() => ({ clientSecret, appearance: { theme: "stripe" as const } }), [clientSecret]);
   if (!stripeInstance) return <div className="text-sm text-muted-foreground">Stripe を読み込み中…</div>;
   return (
-    <Elements stripe={stripeInstance} options={options}>
+    <Elements key={clientSecret} stripe={stripeInstance} options={options}>
       <InnerForm clientSecret={clientSecret} amount={amount} onSuccess={onSuccess} mode={mode} />
     </Elements>
   );
