@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { formatYen } from "@/lib/fees";
+import { syncPaymentIntentStatus } from "@/lib/payment-status.functions";
 
 let stripePromise: Promise<Stripe | null> | null = null;
 function getStripePromise() {
@@ -37,13 +38,13 @@ export function StripePaymentForm({
   const options = useMemo(() => ({ clientSecret, appearance: { theme: "stripe" as const } }), [clientSecret]);
   if (!stripeInstance) return <div className="text-sm text-muted-foreground">Stripe を読み込み中…</div>;
   return (
-    <Elements stripe={stripeInstance} options={options}>
-      <InnerForm amount={amount} onSuccess={onSuccess} mode={mode} />
+    <Elements key={clientSecret} stripe={stripeInstance} options={options}>
+      <InnerForm clientSecret={clientSecret} amount={amount} onSuccess={onSuccess} mode={mode} />
     </Elements>
   );
 }
 
-function InnerForm({ amount, onSuccess, mode }: { amount: number; onSuccess?: () => void; mode: "pay" | "authorize" }) {
+function InnerForm({ clientSecret, amount, onSuccess, mode }: { clientSecret: string; amount: number; onSuccess?: () => void; mode: "pay" | "authorize" }) {
   const stripe = useStripe();
   const elements = useElements();
   const { t } = useTranslation();
@@ -53,17 +54,28 @@ function InnerForm({ amount, onSuccess, mode }: { amount: number; onSuccess?: ()
     e.preventDefault();
     if (!stripe || !elements) return;
     setLoading(true);
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: { return_url: window.location.href },
-      redirect: "if_required",
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message ?? "決済に失敗しました");
-    } else {
-      toast.success(mode === "authorize" ? "仮押さえが完了しました" : "お支払いが完了しました");
+    try {
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: { return_url: window.location.href },
+        redirect: "if_required",
+      });
+      if (error) {
+        toast.error(error.message ?? "決済に失敗しました");
+        return;
+      }
+
+      const result = await syncPaymentIntentStatus({ data: { clientSecret } });
+      if (result.status !== "authorized" && result.status !== "paid") {
+        toast.error("カードの仮押さえを確認できませんでした。カード情報を確認して再度お試しください。");
+        return;
+      }
+      toast.success(result.status === "authorized" ? "仮押さえが完了しました" : "お支払いが完了しました");
       onSuccess?.();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "決済状態の確認に失敗しました");
+    } finally {
+      setLoading(false);
     }
   };
 

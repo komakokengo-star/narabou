@@ -469,7 +469,7 @@ function RequestDetail() {
           const hasPaid = payments.some((p) => p.status === "paid" && p.kind === "main");
           const hasAuth = payments.some((p) => p.status === "authorized" && p.kind === "main");
           // 支払いボタン: 承認済みでオーソリも支払いも無い時のみ
-          const showPay = matchStatus === "approved" && !hasPaid && !hasAuth;
+          const showPay = matchStatus === "approved" && !hasPaid && !hasAuth && !pendingPayment;
           // キャンセル可否
           const cancelable = rs !== "completed" && rs !== "canceled";
           const cancelHint =

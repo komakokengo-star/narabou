@@ -73,15 +73,19 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
             if (event.type === "payment_intent.succeeded") {
               // manual capture では capture 実行後に succeeded が届く
               const pi = event.data.object as { id: string };
-              await supabaseAdmin.from("payments")
+              const { data: updated } = await supabaseAdmin.from("payments")
                 .update({ status: "paid", captured_at: new Date().toISOString() })
-                .eq("stripe_payment_intent_id", pi.id);
+                .eq("stripe_payment_intent_id", pi.id)
+                .select("id");
+              if (!updated?.length) logJson("warn", "webhook.payment_missing", { runId, paymentIntentId: pi.id, type: event.type });
             } else if (event.type === "payment_intent.amount_capturable_updated") {
               // manual capture のオーソリ成功時に発火
               const pi = event.data.object as { id: string };
-              await supabaseAdmin.from("payments")
+              const { data: updated } = await supabaseAdmin.from("payments")
                 .update({ status: "authorized", authorized_at: new Date().toISOString() })
-                .eq("stripe_payment_intent_id", pi.id);
+                .eq("stripe_payment_intent_id", pi.id)
+                .select("id");
+              if (!updated?.length) logJson("warn", "webhook.payment_missing", { runId, paymentIntentId: pi.id, type: event.type });
             } else if (event.type === "payment_intent.canceled") {
               const pi = event.data.object as { id: string };
               await supabaseAdmin.from("payments")
