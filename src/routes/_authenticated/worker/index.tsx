@@ -116,6 +116,23 @@ function WorkerHome() {
       if (!response.ok || result?.error || !result?.url) {
         throw new Error(result?.error ?? "受取口座の登録画面を開けませんでした。");
       }
+      // Stripe Connect の画面は iframe 内では表示できない（接続拒否になる）ため、
+      // プレビュー等で埋め込まれている場合は新規タブ／トップレベルで開く。
+      const inIframe = typeof window !== "undefined" && window.self !== window.top;
+      if (inIframe) {
+        const opened = window.open(result.url, "_blank", "noopener,noreferrer");
+        if (!opened) {
+          try {
+            window.top!.location.href = result.url;
+          } catch {
+            toast.error("新しいタブで受取口座の登録画面を開いてください（ポップアップを許可）。");
+            setIsStartingPayout(false);
+            return;
+          }
+        }
+        setIsStartingPayout(false);
+        return;
+      }
       window.location.assign(result.url);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "受取口座の登録画面を開けませんでした。");
