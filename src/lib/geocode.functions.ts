@@ -51,16 +51,23 @@ export const forwardGeocode = createServerFn({ method: "POST" })
     return { address: d.address.trim().slice(0, 300) };
   })
   .handler(async ({ data }) => {
+    const ownKey = process.env.GOOGLE_API_KEY;
     const lovableKey = process.env.LOVABLE_API_KEY;
     const gmKey = process.env.GOOGLE_MAPS_API_KEY;
-    if (!lovableKey || !gmKey) throw new Error("Google Maps 接続が未設定です");
-    const url = `${GATEWAY_URL}/maps/api/geocode/json?address=${encodeURIComponent(data.address)}&language=ja&region=jp`;
+    if (!ownKey && (!lovableKey || !gmKey)) throw new Error("Google Maps 接続が未設定です");
+    const q = `address=${encodeURIComponent(data.address)}&language=ja&region=jp`;
+    const url = ownKey
+      ? `https://maps.googleapis.com/maps/api/geocode/json?${q}&key=${ownKey}`
+      : `${GATEWAY_URL}/maps/api/geocode/json?${q}`;
     const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${lovableKey}`,
-        "X-Connection-Api-Key": gmKey,
-      },
+      headers: ownKey
+        ? {}
+        : {
+            Authorization: `Bearer ${lovableKey}`,
+            "X-Connection-Api-Key": gmKey!,
+          },
     });
+
     if (!res.ok) {
       const body = await res.text();
       console.error("forward geocode failed", res.status, body);
