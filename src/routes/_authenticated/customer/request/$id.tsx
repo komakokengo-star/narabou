@@ -78,6 +78,30 @@ function RequestDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // 未完了の決済（画面再読み込み等でフォームが消えた場合）を自動的に復帰させる
+  const pendingPayment = payments.find(
+    (p) => p.status === "pending" && !!p.stripe_client_secret,
+  );
+  const activeIntent =
+    intent ??
+    (pendingPayment
+      ? {
+          clientSecret: pendingPayment.stripe_client_secret as string,
+          amount: pendingPayment.amount,
+          mode: (pendingPayment.kind === "main" ? "authorize" : "pay") as "pay" | "authorize",
+        }
+      : null);
+
+  const paymentCardRef = useRef<HTMLDivElement | null>(null);
+  const scrolledFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (activeIntent && scrolledFor.current !== activeIntent.clientSecret) {
+      scrolledFor.current = activeIntent.clientSecret;
+      paymentCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [activeIntent]);
+
+
 
   const [extMin, setExtMin] = useState(10);
   const extend = useMutation({
@@ -521,17 +545,21 @@ function RequestDetail() {
         })()}
 
         {/* Payment */}
-        {intent && (
-          <Card className="p-6 mt-6">
+        {activeIntent && (
+          <Card className="p-6 mt-6" ref={paymentCardRef}>
             <h3 className="font-medium mb-3">{t("payment.title")}</h3>
+            <p className="text-xs text-muted-foreground mb-3">
+              カード情報を入力して送信するまで決済は完了しません。
+            </p>
             <StripePaymentForm
-              clientSecret={intent.clientSecret}
-              amount={intent.amount}
-              mode={intent.mode}
+              clientSecret={activeIntent.clientSecret}
+              amount={activeIntent.amount}
+              mode={activeIntent.mode}
               onSuccess={() => { setIntent(null); refetch(); qc.invalidateQueries(); }}
             />
           </Card>
         )}
+
 
         {/* Payments history */}
         <Card className="p-6 mt-6">
