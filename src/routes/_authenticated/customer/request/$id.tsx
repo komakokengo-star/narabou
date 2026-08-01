@@ -78,6 +78,30 @@ function RequestDetail() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // 未完了の決済（画面再読み込み等でフォームが消えた場合）を自動的に復帰させる
+  const pendingPayment = payments.find(
+    (p) => p.status === "pending" && !!p.stripe_client_secret,
+  );
+  const activeIntent =
+    intent ??
+    (pendingPayment
+      ? {
+          clientSecret: pendingPayment.stripe_client_secret as string,
+          amount: pendingPayment.amount,
+          mode: (pendingPayment.kind === "main" ? "authorize" : "pay") as "pay" | "authorize",
+        }
+      : null);
+
+  const paymentCardRef = useRef<HTMLDivElement | null>(null);
+  const scrolledFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (activeIntent && scrolledFor.current !== activeIntent.clientSecret) {
+      scrolledFor.current = activeIntent.clientSecret;
+      paymentCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [activeIntent]);
+
+
 
   const [extMin, setExtMin] = useState(10);
   const extend = useMutation({
