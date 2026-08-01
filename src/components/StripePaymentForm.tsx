@@ -9,15 +9,30 @@ import { useTranslation } from "react-i18next";
 import { formatYen } from "@/lib/fees";
 import { syncPaymentIntentStatus } from "@/lib/payment-status.functions";
 
-let stripePromise: Promise<Stripe | null> | null = null;
+let stripePromise: Promise<{ stripe: Stripe | null; error: string | null }> | null = null;
 function getStripePromise() {
   if (!stripePromise) {
-    stripePromise = getStripePublishableKey().then(({ key }) =>
-      key ? loadStripe(key) : Promise.resolve(null),
-    );
+    stripePromise = getStripePublishableKey()
+      .then(async ({ key, error }) => {
+        if (!key) return { stripe: null, error: error ?? "missing" };
+        try {
+          const stripe = await loadStripe(key);
+          return { stripe, error: stripe ? null : "load_failed" };
+        } catch {
+          return { stripe: null, error: "load_failed" };
+        }
+      })
+      .catch(() => ({ stripe: null, error: "load_failed" }));
   }
   return stripePromise;
 }
+
+const KEY_ERROR_MESSAGES: Record<string, string> = {
+  missing: "決済の設定が未完了です（公開キー未設定）。運営にお問い合わせください。",
+  incomplete: "決済の設定に不備があります（公開キーが不完全）。運営にお問い合わせください。",
+  mode_mismatch: "決済の設定に不備があります（本番/テストキーの不一致）。運営にお問い合わせください。",
+  load_failed: "決済フォームを読み込めませんでした。通信環境を確認して再読み込みしてください。",
+};
 
 export function StripePaymentForm({
   clientSecret,
@@ -30,19 +45,27 @@ export function StripePaymentForm({
   onSuccess?: () => void;
   mode?: "pay" | "authorize";
 }) {
-  const { data: stripeInstance } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["stripe-instance"],
     queryFn: () => getStripePromise(),
     staleTime: Infinity,
   });
   const options = useMemo(() => ({ clientSecret, appearance: { theme: "stripe" as const } }), [clientSecret]);
-  if (!stripeInstance) return <div className="text-sm text-muted-foreground">Stripe を読み込み中…</div>;
+  if (isLoading || !data) return <div className="text-sm text-muted-foreground">Stripe を読み込み中…</div>;
+  if (!data.stripe) {
+    return (
+      <div className="text-sm rounded-md border border-destructive/30 bg-destructive/10 p-3 text-destructive">
+        {KEY_ERROR_MESSAGES[data.error ?? "load_failed"] ?? KEY_ERROR_MESSAGES.load_failed}
+      </div>
+    );
+  }
   return (
-    <Elements key={clientSecret} stripe={stripeInstance} options={options}>
+    <Elements key={clientSecret} stripe={data.stripe} options={options}>
       <InnerForm clientSecret={clientSecret} amount={amount} onSuccess={onSuccess} mode={mode} />
     </Elements>
   );
 }
+
 
 function InnerForm({ clientSecret, amount, onSuccess, mode }: { clientSecret: string; amount: number; onSuccess?: () => void; mode: "pay" | "authorize" }) {
   const stripe = useStripe();
