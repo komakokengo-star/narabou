@@ -5,13 +5,16 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/api/public/maps-config")({
   server: {
     handlers: {
-      GET: async () => {
-        // Prefer the user's own key (allow-listed for app.narabou.jp).
+      GET: async ({ request }) => {
+        // The user's own key is referrer-restricted to *.narabou.jp.
         // The Lovable-managed key only works on *.lovable.app.
-        const key =
-          process.env["GOOGLE_API_KEY"] ||
-          process.env["GOOGLE_MAPS_BROWSER_KEY"] ||
-          null;
+        // Return the custom key only for narabou.jp hosts; otherwise let the
+        // client fall back to the managed browser key.
+        const host = new URL(request.url).hostname;
+        const isCustomDomain = host === "narabou.jp" || host.endsWith(".narabou.jp");
+        const key = isCustomDomain
+          ? process.env["GOOGLE_API_KEY"] || process.env["GOOGLE_MAPS_BROWSER_KEY"] || null
+          : null;
         return new Response(JSON.stringify({ key }), {
           status: 200,
           headers: {
