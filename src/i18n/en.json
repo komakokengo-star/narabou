@@ -87,7 +87,7 @@
     "baseHint": "Locked on arrival",
     "timeHint": "Rounded up per 10 min",
     "peakHint": "Busy hours only",
-    "disclaimer": "Platform fee 20% / Worker payout 80%. Runs in Stripe test mode."
+    "disclaimer": "Platform fee 20% / Worker payout 80%."
   },
   "request": {
     "title": "Request",
@@ -134,7 +134,7 @@
     "partial": "Partially refunded",
     "failed": "Failed",
     "title": "Payment",
-    "testMode": "Stripe test mode. Use card 4242 4242 4242 4242.",
+    "testMode": "Payments are processed securely by Stripe.",
     "pay": "Pay {{amount}}",
     "authorize": "Authorize {{amount}}",
     "history": "Payment history"
