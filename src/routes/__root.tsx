@@ -155,7 +155,31 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", sizes: "180x180", href: "/icons/apple-touch-icon.png" },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "ＮＡＲＡＢＯＵ",
+              alternateName: "NARABOU",
+              url: "https://app.narabou.jp",
+              logo: "https://app.narabou.jp/icons/apple-touch-icon.png",
+            },
+            {
+              "@type": "WebSite",
+              name: "ＮＡＲＡＢＯＵ",
+              url: "https://app.narabou.jp",
+              inLanguage: "ja",
+            },
+          ],
+        }),
+      },
+    ],
   }),
+
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -164,7 +188,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang={appI18n.language}>
+    <html lang={appI18n.language || "ja"}>
       <head><HeadContent /></head>
       <body>
         <script dangerouslySetInnerHTML={{ __html: recoveryRedirectScript }} />
