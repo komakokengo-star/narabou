@@ -11,36 +11,55 @@ declare global {
   }
 }
 
-const BROWSER_KEY = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
+const FALLBACK_BROWSER_KEY = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
 const TRACKING_ID = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
 
 // Fukuoka (Hakata station area)
 const FUKUOKA_CENTER = { lat: 33.5904, lng: 130.4017 };
 
+async function resolveBrowserKey(): Promise<string | undefined> {
+  try {
+    const res = await fetch("/api/public/maps-config");
+    if (res.ok) {
+      const json = (await res.json()) as { key?: string | null };
+      if (json.key) return json.key;
+    }
+  } catch {
+    // ignore and fall back
+  }
+  return FALLBACK_BROWSER_KEY;
+}
+
 function loadGoogleMaps(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   if (window.google?.maps?.importLibrary) return Promise.resolve();
   if (window.__gmapsLoading) return window.__gmapsLoading;
-  if (!BROWSER_KEY) return Promise.reject(new Error("Google Maps browser key missing"));
 
   window.__gmapsLoading = new Promise<void>((resolve, reject) => {
     window.__gmapsInitCb = () => resolve();
-    const s = document.createElement("script");
-    const params = new URLSearchParams({
-      key: BROWSER_KEY,
-      v: "weekly",
-      libraries: "places,marker",
-      loading: "async",
-      callback: "__gmapsInitCb",
+    resolveBrowserKey().then((key) => {
+      if (!key) {
+        reject(new Error("Google Maps browser key missing"));
+        return;
+      }
+      const s = document.createElement("script");
+      const params = new URLSearchParams({
+        key,
+        v: "weekly",
+        libraries: "places,marker",
+        loading: "async",
+        callback: "__gmapsInitCb",
+      });
+      if (TRACKING_ID && key === FALLBACK_BROWSER_KEY) params.set("channel", TRACKING_ID);
+      s.src = `https://maps.googleapis.com/maps/api/js?${params.toString()}`;
+      s.async = true;
+      s.onerror = () => reject(new Error("Failed to load Google Maps"));
+      document.head.appendChild(s);
     });
-    if (TRACKING_ID) params.set("channel", TRACKING_ID);
-    s.src = `https://maps.googleapis.com/maps/api/js?${params.toString()}`;
-    s.async = true;
-    s.onerror = () => reject(new Error("Failed to load Google Maps"));
-    document.head.appendChild(s);
   });
   return window.__gmapsLoading;
 }
+
 
 interface Props {
   storeName: string;
