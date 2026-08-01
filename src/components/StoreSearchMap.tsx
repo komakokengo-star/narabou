@@ -227,9 +227,8 @@ export function StoreSearchMap({ storeName, storeAddress, onChange }: Props) {
         className="w-full h-64 rounded-md overflow-hidden border border-border bg-muted"
       />
       {error && <p className="text-xs text-destructive">{error}</p>}
-      {!BROWSER_KEY && (
-        <p className="text-xs text-destructive">Google マップの APIキーが設定されていません。</p>
-      )}
+
+
     </div>
   );
 }
