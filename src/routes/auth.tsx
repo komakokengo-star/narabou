@@ -11,6 +11,18 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
+  head: () => ({
+    meta: [
+      { title: "ログイン・新規登録 — ＮＡＲＡＢＯＵ" },
+      { name: "description", content: "ＮＡＲＡＢＯＵのアカウントにログイン、または新規登録します。依頼者としても代行者としても、福岡の行列代行サービスをすぐに利用開始できます。" },
+      { property: "og:title", content: "ログイン・新規登録 — ＮＡＲＡＢＯＵ" },
+      { property: "og:description", content: "ＮＡＲＡＢＯＵのアカウント作成・ログインページです。" },
+      { property: "og:url", content: "https://app.narabou.jp/auth" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://app.narabou.jp/auth" }],
+  }),
   beforeLoad: async () => {
     if (typeof window === "undefined") return;
     const { data } = await supabase.auth.getSession();
@@ -18,6 +30,7 @@ export const Route = createFileRoute("/auth")({
   },
   component: AuthPage,
 });
+
 
 function AuthPage() {
   const { t } = useTranslation();

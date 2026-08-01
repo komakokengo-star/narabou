@@ -11,8 +11,22 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth_/forgot")({
   ssr: false,
+  head: () => ({
+    meta: [
+      { title: "パスワード再設定メールの送信 — ＮＡＲＡＢＯＵ" },
+      { name: "description", content: "ＮＡＲＡＢＯＵに登録したメールアドレス宛に、パスワード再設定用のリンクを送信します。ログインできない場合はこちらから手続きしてください。" },
+      { property: "og:title", content: "パスワード再設定メールの送信 — ＮＡＲＡＢＯＵ" },
+      { property: "og:description", content: "登録メールアドレスにパスワード再設定リンクを送信します。" },
+      { property: "og:url", content: "https://app.narabou.jp/auth/forgot" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://app.narabou.jp/auth/forgot" }],
+  }),
   component: ForgotPage,
 });
+
 
 function ForgotPage() {
   const { t } = useTranslation();

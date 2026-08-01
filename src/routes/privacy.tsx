@@ -11,9 +11,12 @@ export const Route = createFileRoute("/privacy")({
       { property: "og:title", content: "プライバシーポリシー — ＮＡＲＡＢＯＵ" },
       { property: "og:description", content: "福岡行列代行サービスアプリ「ＮＡＲＡＢＯＵ」のプライバシーポリシーです。" },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://app.narabou.jp/privacy" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://app.narabou.jp/privacy" }],
   }),
+
   component: PrivacyPage,
 });
 
