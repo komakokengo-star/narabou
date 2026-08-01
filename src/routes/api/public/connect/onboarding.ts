@@ -221,11 +221,10 @@ export const Route = createFileRoute("/api/public/connect/onboarding")({
         }
 
         try {
-          const requestOrigin = new URL(request.url).origin;
-          // Stripe livemode rejects localhost redirect URLs (dev/preview sandbox),
-          // so fall back to the public production origin.
-          const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(requestOrigin);
-          const origin = isLocal ? "https://app.narabou.jp" : requestOrigin;
+          const { resolveRedirectOrigin } = await import("@/lib/stripe-connect.server");
+          // Stripe livemode rejects localhost/preview redirect URLs,
+          // so both fall back to the public production origin.
+          const origin = resolveRedirectOrigin(request.url);
           const link = await stripe.accountLinks.create({
             account: accountId,
             return_url: `${origin}${input.data.returnPath}`,
