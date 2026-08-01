@@ -1,0 +1,1 @@
+update public.payments set status='canceled' where stripe_payment_intent_id in ('pi_3TzUUTRT6TCeiyqF0vr8NsVJ','pi_3TzTP9RT6TCeiyqF0Ip2zarQ','pi_3TxN2PRT6TCeiyqF0k6LJ1xB');
