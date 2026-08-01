@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /customer
+Disallow: /worker
+Disallow: /admin
+
+Sitemap: https://app.narabou.jp/sitemap.xml

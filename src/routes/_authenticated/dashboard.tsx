@@ -45,7 +45,9 @@ function Dashboard() {
       <Header />
       <main className="flex-1 container mx-auto px-4 py-10 max-w-5xl">
         <div className="mb-8">
-          <h1 className="font-serif text-3xl">こんにちは、{profile?.name || "..."}</h1>
+          <h1 className="font-serif text-3xl">{t("nav.dashboard")}</h1>
+          <h2 className="mt-1 text-base text-muted-foreground">こんにちは、{profile?.name || "..."}</h2>
+
           <div className="mt-2 flex gap-2">
             {roles.map((r) => (
               <Badge key={r} variant="secondary" className="capitalize">{t(`role.${r}`)}</Badge>

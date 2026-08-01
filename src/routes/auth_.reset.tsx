@@ -12,8 +12,22 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth_/reset")({
   ssr: false,
+  head: () => ({
+    meta: [
+      { title: "新しいパスワードの設定 — ＮＡＲＡＢＯＵ" },
+      { name: "description", content: "メールのリンクから開いたＮＡＲＡＢＯＵのパスワード再設定ページです。新しいパスワードを入力して、アカウントへのアクセスを回復してください。" },
+      { property: "og:title", content: "新しいパスワードの設定 — ＮＡＲＡＢＯＵ" },
+      { property: "og:description", content: "新しいパスワードを設定してアカウントへのアクセスを回復します。" },
+      { property: "og:url", content: "https://app.narabou.jp/auth/reset" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://app.narabou.jp/auth/reset" }],
+  }),
   component: ResetPage,
 });
+
 
 function ResetPage() {
   const { t } = useTranslation();

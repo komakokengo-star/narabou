@@ -9,6 +9,7 @@
     "menuButton": "메뉴"
   },
   "nav": {
+    "account": "계정",
     "home": "홈",
     "dashboard": "메뉴",
     "customer": "의뢰인",

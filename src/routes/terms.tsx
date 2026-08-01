@@ -11,9 +11,12 @@ export const Route = createFileRoute("/terms")({
       { property: "og:title", content: "利用規約 — ＮＡＲＡＢＯＵ" },
       { property: "og:description", content: "福岡行列代行サービスアプリ「ＮＡＲＡＢＯＵ」の利用規約です。" },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://app.narabou.jp/terms" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://app.narabou.jp/terms" }],
   }),
+
   component: TermsPage,
 });
 

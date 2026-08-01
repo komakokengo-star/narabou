@@ -12,10 +12,37 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: appI18n.t("app.metaTitle") },
       { name: "description", content: appI18n.t("app.metaDescription") },
+      { property: "og:title", content: appI18n.t("app.metaTitle") },
+      { property: "og:description", content: appI18n.t("app.metaDescription") },
+      { property: "og:url", content: "https://app.narabou.jp/" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://app.narabou.jp/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: "ＮＡＲＡＢＯＵ 行列代行サービス",
+          serviceType: "行列代行（並び代行）",
+          provider: { "@type": "Organization", name: "ＮＡＲＡＢＯＵ", url: "https://app.narabou.jp" },
+          areaServed: { "@type": "City", name: "福岡市" },
+          url: "https://app.narabou.jp/",
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "JPY",
+            price: String(BASE_FEE),
+            description: `基本料金¥${BASE_FEE}、10分ごと¥${TIME_BLOCK_FEE}、ピーク時+¥${PEAK_FEE}`,
+          },
+        }),
+      },
     ],
   }),
   component: Landing,
 });
+
 
 function Landing() {
   const { t } = useTranslation();
@@ -30,7 +57,11 @@ function Landing() {
             </p>
             <h1 className="font-serif text-5xl sm:text-7xl font-bold leading-[1.05] tracking-[0.02em]">
               ＮＡＲＡＢＯＵ
+              <span className="mt-3 block font-sans text-xl sm:text-2xl font-medium tracking-normal text-muted-foreground">
+                {t("app.heroSubtitle")}
+              </span>
             </h1>
+
             <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl">
               {t("app.tagline")}
             </p>
