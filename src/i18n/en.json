@@ -2,13 +2,14 @@
   "app": {
     "name": "Fukuoka Queue Concierge",
     "tagline": "We stand in line for Hakata & Tenjin's most-loved restaurants.",
-    "metaTitle": "Fukuoka Queue Concierge — We stand in line for Hakata & Tenjin",
+    "metaTitle": "NARABOU — Fukuoka Queue Concierge Service",
     "metaDescription": "Base ¥800 + ¥200 per 10 min. Peak +¥300. Payments, extensions and refunds handled in-app.",
     "heroSubtitle": "Fukuoka Queue Concierge App",
     "startButton": "Get Started",
     "menuButton": "Menu"
   },
   "nav": {
+    "account": "Account",
     "home": "Home",
     "dashboard": "Dashboard",
     "customer": "Customer",

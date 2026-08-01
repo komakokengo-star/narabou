@@ -9,6 +9,7 @@
     "menuButton": "選單"
   },
   "nav": {
+    "account": "帳戶",
     "home": "首頁",
     "dashboard": "選單",
     "customer": "委託人",
