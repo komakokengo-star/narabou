@@ -87,7 +87,7 @@
     "baseHint": "抵達現地後確定",
     "timeHint": "進位計算",
     "peakHint": "僅尖峰時段",
-    "disclaimer": "平台手續費 20% / 代排者報酬 80%。Stripe 測試模式運作。"
+    "disclaimer": "平台手續費 20% / 代排者報酬 80%。"
   },
   "request": {
     "title": "委託",
@@ -145,7 +145,7 @@
     "partial": "部分退款",
     "failed": "失敗",
     "title": "付款",
-    "testMode": "Stripe 測試模式。請使用卡號 4242 4242 4242 4242。",
+    "testMode": "付款由 Stripe 安全處理。",
     "pay": "支付 {{amount}} 元",
     "authorize": "預扣 {{amount}} 元",
     "history": "付款紀錄"

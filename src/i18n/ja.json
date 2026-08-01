@@ -87,7 +87,7 @@
     "baseHint": "現地到着で確定",
     "timeHint": "切上げ計算",
     "peakHint": "混雑時のみ",
-    "disclaimer": "運営手数料 20% / 代行者報酬 80%。Stripe テストモードで動作。"
+    "disclaimer": "運営手数料 20% / 代行者報酬 80%。"
   },
   "request": {
     "title": "依頼",
@@ -145,7 +145,7 @@
     "partial": "一部返金",
     "failed": "失敗",
     "title": "お支払い",
-    "testMode": "Stripe テストモードです。カード番号は 4242 4242 4242 4242 をご利用ください。",
+    "testMode": "決済はStripeにより安全に処理されます。",
     "pay": "{{amount}}円を支払う",
     "authorize": "{{amount}}円を仮押さえ",
     "history": "支払い履歴"

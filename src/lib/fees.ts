@@ -1,12 +1,11 @@
 // Single source of truth for the fee model.
 // 基本料金 800円, 10分 200円, ピーク +300円, 手数料 20%.
 
-// ⚠️ TEST MODE: 本番リリース前に必ず元の値に戻すこと
-// 本番値: BASE_FEE=800, TIME_BLOCK_FEE=200, PEAK_FEE=300
-export const BASE_FEE = 50;
+// 本番料金
+export const BASE_FEE = 800;
 export const TIME_BLOCK_MINUTES = 10;
-export const TIME_BLOCK_FEE = 0;
-export const PEAK_FEE = 0;
+export const TIME_BLOCK_FEE = 200;
+export const PEAK_FEE = 300;
 export const PLATFORM_RATE = 0.2;
 
 export interface FeeInput {

@@ -87,7 +87,7 @@
     "baseHint": "현지 도착 시 확정",
     "timeHint": "올림 계산",
     "peakHint": "혼잡 시에만",
-    "disclaimer": "운영 수수료 20% / 대행자 보수 80%. Stripe 테스트 모드로 동작."
+    "disclaimer": "운영 수수료 20% / 대행자 보수 80%."
   },
   "request": {
     "title": "의뢰",
@@ -145,7 +145,7 @@
     "partial": "부분 환불",
     "failed": "실패",
     "title": "결제",
-    "testMode": "Stripe 테스트 모드입니다. 카드 번호는 4242 4242 4242 4242를 이용해주세요.",
+    "testMode": "결제는 Stripe를 통해 안전하게 처리됩니다.",
     "pay": "{{amount}}원 결제하기",
     "authorize": "{{amount}}원 임시 예약",
     "history": "결제 내역"
