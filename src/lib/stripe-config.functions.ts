@@ -28,6 +28,21 @@ export const getStripePublishableKey = createServerFn({ method: "GET" }).handler
       : [process.env.STRIPE_PUBLISHABLE_KEY, process.env.STRIPE_LIVE_PUBLISHABLE_KEY, process.env.STRIPE_TEST_PUBLISHABLE_KEY];
 
   const normalized = candidates.map(normalizePublishableKey).filter(Boolean);
-  const matching = normalized.find((key) => (wantsLive && key.startsWith("pk_live_")) || (wantsTest && key.startsWith("pk_test_")));
-  return { key: matching ?? normalized[0] ?? "" };
+  const isComplete = (key: string) => /^pk_(test|live)_[A-Za-z0-9_]{20,}$/.test(key);
+  const matching = normalized.find(
+    (key) => isComplete(key) && ((wantsLive && key.startsWith("pk_live_")) || (wantsTest && key.startsWith("pk_test_"))),
+  );
+  if (matching) return { key: matching, error: null };
+
+  const anyComplete = normalized.find(isComplete);
+  if (anyComplete) {
+    // Key is valid but for the other Stripe mode than the configured secret key.
+    return {
+      key: "",
+      error: "mode_mismatch" as const,
+    };
+  }
+
+  return { key: "", error: normalized.length ? ("incomplete" as const) : ("missing" as const) };
 });
+
