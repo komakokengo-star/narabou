@@ -545,17 +545,21 @@ function RequestDetail() {
         })()}
 
         {/* Payment */}
-        {intent && (
-          <Card className="p-6 mt-6">
+        {activeIntent && (
+          <Card className="p-6 mt-6" ref={paymentCardRef}>
             <h3 className="font-medium mb-3">{t("payment.title")}</h3>
+            <p className="text-xs text-muted-foreground mb-3">
+              カード情報を入力して送信するまで決済は完了しません。
+            </p>
             <StripePaymentForm
-              clientSecret={intent.clientSecret}
-              amount={intent.amount}
-              mode={intent.mode}
+              clientSecret={activeIntent.clientSecret}
+              amount={activeIntent.amount}
+              mode={activeIntent.mode}
               onSuccess={() => { setIntent(null); refetch(); qc.invalidateQueries(); }}
             />
           </Card>
         )}
+
 
         {/* Payments history */}
         <Card className="p-6 mt-6">
