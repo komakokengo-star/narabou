@@ -53,6 +53,36 @@ export async function assertWorkerRole(supabase: SupabaseLike, userId: string): 
   return data === true;
 }
 
+export const PRODUCTION_ORIGIN = PLATFORM_URL;
+
+/**
+ * Stripe (livemode) rejects localhost and non-production preview redirect URLs,
+ * so both local dev and Lovable preview origins fall back to the production origin.
+ */
+export function resolveRedirectOrigin(requestUrl: string): string {
+  let host: string;
+  let protocol: string;
+  try {
+    const url = new URL(requestUrl);
+    host = url.hostname;
+    protocol = url.protocol;
+  } catch {
+    return PRODUCTION_ORIGIN;
+  }
+
+  const isLocal =
+    protocol !== "https:" ||
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host === "::1" ||
+    host === "[::1]" ||
+    host.endsWith(".localhost");
+
+  const isPreview = host.endsWith(".lovable.app") || host.endsWith(".lovableproject.com");
+
+  return isLocal || isPreview ? PRODUCTION_ORIGIN : new URL(requestUrl).origin;
+}
+
 export function buildAbsoluteUrl(path: string): string {
   const host = getRequestHost();
   const proto = getRequestHeader("x-forwarded-proto") ?? "https";

@@ -128,7 +128,7 @@ function WorkerHome() {
     setIsRefreshingPayout(true);
     try {
       const r = await refreshConnectStatusFn();
-      if (r.error) {
+      if (r?.error) {
         toast.error(r.error);
         return;
       }
@@ -151,8 +151,8 @@ function WorkerHome() {
     const params = new URLSearchParams(window.location.search);
     if (params.get("payout") === "ready" || params.get("payout") === "refresh") {
       refreshConnectStatusFn().then((r) => {
-        if (!r.error) refetchProfile();
-      });
+        if (!r?.error) refetchProfile();
+      }).catch(() => {});
       params.delete("payout");
       const q = params.toString();
       window.history.replaceState({}, "", window.location.pathname + (q ? `?${q}` : ""));
@@ -165,9 +165,9 @@ function WorkerHome() {
     if (!payoutPending) return;
     let cancelled = false;
     const tick = async () => {
-      const r = await refreshConnectStatusFn();
+      const r = await refreshConnectStatusFn().catch(() => null);
       if (cancelled) return;
-      if (!r.error) {
+      if (r && !r.error) {
         await refetchProfile();
         if (r.ready) toast.success(t("worker.account.ready"));
       }
