@@ -12,7 +12,7 @@ export const syncPaymentIntentStatus = createServerFn({ method: "POST" })
     const { getStripe } = await import("@/lib/stripe.server");
     const { data: payment } = await supabaseAdmin
       .from("payments")
-      .select("id, request_id, stripe_payment_intent_id, requests(customer_id), matches(status)")
+      .select("id, request_id, stripe_payment_intent_id, requests(customer_id)")
       .eq("stripe_payment_intent_id", paymentIntentId)
       .maybeSingle();
 
@@ -21,11 +21,15 @@ export const syncPaymentIntentStatus = createServerFn({ method: "POST" })
 
     const stripe = getStripe();
     let intent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    const matchStatus = (payment as unknown as { matches?: { status?: string } | null }).matches?.status;
+    const { data: match } = await supabaseAdmin
+      .from("matches")
+      .select("status")
+      .eq("request_id", payment.request_id)
+      .maybeSingle();
 
     // A previously completed job may have missed capture because authorization had
     // not finished yet. Capture it immediately after the customer authorizes it.
-    if (intent.status === "requires_capture" && matchStatus === "completed") {
+    if (intent.status === "requires_capture" && match?.status === "completed") {
       intent = await stripe.paymentIntents.capture(paymentIntentId);
     }
 
