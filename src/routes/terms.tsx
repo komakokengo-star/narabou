@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { Header } from "@/components/Header";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, FileText } from "lucide-react";
