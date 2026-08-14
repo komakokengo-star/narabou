@@ -22,6 +22,7 @@ export const Route = createFileRoute("/terms")({
 });
 
 function TermsPage() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
