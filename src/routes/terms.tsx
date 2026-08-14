@@ -148,8 +148,13 @@ function TermsPage() {
           </div>
         </section>
       </main>
-      <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
-        © HIFUNON — ＮＡＲＡＢＯＵ Beta
+      <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground space-y-2">
+        <div className="flex items-center justify-center gap-4">
+          <Link to="/terms" className="hover:text-foreground">{t("footer.terms")}</Link>
+          <Link to="/privacy" className="hover:text-foreground">{t("footer.privacy")}</Link>
+          <Link to="/tokusho" className="hover:text-foreground">{t("footer.tokusho")}</Link>
+        </div>
+        <div>{t("footer.copyright")}</div>
       </footer>
     </div>
   );
