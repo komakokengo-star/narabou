@@ -251,7 +251,8 @@
   "footer": {
     "terms": "이용약관",
     "privacy": "개인정보처리방침",
-    "copyright": "© HIFUNON — ＮＡＲＡＢＯＵ Beta"
+    "tokusho": "특정 상거래법에 따른 표기",
+    "copyright": "© HIFUNON — ＮＡＲＡＢＯＵ"
   },
   "workerJob": {
     "customerComment": "의뢰인 코멘트",

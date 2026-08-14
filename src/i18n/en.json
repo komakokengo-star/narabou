@@ -240,7 +240,8 @@
   "footer": {
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",
-    "copyright": "© HIFUNON — NARABOU Beta"
+    "tokusho": "Legal Information (Commercial Transactions)",
+    "copyright": "© HIFUNON — NARABOU"
   },
   "workerJob": {
     "customerComment": "Message from customer",

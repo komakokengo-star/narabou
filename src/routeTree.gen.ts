@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TokushoRouteImport } from './routes/tokusho'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -37,6 +38,11 @@ import { Route as ApiPublicConnectOnboardingRouteImport } from './routes/api/pub
 import { Route as AuthenticatedWorkerJobIdRouteImport } from './routes/_authenticated/worker/job/$id'
 import { Route as AuthenticatedCustomerRequestIdRouteImport } from './routes/_authenticated/customer/request/$id'
 
+const TokushoRoute = TokushoRouteImport.update({
+  id: '/tokusho',
+  path: '/tokusho',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -190,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/tokusho': typeof TokushoRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
@@ -218,6 +225,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/tokusho': typeof TokushoRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/auth/reset': typeof AuthResetRoute
@@ -248,6 +256,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/tokusho': typeof TokushoRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/auth_/forgot': typeof AuthForgotRoute
   '/auth_/reset': typeof AuthResetRoute
@@ -278,6 +287,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sitemap.xml'
     | '/terms'
+    | '/tokusho'
     | '/dashboard'
     | '/auth/forgot'
     | '/auth/reset'
@@ -306,6 +316,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sitemap.xml'
     | '/terms'
+    | '/tokusho'
     | '/dashboard'
     | '/auth/forgot'
     | '/auth/reset'
@@ -335,6 +346,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sitemap.xml'
     | '/terms'
+    | '/tokusho'
     | '/_authenticated/dashboard'
     | '/auth_/forgot'
     | '/auth_/reset'
@@ -365,6 +377,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  TokushoRoute: typeof TokushoRoute
   AuthForgotRoute: typeof AuthForgotRoute
   AuthResetRoute: typeof AuthResetRoute
   ApiPublicMapsConfigRoute: typeof ApiPublicMapsConfigRoute
@@ -382,6 +395,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tokusho': {
+      id: '/tokusho'
+      path: '/tokusho'
+      fullPath: '/tokusho'
+      preLoaderRoute: typeof TokushoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -606,6 +626,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  TokushoRoute: TokushoRoute,
   AuthForgotRoute: AuthForgotRoute,
   AuthResetRoute: AuthResetRoute,
   ApiPublicMapsConfigRoute: ApiPublicMapsConfigRoute,
