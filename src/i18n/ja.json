@@ -251,7 +251,8 @@
   "footer": {
     "terms": "利用規約",
     "privacy": "プライバシーポリシー",
-    "copyright": "© HIFUNON — ＮＡＲＡＢＯＵ Beta"
+    "tokusho": "特定商取引法に基づく表記",
+    "copyright": "© HIFUNON — ＮＡＲＡＢＯＵ"
   },
   "workerJob": {
     "customerComment": "依頼者からのコメント",
