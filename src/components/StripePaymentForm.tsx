@@ -106,12 +106,19 @@ function InnerForm({ clientSecret, amount, onSuccess, mode, method }: { clientSe
     if (!stripe || !elements) return;
     setLoading(true);
     try {
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: { return_url: window.location.href },
-        // PayPay は外部サイトへの遷移が必須のため常にリダイレクトを許可する
-        redirect: method === "paypay" ? "always" : "if_required",
-      });
+      // PayPay は外部サイトへの遷移が必須のため常にリダイレクトする
+      const { error } =
+        method === "paypay"
+          ? await stripe.confirmPayment({
+              elements,
+              confirmParams: { return_url: window.location.href },
+              redirect: "always",
+            })
+          : await stripe.confirmPayment({
+              elements,
+              confirmParams: { return_url: window.location.href },
+              redirect: "if_required",
+            });
       if (error) {
         toast.error(error.message ?? "決済に失敗しました");
         return;
