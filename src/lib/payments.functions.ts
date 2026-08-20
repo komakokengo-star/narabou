@@ -112,7 +112,7 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
       total_fee: fee.total,
     }).eq("id", req.id);
 
-    return { clientSecret: intent.client_secret, amount: fee.total, breakdown: fee };
+    return { clientSecret: intent.client_secret, amount: fee.total, breakdown: fee, method: payMethod };
   });
 
 // Charge an extension as a separate PaymentIntent
