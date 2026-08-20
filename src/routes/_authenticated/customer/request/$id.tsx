@@ -503,6 +503,11 @@ function RequestDetail() {
                   ✓ 仮押さえ済み（与信確保）。業務完了時に決済が確定します。
                 </div>
               )}
+              {hasPaid && (
+                <div className="text-xs rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 p-3">
+                  ✓ 決済済みです。依頼が完了しなかった場合は、キャンセルポリシーに基づく手数料を差し引いた金額を後日返金します。
+                </div>
+              )}
 
               {cancelable && (
                 <>
