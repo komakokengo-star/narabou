@@ -5,7 +5,7 @@ import { calcFee, calcCancelRefund, PLATFORM_RATE } from "@/lib/fees";
 // Create or refresh a PaymentIntent for the main fee. Returns clientSecret.
 export const createPaymentIntent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { requestId: string }) => d)
+  .inputValidator((d: { requestId: string; method?: "card" | "paypay" }) => d)
   .handler(async ({ data, context }) => {
     const { getStripe, ensureWalletDomains } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
