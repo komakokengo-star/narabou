@@ -39,17 +39,45 @@ export function StripePaymentForm({
   amount,
   onSuccess,
   mode = "pay",
+  method = "card",
 }: {
   clientSecret: string;
   amount: number;
   onSuccess?: () => void;
   mode?: "pay" | "authorize";
+  method?: "card" | "paypay";
 }) {
   const { data, isLoading } = useQuery({
     queryKey: ["stripe-instance"],
     queryFn: () => getStripePromise(),
     staleTime: Infinity,
   });
+
+  // PayPay など外部リダイレクト決済から戻ってきた場合、状態をサーバーで確定させる。
+  const synced = useRef(false);
+  useEffect(() => {
+    if (synced.current || typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const returned = params.get("payment_intent_client_secret");
+    if (!returned) return;
+    synced.current = true;
+    syncPaymentIntentStatus({ data: { clientSecret: returned } })
+      .then((result) => {
+        if (result.status === "paid" || result.status === "authorized") {
+          toast.success("お支払いが完了しました");
+          onSuccess?.();
+        }
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        params.delete("payment_intent_client_secret");
+        params.delete("payment_intent");
+        params.delete("redirect_status");
+        const q = params.toString();
+        window.history.replaceState({}, "", window.location.pathname + (q ? `?${q}` : ""));
+      });
+  }, [onSuccess]);
+
   const options = useMemo(() => ({ clientSecret, appearance: { theme: "stripe" as const } }), [clientSecret]);
   if (isLoading || !data) return <div className="text-sm text-muted-foreground">Stripe を読み込み中…</div>;
   if (!data.stripe) {
@@ -61,7 +89,7 @@ export function StripePaymentForm({
   }
   return (
     <Elements key={clientSecret} stripe={data.stripe} options={options}>
-      <InnerForm clientSecret={clientSecret} amount={amount} onSuccess={onSuccess} mode={mode} />
+      <InnerForm clientSecret={clientSecret} amount={amount} onSuccess={onSuccess} mode={mode} method={method} />
     </Elements>
   );
 }
