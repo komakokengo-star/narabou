@@ -482,9 +482,21 @@ function RequestDetail() {
           return (
             <Card className="p-6 mt-6 space-y-3">
               {showPay && (
-                <Button className="w-full" onClick={() => startPay.mutate()} disabled={startPay.isPending}>
-                  {t("request.actions.pay")}（仮押さえ）
-                </Button>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">お支払い方法を選択してください</p>
+                  <Button className="w-full" onClick={() => startPay.mutate("card")} disabled={startPay.isPending}>
+                    カード / Apple Pay / Google Pay（仮押さえ）
+                  </Button>
+                  <p className="text-[11px] text-muted-foreground">
+                    仮押さえのみ行い、完了報告を承認した時点で決済が確定します。
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => startPay.mutate("paypay")} disabled={startPay.isPending}>
+                    PayPay（即時決済）
+                  </Button>
+                  <p className="text-[11px] text-muted-foreground">
+                    PayPay は仮押さえに対応していないため、お申し込み時点で即時決済されます。依頼が完了しなかった場合は、キャンセルポリシーに基づく手数料を差し引いた金額を後日返金します（返金には数日かかる場合があります）。
+                  </p>
+                </div>
               )}
               {hasAuth && !hasPaid && (
                 <div className="text-xs rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 p-3">
