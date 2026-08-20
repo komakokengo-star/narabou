@@ -127,7 +127,7 @@ function RequestDetail() {
     onSuccess: (_r, v) => {
       toast.success(v.approve ? "承認しました。決済の仮押さえへ進んでください" : (v.autoCancel ? "5分以内に承認されなかったため自動キャンセルしました" : "受注申請を拒否しました"));
       qc.invalidateQueries();
-      if (v.approve) startPay.mutate();
+      if (v.approve) startPay.mutate("card");
     },
     onError: (e: Error) => toast.error(e.message),
   });
