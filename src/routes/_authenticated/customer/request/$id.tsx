@@ -71,10 +71,10 @@ function RequestDetail() {
     refetchInterval: 8000,
   });
 
-  const [intent, setIntent] = useState<{ clientSecret: string; amount: number; mode: "pay" | "authorize" } | null>(null);
+  const [intent, setIntent] = useState<{ clientSecret: string; amount: number; mode: "pay" | "authorize"; method: "card" | "paypay" } | null>(null);
   const startPay = useMutation({
-    mutationFn: () => createPaymentIntent({ data: { requestId: id } }),
-    onSuccess: (r) => setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: "authorize" }),
+    mutationFn: (payMethod: "card" | "paypay") => createPaymentIntent({ data: { requestId: id, method: payMethod } }),
+    onSuccess: (r) => setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: r.method === "paypay" ? "pay" : "authorize", method: r.method }),
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -89,6 +89,7 @@ function RequestDetail() {
           clientSecret: pendingPayment.stripe_client_secret as string,
           amount: pendingPayment.amount,
           mode: (pendingPayment.kind === "main" ? "authorize" : "pay") as "pay" | "authorize",
+          method: "card" as "card" | "paypay",
         }
       : null);
 
