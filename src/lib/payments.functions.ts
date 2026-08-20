@@ -118,7 +118,7 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
 // Charge an extension as a separate PaymentIntent
 export const chargeExtension = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { requestId: string; extraMinutes: number }) => d)
+  .inputValidator((d: { requestId: string; extraMinutes: number; method?: "card" | "paypay" }) => d)
   .handler(async ({ data, context }) => {
     const { getStripe, ensureWalletDomains } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -128,6 +128,7 @@ export const chargeExtension = createServerFn({ method: "POST" })
       .from("requests").select("*").eq("id", data.requestId).maybeSingle();
     if (!req || req.customer_id !== context.userId) throw new Error("Forbidden");
 
+    const payMethod = data.method === "paypay" ? "paypay" : "card";
     const extraAmount = Math.ceil(data.extraMinutes / 10) * 200;
     const platformFee = Math.round(extraAmount * PLATFORM_RATE);
 
@@ -146,10 +147,14 @@ export const chargeExtension = createServerFn({ method: "POST" })
     const intent = await stripe.paymentIntents.create({
       amount: extraAmount,
       currency: "jpy",
-      automatic_payment_methods: { enabled: true },
-      metadata: { request_id: req.id, kind: "extension" },
+      // 延長分：カード/ウォレットは仮押さえ、PayPay は即時決済。
+      ...(payMethod === "paypay"
+        ? { payment_method_types: ["paypay"] }
+        : { capture_method: "manual" as const, automatic_payment_methods: { enabled: true } }),
+      metadata: { request_id: req.id, kind: "extension", pay_method: payMethod },
       ...(destination ? { application_fee_amount: platformFee, transfer_data: { destination } } : {}),
     });
+
 
     await supabaseAdmin.from("payments").insert({
       request_id: req.id,
@@ -167,7 +172,7 @@ export const chargeExtension = createServerFn({ method: "POST" })
       total_fee: (req.total_fee ?? 0) + extraAmount,
     }).eq("id", req.id);
 
-    return { clientSecret: intent.client_secret, amount: extraAmount };
+    return { clientSecret: intent.client_secret, amount: extraAmount, method: payMethod };
   });
 
 // Cancel + refund according to policy

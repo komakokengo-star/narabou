@@ -106,13 +106,15 @@ function RequestDetail() {
 
   const [extMin, setExtMin] = useState(10);
   const extend = useMutation({
-    mutationFn: () => chargeExtension({ data: { requestId: id, extraMinutes: extMin } }),
+    mutationFn: (method: "card" | "paypay") => chargeExtension({ data: { requestId: id, extraMinutes: extMin, method } }),
     onSuccess: (r) => {
-      setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: "pay", method: "card" });
+      const method = (r.method ?? "card") as "card" | "paypay";
+      setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: method === "paypay" ? "pay" : "authorize", method });
       toast.success("延長分の支払いに進んでください");
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const cancel = useMutation({
     mutationFn: () => cancelRequest({ data: { requestId: id } }),
@@ -525,11 +527,18 @@ function RequestDetail() {
                             追加料金: {formatYen(Math.ceil(extMin / 10) * 200)}
                           </p>
                         </div>
-                        <DialogFooter>
-                          <Button onClick={() => extend.mutate()} disabled={extend.isPending}>
-                            {t("request.actions.approveExtension")}
+                        <DialogFooter className="flex-col gap-2 sm:flex-col">
+                          <Button className="w-full" onClick={() => extend.mutate("card")} disabled={extend.isPending}>
+                            カード / Apple Pay / Google Pay（仮押さえ）
                           </Button>
+                          <Button variant="outline" className="w-full" onClick={() => extend.mutate("paypay")} disabled={extend.isPending}>
+                            PayPay（即時決済）
+                          </Button>
+                          <p className="text-[11px] text-muted-foreground">
+                            PayPay は仮押さえに対応していないため即時決済されます。依頼が完了しなかった場合は、キャンセルポリシーに基づく手数料を差し引いた金額を後日返金します。
+                          </p>
                         </DialogFooter>
+
                       </DialogContent>
                     </Dialog>
                   )}
