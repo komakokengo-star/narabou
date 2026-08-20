@@ -147,3 +147,9 @@ export async function ensureWalletDomainRegistered(stripe: Stripe, domain: strin
     console.warn("wallet domain registration skipped", host, (error as Error).message);
   }
 }
+
+const WALLET_DOMAINS = ["app.narabou.jp", "narabou.lovable.app"];
+
+export async function ensureWalletDomains(stripe: Stripe): Promise<void> {
+  await Promise.all(WALLET_DOMAINS.map((domain) => ensureWalletDomainRegistered(stripe, domain)));
+}
