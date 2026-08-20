@@ -67,6 +67,8 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
       await supabaseAdmin.from("payments").update({ status: "canceled" }).eq("id", payment.id);
     }
 
+    await ensureWalletDomains(stripe);
+
     const intent = await stripe.paymentIntents.create({
       amount: fee.total,
       currency: "jpy",
