@@ -106,13 +106,15 @@ function RequestDetail() {
 
   const [extMin, setExtMin] = useState(10);
   const extend = useMutation({
-    mutationFn: () => chargeExtension({ data: { requestId: id, extraMinutes: extMin } }),
+    mutationFn: (method: "card" | "paypay") => chargeExtension({ data: { requestId: id, extraMinutes: extMin, method } }),
     onSuccess: (r) => {
-      setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: "pay", method: "card" });
+      const method = (r.method ?? "card") as "card" | "paypay";
+      setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: method === "paypay" ? "pay" : "authorize", method });
       toast.success("延長分の支払いに進んでください");
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   const cancel = useMutation({
     mutationFn: () => cancelRequest({ data: { requestId: id } }),
