@@ -172,7 +172,7 @@ export const chargeExtension = createServerFn({ method: "POST" })
       total_fee: (req.total_fee ?? 0) + extraAmount,
     }).eq("id", req.id);
 
-    return { clientSecret: intent.client_secret, amount: extraAmount };
+    return { clientSecret: intent.client_secret, amount: extraAmount, method: payMethod };
   });
 
 // Cancel + refund according to policy
