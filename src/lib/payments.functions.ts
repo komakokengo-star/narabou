@@ -5,7 +5,7 @@ import { calcFee, calcCancelRefund, PLATFORM_RATE } from "@/lib/fees";
 // Create or refresh a PaymentIntent for the main fee. Returns clientSecret.
 export const createPaymentIntent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { requestId: string }) => d)
+  .inputValidator((d: { requestId: string; method?: "card" | "paypay" }) => d)
   .handler(async ({ data, context }) => {
     const { getStripe, ensureWalletDomains } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -44,14 +44,20 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
       .in("status", ["pending", "authorized"])
       .order("created_at", { ascending: false });
 
+    const payMethod = data.method === "paypay" ? "paypay" : "card";
+
     const authorizedPayment = activePayments?.find((payment) => payment.status === "authorized");
     if (authorizedPayment) throw new Error("この依頼の仮押さえは完了しています");
 
     const pendingPayment = activePayments?.find((payment) => payment.status === "pending");
     if (pendingPayment?.stripe_payment_intent_id && pendingPayment.stripe_client_secret && pendingPayment.amount === fee.total) {
       const existingIntent = await stripe.paymentIntents.retrieve(pendingPayment.stripe_payment_intent_id);
-      if (["requires_payment_method", "requires_confirmation", "requires_action"].includes(existingIntent.status)) {
-        return { clientSecret: pendingPayment.stripe_client_secret, amount: fee.total, breakdown: fee };
+      const isPaypayIntent = existingIntent.payment_method_types.includes("paypay");
+      if (
+        isPaypayIntent === (payMethod === "paypay") &&
+        ["requires_payment_method", "requires_confirmation", "requires_action"].includes(existingIntent.status)
+      ) {
+        return { clientSecret: pendingPayment.stripe_client_secret, amount: fee.total, breakdown: fee, method: payMethod };
       }
     }
 
@@ -72,9 +78,11 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
     const intent = await stripe.paymentIntents.create({
       amount: fee.total,
       currency: "jpy",
-      capture_method: "manual", // マッチ成立時にオーソリ、完了時にキャプチャ
-      automatic_payment_methods: { enabled: true },
-      metadata: { request_id: req.id, customer_id: context.userId, kind: "main" },
+      // カード/ウォレットは仮押さえ（完了承認時にキャプチャ）、PayPay は即時決済。
+      ...(payMethod === "paypay"
+        ? { payment_method_types: ["paypay"] }
+        : { capture_method: "manual" as const, automatic_payment_methods: { enabled: true } }),
+      metadata: { request_id: req.id, customer_id: context.userId, kind: "main", pay_method: payMethod },
       ...(destination
         ? {
             application_fee_amount: fee.platformFee,
@@ -104,7 +112,7 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
       total_fee: fee.total,
     }).eq("id", req.id);
 
-    return { clientSecret: intent.client_secret, amount: fee.total, breakdown: fee };
+    return { clientSecret: intent.client_secret, amount: fee.total, breakdown: fee, method: payMethod };
   });
 
 // Charge an extension as a separate PaymentIntent

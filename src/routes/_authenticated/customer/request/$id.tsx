@@ -71,10 +71,10 @@ function RequestDetail() {
     refetchInterval: 8000,
   });
 
-  const [intent, setIntent] = useState<{ clientSecret: string; amount: number; mode: "pay" | "authorize" } | null>(null);
+  const [intent, setIntent] = useState<{ clientSecret: string; amount: number; mode: "pay" | "authorize"; method: "card" | "paypay" } | null>(null);
   const startPay = useMutation({
-    mutationFn: () => createPaymentIntent({ data: { requestId: id } }),
-    onSuccess: (r) => setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: "authorize" }),
+    mutationFn: (payMethod: "card" | "paypay") => createPaymentIntent({ data: { requestId: id, method: payMethod } }),
+    onSuccess: (r) => setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: r.method === "paypay" ? "pay" : "authorize", method: r.method }),
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -89,6 +89,7 @@ function RequestDetail() {
           clientSecret: pendingPayment.stripe_client_secret as string,
           amount: pendingPayment.amount,
           mode: (pendingPayment.kind === "main" ? "authorize" : "pay") as "pay" | "authorize",
+          method: "card" as "card" | "paypay",
         }
       : null);
 
@@ -107,7 +108,7 @@ function RequestDetail() {
   const extend = useMutation({
     mutationFn: () => chargeExtension({ data: { requestId: id, extraMinutes: extMin } }),
     onSuccess: (r) => {
-      setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: "pay" });
+      setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: "pay", method: "card" });
       toast.success("延長分の支払いに進んでください");
     },
     onError: (e: Error) => toast.error(e.message),
@@ -126,7 +127,7 @@ function RequestDetail() {
     onSuccess: (_r, v) => {
       toast.success(v.approve ? "承認しました。決済の仮押さえへ進んでください" : (v.autoCancel ? "5分以内に承認されなかったため自動キャンセルしました" : "受注申請を拒否しました"));
       qc.invalidateQueries();
-      if (v.approve) startPay.mutate();
+      if (v.approve) paymentCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -481,13 +482,30 @@ function RequestDetail() {
           return (
             <Card className="p-6 mt-6 space-y-3">
               {showPay && (
-                <Button className="w-full" onClick={() => startPay.mutate()} disabled={startPay.isPending}>
-                  {t("request.actions.pay")}（仮押さえ）
-                </Button>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">お支払い方法を選択してください</p>
+                  <Button className="w-full" onClick={() => startPay.mutate("card")} disabled={startPay.isPending}>
+                    カード / Apple Pay / Google Pay（仮押さえ）
+                  </Button>
+                  <p className="text-[11px] text-muted-foreground">
+                    仮押さえのみ行い、完了報告を承認した時点で決済が確定します。
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => startPay.mutate("paypay")} disabled={startPay.isPending}>
+                    PayPay（即時決済）
+                  </Button>
+                  <p className="text-[11px] text-muted-foreground">
+                    PayPay は仮押さえに対応していないため、お申し込み時点で即時決済されます。依頼が完了しなかった場合は、キャンセルポリシーに基づく手数料を差し引いた金額を後日返金します（返金には数日かかる場合があります）。
+                  </p>
+                </div>
               )}
               {hasAuth && !hasPaid && (
                 <div className="text-xs rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 p-3">
                   ✓ 仮押さえ済み（与信確保）。業務完了時に決済が確定します。
+                </div>
+              )}
+              {hasPaid && (
+                <div className="text-xs rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 p-3">
+                  ✓ 決済済みです。依頼が完了しなかった場合は、キャンセルポリシーに基づく手数料を差し引いた金額を後日返金します。
                 </div>
               )}
 
@@ -549,14 +567,27 @@ function RequestDetail() {
           <Card className="p-6 mt-6" ref={paymentCardRef}>
             <h3 className="font-medium mb-3">{t("payment.title")}</h3>
             <p className="text-xs text-muted-foreground mb-3">
-              カード情報を入力して送信するまで決済は完了しません。
+              {activeIntent.method === "paypay"
+                ? "PayPay に遷移して支払いを完了してください。即時決済となります。"
+                : "カード情報を入力して送信するまで決済は完了しません。"}
             </p>
             <StripePaymentForm
               clientSecret={activeIntent.clientSecret}
               amount={activeIntent.amount}
               mode={activeIntent.mode}
+              method={activeIntent.method}
               onSuccess={() => { setIntent(null); refetch(); qc.invalidateQueries(); }}
             />
+            {activeIntent.method === "paypay" && (
+              <Button variant="ghost" size="sm" className="w-full mt-2" onClick={() => startPay.mutate("card")}>
+                カード決済（仮押さえ）に切り替える
+              </Button>
+            )}
+            {activeIntent.method === "card" && activeIntent.mode === "authorize" && (
+              <Button variant="ghost" size="sm" className="w-full mt-2" onClick={() => startPay.mutate("paypay")}>
+                PayPay（即時決済）に切り替える
+              </Button>
+            )}
           </Card>
         )}
 

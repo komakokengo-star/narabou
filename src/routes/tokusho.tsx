@@ -90,11 +90,14 @@ function TokushoPage() {
               </DisclosureItem>
 
               <DisclosureItem term="支払い方法">
-                クレジットカード決済（Stripe を利用）
+                クレジットカード決済／Apple Pay／Google Pay／PayPay（いずれも Stripe を利用）
               </DisclosureItem>
 
               <DisclosureItem term="支払い時期">
-                依頼が成立し、依頼者が決済を承認した時点で、お客様の指定するクレジットカードにて決済が行われます。
+                <div className="space-y-1">
+                  <p>カード・Apple Pay・Google Pay：依頼成立時にカードの仮押さえ（与信確保）を行い、完了報告を承認した時点で決済が確定します。</p>
+                  <p>PayPay：仮押さえに対応していないため、依頼成立時に即時決済されます。</p>
+                </div>
               </DisclosureItem>
 
               <DisclosureItem term="サービスの提供時期">
@@ -107,6 +110,7 @@ function TokushoPage() {
                   <p>現地到着後：基本料金800円を請求</p>
                   <p>待機開始後：経過時間に応じた時間課金を請求</p>
                   <p>延長承認後のキャンセル：延長分も含めて請求</p>
+                  <p className="mt-2">PayPay でお支払いの場合は即時決済のため、上記ポリシーに基づく請求額を差し引いた金額を後日返金します（返金の反映まで数日かかる場合があります）。</p>
                   <p className="text-xs text-muted-foreground mt-2">詳細は<Link to="/terms" className="underline hover:text-foreground">利用規約</Link>をご確認ください。</p>
                 </div>
               </DisclosureItem>
