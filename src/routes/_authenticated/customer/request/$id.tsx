@@ -562,14 +562,27 @@ function RequestDetail() {
           <Card className="p-6 mt-6" ref={paymentCardRef}>
             <h3 className="font-medium mb-3">{t("payment.title")}</h3>
             <p className="text-xs text-muted-foreground mb-3">
-              カード情報を入力して送信するまで決済は完了しません。
+              {activeIntent.method === "paypay"
+                ? "PayPay に遷移して支払いを完了してください。即時決済となります。"
+                : "カード情報を入力して送信するまで決済は完了しません。"}
             </p>
             <StripePaymentForm
               clientSecret={activeIntent.clientSecret}
               amount={activeIntent.amount}
               mode={activeIntent.mode}
+              method={activeIntent.method}
               onSuccess={() => { setIntent(null); refetch(); qc.invalidateQueries(); }}
             />
+            {activeIntent.method === "paypay" && (
+              <Button variant="ghost" size="sm" className="w-full mt-2" onClick={() => startPay.mutate("card")}>
+                カード決済（仮押さえ）に切り替える
+              </Button>
+            )}
+            {activeIntent.method === "card" && activeIntent.mode === "authorize" && (
+              <Button variant="ghost" size="sm" className="w-full mt-2" onClick={() => startPay.mutate("paypay")}>
+                PayPay（即時決済）に切り替える
+              </Button>
+            )}
           </Card>
         )}
 
