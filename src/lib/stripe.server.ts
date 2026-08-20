@@ -123,3 +123,33 @@ export function getStripe(): Stripe {
   if (!validation.ok) throw new Error(validation.message);
   return new Stripe(validation.key);
 }
+
+// Apple Pay / Google Pay など、ウォレットをPayment Elementに表示するには
+// 決済ドメインをStripeに登録しておく必要がある。初回呼び出し時に一度だけ登録する。
+const registeredWalletDomains = new Set<string>();
+
+export async function ensureWalletDomainRegistered(stripe: Stripe, domain: string): Promise<void> {
+  const host = domain.trim().toLowerCase();
+  if (!host || host.startsWith("localhost") || registeredWalletDomains.has(host)) return;
+  registeredWalletDomains.add(host);
+  try {
+    const existing = await stripe.paymentMethodDomains.list({ domain_name: host, limit: 1 });
+    if (existing.data.length > 0) {
+      if (!existing.data[0].enabled) {
+        await stripe.paymentMethodDomains.update(existing.data[0].id, { enabled: true });
+      }
+      return;
+    }
+    await stripe.paymentMethodDomains.create({ domain_name: host, enabled: true });
+  } catch (error) {
+    // 登録できなくてもカード決済は継続できるため、失敗は握りつぶす
+    registeredWalletDomains.delete(host);
+    console.warn("wallet domain registration skipped", host, (error as Error).message);
+  }
+}
+
+const WALLET_DOMAINS = ["app.narabou.jp", "narabou.lovable.app"];
+
+export async function ensureWalletDomains(stripe: Stripe): Promise<void> {
+  await Promise.all(WALLET_DOMAINS.map((domain) => ensureWalletDomainRegistered(stripe, domain)));
+}

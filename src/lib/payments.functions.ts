@@ -7,7 +7,7 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { requestId: string }) => d)
   .handler(async ({ data, context }) => {
-    const { getStripe } = await import("@/lib/stripe.server");
+    const { getStripe, ensureWalletDomains } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const stripe = getStripe();
 
@@ -67,6 +67,8 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
       await supabaseAdmin.from("payments").update({ status: "canceled" }).eq("id", payment.id);
     }
 
+    await ensureWalletDomains(stripe);
+
     const intent = await stripe.paymentIntents.create({
       amount: fee.total,
       currency: "jpy",
@@ -110,7 +112,7 @@ export const chargeExtension = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { requestId: string; extraMinutes: number }) => d)
   .handler(async ({ data, context }) => {
-    const { getStripe } = await import("@/lib/stripe.server");
+    const { getStripe, ensureWalletDomains } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const stripe = getStripe();
 
@@ -130,6 +132,8 @@ export const chargeExtension = createServerFn({ method: "POST" })
         .eq("id", match.worker_id).maybeSingle();
       if (wp?.stripe_account_ready && wp.stripe_account_id) destination = wp.stripe_account_id;
     }
+
+    await ensureWalletDomains(stripe);
 
     const intent = await stripe.paymentIntents.create({
       amount: extraAmount,
@@ -163,7 +167,7 @@ export const cancelRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { requestId: string; force?: boolean }) => d)
   .handler(async ({ data, context }) => {
-    const { getStripe } = await import("@/lib/stripe.server");
+    const { getStripe, ensureWalletDomains } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const stripe = getStripe();
 
@@ -343,7 +347,7 @@ export const capturePayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { requestId: string }) => d)
   .handler(async ({ data, context }) => {
-    const { getStripe } = await import("@/lib/stripe.server");
+    const { getStripe, ensureWalletDomains } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const stripe = getStripe();
 
@@ -559,7 +563,7 @@ export const ABANDON_HOURS = 2;
 
 export const autoForceCompleteAbandoned = createServerFn({ method: "POST" })
   .handler(async () => {
-    const { getStripe } = await import("@/lib/stripe.server");
+    const { getStripe, ensureWalletDomains } = await import("@/lib/stripe.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const stripe = getStripe();
     const cutoffIso = new Date(Date.now() - ABANDON_HOURS * 60 * 60 * 1000).toISOString();

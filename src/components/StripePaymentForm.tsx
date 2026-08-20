@@ -104,7 +104,12 @@ function InnerForm({ clientSecret, amount, onSuccess, mode }: { clientSecret: st
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <PaymentElement />
+      <PaymentElement
+        options={{
+          layout: { type: "accordion", defaultCollapsed: false },
+          wallets: { applePay: "auto", googlePay: "auto" },
+        }}
+      />
       <Button type="submit" className="w-full" disabled={!stripe || loading}>
         {loading ? t("common.loading") : t(mode === "authorize" ? "payment.authorize" : "payment.pay", { amount: formatYen(amount) })}
       </Button>
