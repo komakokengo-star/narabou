@@ -62,7 +62,7 @@ function Landing() {
               </span>
             </h1>
 
-            <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl">
+            <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl whitespace-pre-line">
               {t("app.tagline")}
             </p>
             <div className="mt-10 flex gap-3">
