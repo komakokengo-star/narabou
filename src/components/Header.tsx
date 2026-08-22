@@ -26,9 +26,11 @@ export function Header() {
     <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-md bg-primary text-primary-foreground flex items-center justify-center font-serif font-bold">
-            列
-          </div>
+          <img
+            src="/icons/icon-192.png"
+            alt="NARABOU"
+            className="w-9 h-9 rounded-md object-cover"
+          />
           <div className="leading-tight">
             <div className="font-serif font-semibold text-base">{t("app.name")}</div>
           </div>
