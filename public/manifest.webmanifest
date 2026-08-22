@@ -1,7 +1,7 @@
 {
   "name": "福岡行列代行 NARABOU",
   "short_name": "NARABOU",
-  "description": "わたしが代わりに並ぶから、あなたはどうぞご自由に。基本800円+10分200円。",
+  "description": "NARABOUは、並ぶ人と、並んでほしい人をつなぎます。基本800円+10分200円。",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
