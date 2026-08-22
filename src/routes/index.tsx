@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BASE_FEE, TIME_BLOCK_FEE, PEAK_FEE } from "@/lib/fees";
 import { Clock, MapPin, ShieldCheck, Users } from "lucide-react";
+import queueIllustration from "@/assets/narabou-queue-illustration.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -51,27 +52,37 @@ function Landing() {
       <Header />
       <main className="flex-1">
         <section className="container mx-auto px-4 pt-16 pb-12 sm:pt-24 sm:pb-20">
-          <div className="max-w-3xl">
-            <p className="text-sm sm:text-base tracking-[0.2em] text-primary uppercase mb-5 font-medium">
-              {t("app.heroSubtitle")}
-            </p>
-            <h1 className="font-serif text-5xl sm:text-7xl font-bold leading-[1.05] tracking-[0.02em]">
-              ＮＡＲＡＢＯＵ
-              <span className="mt-3 block font-sans text-xl sm:text-2xl font-medium tracking-normal text-muted-foreground">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="max-w-3xl">
+              <p className="text-sm sm:text-base tracking-[0.2em] text-primary uppercase mb-5 font-medium">
                 {t("app.heroSubtitle")}
-              </span>
-            </h1>
+              </p>
+              <h1 className="font-serif text-5xl sm:text-7xl font-bold leading-[1.05] tracking-[0.02em]">
+                ＮＡＲＡＢＯＵ
+                <span className="mt-3 block font-sans text-xl sm:text-2xl font-medium tracking-normal text-muted-foreground">
+                  {t("app.heroSubtitle")}
+                </span>
+              </h1>
 
-            <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl whitespace-pre-line">
-              {t("app.tagline")}
-            </p>
-            <div className="mt-10 flex gap-3">
-              <Link to="/auth">
-                <Button size="lg" className="rounded-full px-8">{t("app.startButton")}</Button>
-              </Link>
-              <Link to="/dashboard">
-                <Button size="lg" variant="outline" className="rounded-full px-8">{t("app.menuButton")}</Button>
-              </Link>
+              <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl whitespace-pre-line">
+                {t("app.tagline")}
+              </p>
+              <div className="mt-10 flex gap-3">
+                <Link to="/auth">
+                  <Button size="lg" className="rounded-full px-8">{t("app.startButton")}</Button>
+                </Link>
+                <Link to="/dashboard">
+                  <Button size="lg" variant="outline" className="rounded-full px-8">{t("app.menuButton")}</Button>
+                </Link>
+              </div>
+            </div>
+            <div className="relative order-first lg:order-last">
+              <img
+                src={queueIllustration.url}
+                alt="福岡・薬院の人気店で行列に並ぶNARABOUのイラスト"
+                className="w-full rounded-2xl shadow-lg object-cover"
+                loading="lazy"
+              />
             </div>
           </div>
         </section>
