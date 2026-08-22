@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BASE_FEE, TIME_BLOCK_FEE, PEAK_FEE } from "@/lib/fees";
 import { Clock, MapPin, ShieldCheck, Users } from "lucide-react";
+import queueIllustration from "@/assets/narabou-queue-illustration.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
