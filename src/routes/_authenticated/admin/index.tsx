@@ -14,6 +14,18 @@ import { adminListConnectStatuses, type ConnectStatus } from "@/lib/stripe-conne
 import { CheckCircle2, Clock, AlertTriangle, Circle, RefreshCw, Bell, BellRing } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
+  head: () => ({
+    meta: [
+      { title: "管理コンソール — ＮＡＲＡＢＯＵ" },
+      { name: "description", content: "依頼・決済・ワーカー口座状況を運営が確認するNARABOUの管理ページ。" },
+      { name: "robots", content: "noindex, nofollow" },
+      { property: "og:title", content: "管理コンソール — ＮＡＲＡＢＯＵ" },
+      { property: "og:description", content: "依頼・決済・ワーカー口座状況を運営が確認するNARABOUの管理ページ。" },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://app.narabou.jp/admin" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   ssr: false,
   beforeLoad: async () => {
     const { data: user } = await supabase.auth.getUser();
