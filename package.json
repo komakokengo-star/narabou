@@ -9,7 +9,11 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "ios:setup": "cap add ios && cap sync ios && capacitor-assets generate --ios",
+    "ios:sync": "cap sync ios",
+    "ios:icons": "capacitor-assets generate --ios",
+    "ios:open": "cap open ios"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",
