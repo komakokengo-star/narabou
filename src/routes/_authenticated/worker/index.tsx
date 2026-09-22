@@ -23,6 +23,18 @@ import { refreshConnectStatus } from "@/lib/stripe-connect.functions";
 import { applyForRequest } from "@/lib/payments.functions";
 
 export const Route = createFileRoute("/_authenticated/worker/")({
+  head: () => ({
+    meta: [
+      { title: "代行のお仕事一覧 — ＮＡＲＡＢＯＵ" },
+      { name: "description", content: "募集中の行列代行案件の確認と応募、受取口座の登録や報酬の確認ができるワーカー向けページ。" },
+      { name: "robots", content: "noindex, nofollow" },
+      { property: "og:title", content: "代行のお仕事一覧 — ＮＡＲＡＢＯＵ" },
+      { property: "og:description", content: "募集中の行列代行案件の確認と応募、受取口座の登録や報酬の確認ができるワーカー向けページ。" },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://app.narabou.jp/worker" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: WorkerHome,
 });
 
