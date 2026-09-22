@@ -18,6 +18,18 @@ import { StoreSearchMap } from "@/components/StoreSearchMap";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/customer/")({
+  head: () => ({
+    meta: [
+      { title: "行列代行を依頼する — ＮＡＲＡＢＯＵ" },
+      { name: "description", content: "店舗・日時・目印を指定して行列代行を依頼。料金の見積もりと依頼状況の確認ができます。" },
+      { name: "robots", content: "noindex, nofollow" },
+      { property: "og:title", content: "行列代行を依頼する — ＮＡＲＡＢＯＵ" },
+      { property: "og:description", content: "店舗・日時・目印を指定して行列代行を依頼。料金の見積もりと依頼状況の確認ができます。" },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://app.narabou.jp/customer" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: CustomerHome,
 });
 
