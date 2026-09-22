@@ -30,3 +30,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Capacitor (Mac側で生成、コミット不要)
+ios/
+android/
