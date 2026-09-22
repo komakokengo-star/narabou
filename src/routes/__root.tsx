@@ -144,8 +144,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "ＮＡＲＡＢＯＵ" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1514279e-988c-4d3e-8dfe-afab2bacef0a/id-preview-727c5693--bc84fda8-23a4-4dfd-8a53-fea4e73274e7.lovable.app-1783149629848.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1514279e-988c-4d3e-8dfe-afab2bacef0a/id-preview-727c5693--bc84fda8-23a4-4dfd-8a53-fea4e73274e7.lovable.app-1783149629848.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
