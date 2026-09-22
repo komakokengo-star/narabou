@@ -13,6 +13,18 @@ import { PushNotificationCard } from "@/components/PushNotificationCard";
 import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
+  head: () => ({
+    meta: [
+      { title: "マイページ — ＮＡＲＡＢＯＵ" },
+      { name: "description", content: "依頼・受注の状況確認、役割の切り替え、通知設定をまとめて管理できるNARABOUのマイページ。" },
+      { name: "robots", content: "noindex, nofollow" },
+      { property: "og:title", content: "マイページ — ＮＡＲＡＢＯＵ" },
+      { property: "og:description", content: "依頼・受注の状況確認、役割の切り替え、通知設定をまとめて管理できるNARABOUのマイページ。" },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://app.narabou.jp/dashboard" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: Dashboard,
 });
 
