@@ -13,7 +13,11 @@
     "ios:setup": "cap add ios && cap sync ios && capacitor-assets generate --ios",
     "ios:sync": "cap sync ios",
     "ios:icons": "capacitor-assets generate --ios",
-    "ios:open": "cap open ios"
+    "ios:open": "cap open ios",
+    "android:setup": "cap add android && cap sync android && capacitor-assets generate --android",
+    "android:sync": "cap sync android",
+    "android:icons": "capacitor-assets generate --android",
+    "android:open": "cap open android"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",
@@ -99,6 +103,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.5.2",
     "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.5.2",
     "@capacitor/ios": "^8.5.2",

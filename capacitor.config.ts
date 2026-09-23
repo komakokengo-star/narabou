@@ -37,6 +37,10 @@ const config: CapacitorConfig = {
     limitsNavigationsToAppBoundDomains: false,
     backgroundColor: '#ffffff',
   },
+  android: {
+    backgroundColor: '#ffffff',
+    allowMixedContent: false,
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 1200,
