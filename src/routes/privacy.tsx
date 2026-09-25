@@ -112,7 +112,7 @@ function PrivacyPage() {
 
             <Article number="第8条" title="ユーザーの権利">
               <p>ユーザーは、自己に関する個人情報の開示・訂正・削除を請求することができます。</p>
-              <p>アカウント削除時には、法令に基づく保存義務を除き、関連する個人データを消去します。</p>
+              <p>アカウント削除時には、法令に基づく保存義務を除き、関連する個人データを消去します。削除は<Link to="/account-deletion" className="underline">アカウント削除ページ</Link>から行えます。</p>
             </Article>
 
             <Article number="第9条" title="改定">
