@@ -11,9 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    redirect: search.redirect === "/account-deletion" ? "/account-deletion" as const : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { redirect?: "/account-deletion" } =>
+    search.redirect === "/account-deletion" ? { redirect: "/account-deletion" } : {},
   head: () => ({
     meta: [
       { title: "ログイン・新規登録 — ＮＡＲＡＢＯＵ" },
