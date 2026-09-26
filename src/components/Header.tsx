@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Globe, LogOut, User as UserIcon } from "lucide-react";
+import { Globe, LogOut, Trash2, User as UserIcon } from "lucide-react";
 
 export function Header() {
   const { t, i18n } = useTranslation();
@@ -79,6 +79,11 @@ export function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link to="/account-deletion">
+                    <Trash2 className="w-4 h-4 mr-2" /> アカウント削除
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="w-4 h-4 mr-2" /> {t("nav.logout")}
                 </DropdownMenuItem>
