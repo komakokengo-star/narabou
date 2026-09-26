@@ -146,11 +146,10 @@ function AccountDeletionPage() {
                 </AlertDialog>
               </div>
             ) : (
-              <div className="pt-2">
-                <Button asChild>
-                  <Link to="/auth" search={{ redirect: "/account-deletion" }}>ログインして削除する</Link>
-                </Button>
-              </div>
+              <p className="text-sm text-muted-foreground pt-2">
+                未ログインのため、削除ボタンは表示されていません。
+                ＮＡＲＡＢＯＵにログインした後、アカウントメニューの「アカウント削除」から再度このページを開いてください。
+              </p>
             )}
 
             {msg && <p className="text-sm font-medium pt-2">{msg}</p>}
