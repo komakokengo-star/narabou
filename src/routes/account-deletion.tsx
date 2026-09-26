@@ -46,10 +46,25 @@ function AccountDeletionPage() {
   const [msg, setMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setEmail(data.session?.user.email ?? null);
+    let done = false;
+    const finish = (mail: string | null) => {
+      if (done) return;
+      done = true;
+      setEmail(mail);
       setReady(true);
+    };
+    supabase.auth.getSession()
+      .then(({ data }) => finish(data.session?.user.email ?? null))
+      .catch(() => finish(null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      finish(session?.user.email ?? null);
     });
+    // セッション確認が応答しない場合でも必ず表示を進める
+    const timer = setTimeout(() => finish(null), 5000);
+    return () => {
+      clearTimeout(timer);
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const onDelete = async () => {
