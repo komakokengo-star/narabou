@@ -41,7 +41,6 @@ function AccountDeletionPage() {
   const navigate = useNavigate();
   const del = useServerFn(deleteMyAccount);
   const [email, setEmail] = useState<string | null>(null);
-  const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -51,7 +50,6 @@ function AccountDeletionPage() {
       if (done) return;
       done = true;
       setEmail(mail);
-      setReady(true);
     };
     supabase.auth.getSession()
       .then(({ data }) => finish(data.session?.user.email ?? null))
@@ -121,7 +119,7 @@ function AccountDeletionPage() {
               <li>「アカウントを削除する」を押し、確認画面で「削除する」を押します</li>
             </ol>
 
-            {!ready ? null : email ? (
+            {email ? (
               <div className="space-y-3 pt-2">
                 <p className="text-sm">
                   ログイン中：<span className="font-medium">{email}</span>
@@ -150,7 +148,7 @@ function AccountDeletionPage() {
             ) : (
               <div className="pt-2">
                 <Button asChild>
-                  <Link to="/auth">ログインして削除する</Link>
+                  <Link to="/auth" search={{ redirect: "/account-deletion" }}>ログインして削除する</Link>
                 </Button>
               </div>
             )}

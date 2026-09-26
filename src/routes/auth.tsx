@@ -11,6 +11,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: search.redirect === "/account-deletion" ? "/account-deletion" as const : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "ログイン・新規登録 — ＮＡＲＡＢＯＵ" },
@@ -23,10 +26,10 @@ export const Route = createFileRoute("/auth")({
     ],
     links: [{ rel: "canonical", href: "https://app.narabou.jp/auth" }],
   }),
-  beforeLoad: async () => {
+  beforeLoad: async ({ search }) => {
     if (typeof window === "undefined") return;
     const { data } = await supabase.auth.getSession();
-    if (data.session) throw redirect({ to: "/dashboard" });
+    if (data.session) throw redirect({ to: search.redirect ?? "/dashboard" });
   },
   component: AuthPage,
 });
@@ -35,6 +38,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const search = Route.useSearch();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,10 +49,10 @@ function AuthPage() {
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (session) router.navigate({ to: "/dashboard" });
+      if (session) router.navigate({ to: search.redirect ?? "/dashboard" });
     });
     return () => sub.subscription.unsubscribe();
-  }, [router]);
+  }, [router, search.redirect]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();

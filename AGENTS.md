@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- The public auth route accepts only an allowlisted `/account-deletion` return destination, so account deletion login returns safely without enabling open redirects.
