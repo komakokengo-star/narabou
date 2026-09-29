@@ -31,7 +31,7 @@ export const Route = createFileRoute("/api/public/webhooks/stripe")({
               return new Response("missing stripe-signature", { status: 400 });
             }
             try {
-              event = stripe.webhooks.constructEvent(body, sig, secret) as unknown as typeof event;
+              event = await stripe.webhooks.constructEventAsync(body, sig, secret) as unknown as typeof event;
             } catch (err) {
               logJson("warn", "webhook.rejected", {
                 runId,
