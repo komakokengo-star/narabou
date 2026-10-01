@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { requestCompletion } from "@/lib/payments.functions";
+import { ReportBlockActions } from "@/components/ReportBlock";
 import { reverseGeocode, forwardGeocode } from "@/lib/geocode.functions";
 
 const DISTANCE_THRESHOLD_M = 200;
@@ -221,7 +222,7 @@ function WorkerJob() {
   }, [matchFeatures]);
 
   if (!match) return <div className="p-10 text-center">{t("common.loading")}</div>;
-  const req = match.requests as { id: string; store_name: string; status: string; total_fee: number };
+  const req = match.requests as { id: string; store_name: string; status: string; total_fee: number; customer_id: string };
 
 
   return (
@@ -247,6 +248,16 @@ function WorkerJob() {
             })()}</Badge>
           </div>
         </Card>
+
+        {/* 通報・ブロック（App Store Guideline 1.2 対応） */}
+        {req.customer_id && (
+          <Card className="p-4 mt-6">
+            <div className="text-xs text-muted-foreground mb-2">
+              問題がある場合は運営へ通報できます。通報は24時間以内に確認・対応します。
+            </div>
+            <ReportBlockActions targetUserId={req.customer_id} requestId={req.id} targetName="依頼者" />
+          </Card>
+        )}
 
         {(match as unknown as { approval_comment?: string | null }).approval_comment && (
           <Card className="p-4 mt-6 border-primary/40 bg-primary/5">
