@@ -45,7 +45,7 @@
     "email": "電子郵件",
     "password": "密碼",
     "name": "姓名",
-    "phone": "電話號碼",
+    "phone": "電話號碼（選填）",
     "phonePlaceholder": "例：090-1234-5678",
     "login": "登入",
     "signup": "註冊",

@@ -83,6 +83,27 @@ export type Database = {
         }
         Relationships: []
       }
+      blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       checkins: {
         Row: {
           id: string
@@ -406,6 +427,7 @@ export type Database = {
           rating_count: number | null
           stripe_account_id: string | null
           stripe_account_ready: boolean | null
+          suspended_at: string | null
           terms_accepted_at: string | null
           verified: boolean | null
         }
@@ -419,6 +441,7 @@ export type Database = {
           rating_count?: number | null
           stripe_account_id?: string | null
           stripe_account_ready?: boolean | null
+          suspended_at?: string | null
           terms_accepted_at?: string | null
           verified?: boolean | null
         }
@@ -432,10 +455,61 @@ export type Database = {
           rating_count?: number | null
           stripe_account_id?: string | null
           stripe_account_ready?: boolean | null
+          suspended_at?: string | null
           terms_accepted_at?: string | null
           verified?: boolean | null
         }
         Relationships: []
+      }
+      reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reported_user_id: string
+          reporter_id: string
+          request_id: string | null
+          resolution_note: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reported_user_id: string
+          reporter_id: string
+          request_id?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reported_user_id?: string
+          reporter_id?: string
+          request_id?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       requests: {
         Row: {

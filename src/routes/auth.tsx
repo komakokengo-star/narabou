@@ -116,7 +116,6 @@ function AuthPage() {
                     inputMode="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    required
                     minLength={10}
                     maxLength={20}
                     pattern="[0-9\-\+\(\)\s]{10,20}"

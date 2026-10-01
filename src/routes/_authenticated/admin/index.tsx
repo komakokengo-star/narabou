@@ -166,6 +166,9 @@ function AdminHome() {
           <h1 className="font-serif text-3xl">{t("admin.title")}</h1>
           <div className="flex gap-2">
             <Button asChild variant="outline">
+              <Link to="/admin/reports">通報管理 →</Link>
+            </Button>
+            <Button asChild variant="outline">
               <Link to="/admin/troubles">{t("admin.troubles")} →</Link>
             </Button>
             <Button asChild variant="outline">

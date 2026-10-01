@@ -17,6 +17,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
 import { FuzzyMap } from "@/components/FuzzyMap";
+import { ReportBlockActions } from "@/components/ReportBlock";
 import { StripePaymentForm } from "@/components/StripePaymentForm";
 import { createPaymentIntent, chargeExtension, cancelRequest, respondToMatch, confirmCompletion, disputeCompletion } from "@/lib/payments.functions";
 import { calcCancelRefund, formatYen } from "@/lib/fees";
@@ -247,6 +248,16 @@ function RequestDetail() {
             <Stat label={t("fees.extra")} v={formatYen(request.extra_fee)} />
           </div>
         </Card>
+
+        {/* 通報・ブロック（App Store Guideline 1.2 対応） */}
+        {match?.worker_id && (
+          <Card className="p-4 mt-6">
+            <div className="text-xs text-muted-foreground mb-2">
+              問題がある場合は運営へ通報できます。通報は24時間以内に確認・対応します。
+            </div>
+            <ReportBlockActions targetUserId={match.worker_id} requestId={id} targetName="代行者" />
+          </Card>
+        )}
 
         {/* ピーク料金トグル: 支払い前のみ変更可能 */}
         <Card className="p-6 mt-6">

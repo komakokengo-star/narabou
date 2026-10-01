@@ -10,3 +10,6 @@
 <!-- LOVABLE:END -->
 
 - The public auth route accepts only an allowlisted `/account-deletion` return destination, so account deletion login returns safely without enabling open redirects.
+
+## UGC安全対策（App Store Guideline 1.2）
+- 通報は public.reports、ブロックは public.blocks、アカウント停止は profiles.suspended_at。通報・ブロックUIは src/components/ReportBlock.tsx に集約し、依頼/案件詳細ページから使う。停止ユーザーの強制ログアウトは _authenticated/route.tsx の beforeLoad で行う。
