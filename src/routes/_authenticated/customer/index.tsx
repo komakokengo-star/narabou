@@ -56,19 +56,29 @@ function CustomerHome() {
     },
   });
 
+  // ブロックした相手の応募は一覧から除外（App Store Guideline 1.2 対応）
+  const { data: blockedIds = [] } = useQuery({
+    queryKey: ["my-blocks", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("blocks" as never).select("blocked_id").eq("blocker_id", user!.id);
+      return (data ?? []).map((b) => (b as unknown as { blocked_id: string }).blocked_id);
+    },
+  });
+
   const { data: pendingMatches = [] } = useQuery({
-    queryKey: ["customer-pending-matches", user?.id],
+    queryKey: ["customer-pending-matches", user?.id, blockedIds],
     enabled: !!user && requests.length > 0,
     refetchInterval: 8000,
     queryFn: async () => {
       const ids = requests.map((r) => r.id);
       const { data, error } = await supabase
         .from("matches")
-        .select("id, request_id, status, created_at")
+        .select("id, request_id, status, created_at, worker_id")
         .in("request_id", ids)
         .eq("status", "pending_approval");
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []).filter((m) => !blockedIds.includes(m.worker_id));
     },
   });
 
