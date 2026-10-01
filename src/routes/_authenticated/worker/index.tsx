@@ -56,25 +56,38 @@ function WorkerHome() {
   const [displayName, setDisplayName] = useState("");
   useEffect(() => { if (profile?.name) setDisplayName(profile.name); }, [profile?.name]);
 
+  // ブロックした相手の依頼・案件は一覧から除外（App Store Guideline 1.2 対応）
+  const { data: blockedIds = [] } = useQuery({
+    queryKey: ["my-blocks", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("blocks" as never).select("blocked_id").eq("blocker_id", user!.id);
+      return (data ?? []).map((b) => (b as unknown as { blocked_id: string }).blocked_id);
+    },
+  });
+
   const { data: openJobs = [] } = useQuery({
-    queryKey: ["open-jobs"],
+    queryKey: ["open-jobs", blockedIds],
     queryFn: async () => {
       const { data } = await supabase
         .from("requests").select("*").eq("status", "open")
         .order("created_at", { ascending: false });
-      return data ?? [];
+      return (data ?? []).filter((r) => !blockedIds.includes(r.customer_id));
     },
     refetchInterval: 10000,
   });
 
   const { data: myJobs = [] } = useQuery({
-    queryKey: ["my-jobs", user?.id],
+    queryKey: ["my-jobs", user?.id, blockedIds],
     enabled: !!user,
     queryFn: async () => {
       const { data: matches } = await supabase
         .from("matches").select("*, requests(*)")
         .eq("worker_id", user!.id).order("created_at", { ascending: false });
-      return matches ?? [];
+      return (matches ?? []).filter((m) => {
+        const cid = (m.requests as { customer_id?: string } | null)?.customer_id;
+        return !cid || !blockedIds.includes(cid);
+      });
     },
     refetchInterval: 10000,
   });
