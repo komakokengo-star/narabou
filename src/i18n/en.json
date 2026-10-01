@@ -45,7 +45,7 @@
     "email": "Email",
     "password": "Password",
     "name": "Name",
-    "phone": "Phone number",
+    "phone": "Phone number (optional)",
     "phonePlaceholder": "e.g. 090-1234-5678",
     "login": "Log in",
     "signup": "Sign up",

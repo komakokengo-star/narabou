@@ -45,7 +45,7 @@
     "email": "メールアドレス",
     "password": "パスワード",
     "name": "お名前",
-    "phone": "電話番号",
+    "phone": "電話番号（任意）",
     "phonePlaceholder": "例: 090-1234-5678",
     "login": "ログイン",
     "signup": "新規登録",
