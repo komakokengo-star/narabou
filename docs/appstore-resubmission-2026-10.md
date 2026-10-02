@@ -22,7 +22,7 @@ Guideline 5.1.1(v) — Phone number:
 
 A screen recording demonstrating the report flow, block flow, admin resolution, and optional phone field is attached/provided via the link in App Review Information.
 
-Demo account: review@narabou.jp (credentials in App Review Information).
+Demo account: komako.kengo@gmail.com / Password: kengo407 (also entered in the Sign-in Information section of App Review Information).
 ```
 
 ## ①' 日本語版（控え）
@@ -41,7 +41,7 @@ Demo account: review@narabou.jp (credentials in App Review Information).
 - 登録フォームの電話番号を任意項目に変更（「電話番号（任意）」表示）。未入力でも登録完了可能。
 
 通報・ブロック・管理対応・電話番号任意化の画面録画を添付/リンクします。
-デモアカウント: review@narabou.jp（App Review情報に記載）。
+デモアカウント: komako.kengo@gmail.com / パスワード: kengo407（App Review情報のサインイン情報欄にも記入）。
 ```
 
 ---
