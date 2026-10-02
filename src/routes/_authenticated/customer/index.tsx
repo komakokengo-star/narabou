@@ -66,13 +66,11 @@ function CustomerHome() {
     },
   });
 
-  // ブロックした代行者が担当（承認済み以降）している依頼は一覧から非表示
+  // ブロックした代行者が関わっている（応募中・担当中・過去）依頼は一覧から非表示
   const requests = allRequests.filter((r) => {
     const raw = (r as unknown as { matches?: unknown }).matches;
     const ms = (Array.isArray(raw) ? raw : raw ? [raw] : []) as { worker_id: string; status: string }[];
-    return !ms.some(
-      (m) => blockedIds.includes(m.worker_id) && !["rejected", "canceled", "pending_approval"].includes(m.status),
-    );
+    return !ms.some((m) => blockedIds.includes(m.worker_id) && m.status !== "rejected");
   });
 
   const { data: pendingMatches = [] } = useQuery({
