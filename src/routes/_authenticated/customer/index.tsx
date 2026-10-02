@@ -42,13 +42,13 @@ function CustomerHome() {
   const { user } = useAuth();
   const qc = useQueryClient();
 
-  const { data: requests = [] } = useQuery({
+  const { data: allRequests = [] } = useQuery({
     queryKey: ["customer-requests", user?.id],
     enabled: !!user,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("requests")
-        .select("*")
+        .select("*, matches(worker_id, status)")
         .eq("customer_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -56,7 +56,7 @@ function CustomerHome() {
     },
   });
 
-  // ブロックした相手の応募は一覧から除外（App Store Guideline 1.2 対応）
+  // ブロックした相手の応募・案件は一覧から除外（App Store Guideline 1.2 対応）
   const { data: blockedIds = [] } = useQuery({
     queryKey: ["my-blocks", user?.id],
     enabled: !!user,
@@ -64,6 +64,15 @@ function CustomerHome() {
       const { data } = await supabase.from("blocks" as never).select("blocked_id").eq("blocker_id", user!.id);
       return (data ?? []).map((b) => (b as unknown as { blocked_id: string }).blocked_id);
     },
+  });
+
+  // ブロックした代行者が担当（承認済み以降）している依頼は一覧から非表示
+  const requests = allRequests.filter((r) => {
+    const raw = (r as unknown as { matches?: unknown }).matches;
+    const ms = (Array.isArray(raw) ? raw : raw ? [raw] : []) as { worker_id: string; status: string }[];
+    return !ms.some(
+      (m) => blockedIds.includes(m.worker_id) && !["rejected", "canceled", "pending_approval"].includes(m.status),
+    );
   });
 
   const { data: pendingMatches = [] } = useQuery({
