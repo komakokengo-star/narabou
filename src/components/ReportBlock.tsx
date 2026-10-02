@@ -102,8 +102,9 @@ export function ReportBlockActions({ targetUserId, requestId, targetName }: Prop
   const unblock = useMutation({
     mutationFn: async () => {
       if (!myId) throw new Error("ログインが必要です");
-      await supabase.from("blocks" as never).delete()
+      const { error } = await supabase.from("blocks" as never).delete()
         .eq("blocker_id", myId).eq("blocked_id", targetUserId);
+      if (error) throw error;
     },
     onSuccess: () => {
       toast.success("ブロックを解除しました");

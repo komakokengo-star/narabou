@@ -359,6 +359,12 @@ function CustomerHome() {
         </Card>
 
         <h2 className="font-medium mb-3">{t("request.list")}</h2>
+        {blockedIds.length > 0 && (
+          <div className="text-xs text-muted-foreground mb-3">
+            ブロック中のユーザーが関わる依頼は非表示です。{" "}
+            <Link to="/blocked" className="text-primary underline">ブロックを管理・解除する</Link>
+          </div>
+        )}
         <div className="space-y-3">
           {requests.length === 0 && <div className="text-sm text-muted-foreground">{t("common.noData")}</div>}
           {requests.map((r) => {
