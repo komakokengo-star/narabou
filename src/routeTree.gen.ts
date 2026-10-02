@@ -9,61 +9,45 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TokushoRouteImport } from './routes/tokusho'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AccountDeletionRouteImport } from './routes/account-deletion'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthResetRouteImport } from './routes/auth_.reset'
-import { Route as AuthForgotRouteImport } from './routes/auth_.forgot'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AccountDeletionRouteImport } from './routes/account-deletion'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TokushoRouteImport } from './routes/tokusho'
 import { Route as AuthenticatedBlockedRouteImport } from './routes/_authenticated/blocked'
-import { Route as AuthenticatedWorkerIndexRouteImport } from './routes/_authenticated/worker/index'
-import { Route as AuthenticatedCustomerIndexRouteImport } from './routes/_authenticated/customer/index'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthForgotRouteImport } from './routes/auth_.forgot'
+import { Route as AuthResetRouteImport } from './routes/auth_.reset'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
-import { Route as ApiPublicMapsConfigRouteImport } from './routes/api/public/maps-config'
-import { Route as AuthenticatedAdminTroublesRouteImport } from './routes/_authenticated/admin/troubles'
-import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin/reports'
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin/audit'
-import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
-import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
-import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
-import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
-import { Route as ApiPublicHooksTestCleanupRouteImport } from './routes/api/public/hooks/test-cleanup'
-import { Route as ApiPublicHooksPushDispatchRouteImport } from './routes/api/public/hooks/push-dispatch'
-import { Route as ApiPublicHooksAutoForceCompleteAbandonedRouteImport } from './routes/api/public/hooks/auto-force-complete-abandoned'
-import { Route as ApiPublicHooksAutoConfirmCompletionRouteImport } from './routes/api/public/hooks/auto-confirm-completion'
-import { Route as ApiPublicHooksAutoCancelOverdueRouteImport } from './routes/api/public/hooks/auto-cancel-overdue'
-import { Route as ApiPublicConnectOnboardingRouteImport } from './routes/api/public/connect/onboarding'
-import { Route as AuthenticatedWorkerJobIdRouteImport } from './routes/_authenticated/worker/job/$id'
+import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin/reports'
+import { Route as AuthenticatedAdminTroublesRouteImport } from './routes/_authenticated/admin/troubles'
+import { Route as AuthenticatedCustomerIndexRouteImport } from './routes/_authenticated/customer/index'
+import { Route as AuthenticatedWorkerIndexRouteImport } from './routes/_authenticated/worker/index'
+import { Route as ApiPublicMapsConfigRouteImport } from './routes/api/public/maps-config'
 import { Route as AuthenticatedCustomerRequestIdRouteImport } from './routes/_authenticated/customer/request/$id'
+import { Route as AuthenticatedWorkerJobIdRouteImport } from './routes/_authenticated/worker/job/$id'
+import { Route as ApiPublicConnectOnboardingRouteImport } from './routes/api/public/connect/onboarding'
+import { Route as ApiPublicHooksAutoCancelOverdueRouteImport } from './routes/api/public/hooks/auto-cancel-overdue'
+import { Route as ApiPublicHooksAutoConfirmCompletionRouteImport } from './routes/api/public/hooks/auto-confirm-completion'
+import { Route as ApiPublicHooksAutoForceCompleteAbandonedRouteImport } from './routes/api/public/hooks/auto-force-complete-abandoned'
+import { Route as ApiPublicHooksPushDispatchRouteImport } from './routes/api/public/hooks/push-dispatch'
+import { Route as ApiPublicHooksTestCleanupRouteImport } from './routes/api/public/hooks/test-cleanup'
+import { Route as ApiPublicWebhooksStripeRouteImport } from './routes/api/public/webhooks/stripe'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
-const TokushoRoute = TokushoRouteImport.update({
-  id: '/tokusho',
-  path: '/tokusho',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountDeletionRoute = AccountDeletionRouteImport.update({
@@ -71,13 +55,44 @@ const AccountDeletionRoute = AccountDeletionRouteImport.update({
   path: '/account-deletion',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TokushoRoute = TokushoRouteImport.update({
+  id: '/tokusho',
+  path: '/tokusho',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedBlockedRoute = AuthenticatedBlockedRouteImport.update({
+  id: '/blocked',
+  path: '/blocked',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthForgotRoute = AuthForgotRouteImport.update({
+  id: '/auth_/forgot',
+  path: '/auth/forgot',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthResetRoute = AuthResetRouteImport.update({
@@ -85,25 +100,26 @@ const AuthResetRoute = AuthResetRouteImport.update({
   path: '/auth/reset',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthForgotRoute = AuthForgotRouteImport.update({
-  id: '/auth_/forgot',
-  path: '/auth/forgot',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedBlockedRoute = AuthenticatedBlockedRouteImport.update({
-  id: '/blocked',
-  path: '/blocked',
+const AuthenticatedAdminAuditRoute = AuthenticatedAdminAuditRouteImport.update({
+  id: '/admin/audit',
+  path: '/admin/audit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedWorkerIndexRoute =
-  AuthenticatedWorkerIndexRouteImport.update({
-    id: '/worker/',
-    path: '/worker/',
+const AuthenticatedAdminReportsRoute =
+  AuthenticatedAdminReportsRouteImport.update({
+    id: '/admin/reports',
+    path: '/admin/reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminTroublesRoute =
+  AuthenticatedAdminTroublesRouteImport.update({
+    id: '/admin/troubles',
+    path: '/admin/troubles',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedCustomerIndexRoute =
@@ -112,76 +128,33 @@ const AuthenticatedCustomerIndexRoute =
     path: '/customer/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
+const AuthenticatedWorkerIndexRoute =
+  AuthenticatedWorkerIndexRouteImport.update({
+    id: '/worker/',
+    path: '/worker/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicMapsConfigRoute = ApiPublicMapsConfigRouteImport.update({
   id: '/api/public/maps-config',
   path: '/api/public/maps-config',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAdminTroublesRoute =
-  AuthenticatedAdminTroublesRouteImport.update({
-    id: '/admin/troubles',
-    path: '/admin/troubles',
+const AuthenticatedCustomerRequestIdRoute =
+  AuthenticatedCustomerRequestIdRouteImport.update({
+    id: '/customer/request/$id',
+    path: '/customer/request/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAdminReportsRoute =
-  AuthenticatedAdminReportsRouteImport.update({
-    id: '/admin/reports',
-    path: '/admin/reports',
+const AuthenticatedWorkerJobIdRoute =
+  AuthenticatedWorkerJobIdRouteImport.update({
+    id: '/worker/job/$id',
+    path: '/worker/job/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAdminAuditRoute = AuthenticatedAdminAuditRouteImport.update({
-  id: '/admin/audit',
-  path: '/admin/audit',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const LovableEmailQueueProcessRoute =
-  LovableEmailQueueProcessRouteImport.update({
-    id: '/lovable/email/queue/process',
-    path: '/lovable/email/queue/process',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
-  id: '/lovable/email/auth/webhook',
-  path: '/lovable/email/auth/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
-  id: '/lovable/email/auth/preview',
-  path: '/lovable/email/auth/preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
-  id: '/api/public/webhooks/stripe',
-  path: '/api/public/webhooks/stripe',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicHooksTestCleanupRoute =
-  ApiPublicHooksTestCleanupRouteImport.update({
-    id: '/api/public/hooks/test-cleanup',
-    path: '/api/public/hooks/test-cleanup',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksPushDispatchRoute =
-  ApiPublicHooksPushDispatchRouteImport.update({
-    id: '/api/public/hooks/push-dispatch',
-    path: '/api/public/hooks/push-dispatch',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksAutoForceCompleteAbandonedRoute =
-  ApiPublicHooksAutoForceCompleteAbandonedRouteImport.update({
-    id: '/api/public/hooks/auto-force-complete-abandoned',
-    path: '/api/public/hooks/auto-force-complete-abandoned',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksAutoConfirmCompletionRoute =
-  ApiPublicHooksAutoConfirmCompletionRouteImport.update({
-    id: '/api/public/hooks/auto-confirm-completion',
-    path: '/api/public/hooks/auto-confirm-completion',
+const ApiPublicConnectOnboardingRoute =
+  ApiPublicConnectOnboardingRouteImport.update({
+    id: '/api/public/connect/onboarding',
+    path: '/api/public/connect/onboarding',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicHooksAutoCancelOverdueRoute =
@@ -190,23 +163,50 @@ const ApiPublicHooksAutoCancelOverdueRoute =
     path: '/api/public/hooks/auto-cancel-overdue',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicConnectOnboardingRoute =
-  ApiPublicConnectOnboardingRouteImport.update({
-    id: '/api/public/connect/onboarding',
-    path: '/api/public/connect/onboarding',
+const ApiPublicHooksAutoConfirmCompletionRoute =
+  ApiPublicHooksAutoConfirmCompletionRouteImport.update({
+    id: '/api/public/hooks/auto-confirm-completion',
+    path: '/api/public/hooks/auto-confirm-completion',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AuthenticatedWorkerJobIdRoute =
-  AuthenticatedWorkerJobIdRouteImport.update({
-    id: '/worker/job/$id',
-    path: '/worker/job/$id',
-    getParentRoute: () => AuthenticatedRouteRoute,
+const ApiPublicHooksAutoForceCompleteAbandonedRoute =
+  ApiPublicHooksAutoForceCompleteAbandonedRouteImport.update({
+    id: '/api/public/hooks/auto-force-complete-abandoned',
+    path: '/api/public/hooks/auto-force-complete-abandoned',
+    getParentRoute: () => rootRouteImport,
   } as any)
-const AuthenticatedCustomerRequestIdRoute =
-  AuthenticatedCustomerRequestIdRouteImport.update({
-    id: '/customer/request/$id',
-    path: '/customer/request/$id',
-    getParentRoute: () => AuthenticatedRouteRoute,
+const ApiPublicHooksPushDispatchRoute =
+  ApiPublicHooksPushDispatchRouteImport.update({
+    id: '/api/public/hooks/push-dispatch',
+    path: '/api/public/hooks/push-dispatch',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksTestCleanupRoute =
+  ApiPublicHooksTestCleanupRouteImport.update({
+    id: '/api/public/hooks/test-cleanup',
+    path: '/api/public/hooks/test-cleanup',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicWebhooksStripeRoute = ApiPublicWebhooksStripeRouteImport.update({
+  id: '/api/public/webhooks/stripe',
+  path: '/api/public/webhooks/stripe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -433,46 +433,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/tokusho': {
-      id: '/tokusho'
-      path: '/tokusho'
-      fullPath: '/tokusho'
-      preLoaderRoute: typeof TokushoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/account-deletion': {
-      id: '/account-deletion'
-      path: '/account-deletion'
-      fullPath: '/account-deletion'
-      preLoaderRoute: typeof AccountDeletionRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -482,11 +447,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/account-deletion': {
+      id: '/account-deletion'
+      path: '/account-deletion'
+      fullPath: '/account-deletion'
+      preLoaderRoute: typeof AccountDeletionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tokusho': {
+      id: '/tokusho'
+      path: '/tokusho'
+      fullPath: '/tokusho'
+      preLoaderRoute: typeof TokushoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/blocked': {
+      id: '/_authenticated/blocked'
+      path: '/blocked'
+      fullPath: '/blocked'
+      preLoaderRoute: typeof AuthenticatedBlockedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/auth_/forgot': {
+      id: '/auth_/forgot'
+      path: '/auth/forgot'
+      fullPath: '/auth/forgot'
+      preLoaderRoute: typeof AuthForgotRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth_/reset': {
@@ -496,67 +517,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthResetRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth_/forgot': {
-      id: '/auth_/forgot'
-      path: '/auth/forgot'
-      fullPath: '/auth/forgot'
-      preLoaderRoute: typeof AuthForgotRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/blocked': {
-      id: '/_authenticated/blocked'
-      path: '/blocked'
-      fullPath: '/blocked'
-      preLoaderRoute: typeof AuthenticatedBlockedRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/worker/': {
-      id: '/_authenticated/worker/'
-      path: '/worker'
-      fullPath: '/worker/'
-      preLoaderRoute: typeof AuthenticatedWorkerIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/customer/': {
-      id: '/_authenticated/customer/'
-      path: '/customer'
-      fullPath: '/customer/'
-      preLoaderRoute: typeof AuthenticatedCustomerIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/api/public/maps-config': {
-      id: '/api/public/maps-config'
-      path: '/api/public/maps-config'
-      fullPath: '/api/public/maps-config'
-      preLoaderRoute: typeof ApiPublicMapsConfigRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/admin/troubles': {
-      id: '/_authenticated/admin/troubles'
-      path: '/admin/troubles'
-      fullPath: '/admin/troubles'
-      preLoaderRoute: typeof AuthenticatedAdminTroublesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/admin/reports': {
-      id: '/_authenticated/admin/reports'
-      path: '/admin/reports'
-      fullPath: '/admin/reports'
-      preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/audit': {
@@ -566,60 +531,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAuditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/lovable/email/queue/process': {
-      id: '/lovable/email/queue/process'
-      path: '/lovable/email/queue/process'
-      fullPath: '/lovable/email/queue/process'
-      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+    '/_authenticated/admin/reports': {
+      id: '/_authenticated/admin/reports'
+      path: '/admin/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/troubles': {
+      id: '/_authenticated/admin/troubles'
+      path: '/admin/troubles'
+      fullPath: '/admin/troubles'
+      preLoaderRoute: typeof AuthenticatedAdminTroublesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/customer/': {
+      id: '/_authenticated/customer/'
+      path: '/customer'
+      fullPath: '/customer/'
+      preLoaderRoute: typeof AuthenticatedCustomerIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/worker/': {
+      id: '/_authenticated/worker/'
+      path: '/worker'
+      fullPath: '/worker/'
+      preLoaderRoute: typeof AuthenticatedWorkerIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/maps-config': {
+      id: '/api/public/maps-config'
+      path: '/api/public/maps-config'
+      fullPath: '/api/public/maps-config'
+      preLoaderRoute: typeof ApiPublicMapsConfigRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/auth/webhook': {
-      id: '/lovable/email/auth/webhook'
-      path: '/lovable/email/auth/webhook'
-      fullPath: '/lovable/email/auth/webhook'
-      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_authenticated/customer/request/$id': {
+      id: '/_authenticated/customer/request/$id'
+      path: '/customer/request/$id'
+      fullPath: '/customer/request/$id'
+      preLoaderRoute: typeof AuthenticatedCustomerRequestIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/lovable/email/auth/preview': {
-      id: '/lovable/email/auth/preview'
-      path: '/lovable/email/auth/preview'
-      fullPath: '/lovable/email/auth/preview'
-      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_authenticated/worker/job/$id': {
+      id: '/_authenticated/worker/job/$id'
+      path: '/worker/job/$id'
+      fullPath: '/worker/job/$id'
+      preLoaderRoute: typeof AuthenticatedWorkerJobIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/webhooks/stripe': {
-      id: '/api/public/webhooks/stripe'
-      path: '/api/public/webhooks/stripe'
-      fullPath: '/api/public/webhooks/stripe'
-      preLoaderRoute: typeof ApiPublicWebhooksStripeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/test-cleanup': {
-      id: '/api/public/hooks/test-cleanup'
-      path: '/api/public/hooks/test-cleanup'
-      fullPath: '/api/public/hooks/test-cleanup'
-      preLoaderRoute: typeof ApiPublicHooksTestCleanupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/push-dispatch': {
-      id: '/api/public/hooks/push-dispatch'
-      path: '/api/public/hooks/push-dispatch'
-      fullPath: '/api/public/hooks/push-dispatch'
-      preLoaderRoute: typeof ApiPublicHooksPushDispatchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/auto-force-complete-abandoned': {
-      id: '/api/public/hooks/auto-force-complete-abandoned'
-      path: '/api/public/hooks/auto-force-complete-abandoned'
-      fullPath: '/api/public/hooks/auto-force-complete-abandoned'
-      preLoaderRoute: typeof ApiPublicHooksAutoForceCompleteAbandonedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/auto-confirm-completion': {
-      id: '/api/public/hooks/auto-confirm-completion'
-      path: '/api/public/hooks/auto-confirm-completion'
-      fullPath: '/api/public/hooks/auto-confirm-completion'
-      preLoaderRoute: typeof ApiPublicHooksAutoConfirmCompletionRouteImport
+    '/api/public/connect/onboarding': {
+      id: '/api/public/connect/onboarding'
+      path: '/api/public/connect/onboarding'
+      fullPath: '/api/public/connect/onboarding'
+      preLoaderRoute: typeof ApiPublicConnectOnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/auto-cancel-overdue': {
@@ -629,26 +594,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAutoCancelOverdueRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/connect/onboarding': {
-      id: '/api/public/connect/onboarding'
-      path: '/api/public/connect/onboarding'
-      fullPath: '/api/public/connect/onboarding'
-      preLoaderRoute: typeof ApiPublicConnectOnboardingRouteImport
+    '/api/public/hooks/auto-confirm-completion': {
+      id: '/api/public/hooks/auto-confirm-completion'
+      path: '/api/public/hooks/auto-confirm-completion'
+      fullPath: '/api/public/hooks/auto-confirm-completion'
+      preLoaderRoute: typeof ApiPublicHooksAutoConfirmCompletionRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/worker/job/$id': {
-      id: '/_authenticated/worker/job/$id'
-      path: '/worker/job/$id'
-      fullPath: '/worker/job/$id'
-      preLoaderRoute: typeof AuthenticatedWorkerJobIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/api/public/hooks/auto-force-complete-abandoned': {
+      id: '/api/public/hooks/auto-force-complete-abandoned'
+      path: '/api/public/hooks/auto-force-complete-abandoned'
+      fullPath: '/api/public/hooks/auto-force-complete-abandoned'
+      preLoaderRoute: typeof ApiPublicHooksAutoForceCompleteAbandonedRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/customer/request/$id': {
-      id: '/_authenticated/customer/request/$id'
-      path: '/customer/request/$id'
-      fullPath: '/customer/request/$id'
-      preLoaderRoute: typeof AuthenticatedCustomerRequestIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/api/public/hooks/push-dispatch': {
+      id: '/api/public/hooks/push-dispatch'
+      path: '/api/public/hooks/push-dispatch'
+      fullPath: '/api/public/hooks/push-dispatch'
+      preLoaderRoute: typeof ApiPublicHooksPushDispatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/test-cleanup': {
+      id: '/api/public/hooks/test-cleanup'
+      path: '/api/public/hooks/test-cleanup'
+      fullPath: '/api/public/hooks/test-cleanup'
+      preLoaderRoute: typeof ApiPublicHooksTestCleanupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/webhooks/stripe': {
+      id: '/api/public/webhooks/stripe'
+      path: '/api/public/webhooks/stripe'
+      fullPath: '/api/public/webhooks/stripe'
+      preLoaderRoute: typeof ApiPublicWebhooksStripeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
