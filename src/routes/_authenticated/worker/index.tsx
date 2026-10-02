@@ -350,6 +350,12 @@ function WorkerHome() {
         </div>
 
         <h2 className="font-medium mb-3">{t("worker.myJobs")}</h2>
+        {blockedIds.length > 0 && (
+          <div className="text-xs text-muted-foreground mb-3">
+            ブロック中のユーザーの案件は非表示です。{" "}
+            <Link to="/blocked" className="text-primary underline">ブロックを管理・解除する</Link>
+          </div>
+        )}
         <div className="grid gap-3">
           {myJobs.length === 0 && <div className="text-sm text-muted-foreground">{t("common.noData")}</div>}
           {myJobs.map((m) => {
