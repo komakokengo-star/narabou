@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { parseIntInput } from "@/lib/numberInput";
 import { Header } from "@/components/Header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -92,7 +93,8 @@ function CustomerHome() {
   const [storeName, setStoreName] = useState("");
   const [storeAddress, setStoreAddress] = useState("");
   const [desiredTime, setDesiredTime] = useState("");
-  const [estimatedWait, setEstimatedWait] = useState(30);
+  const [estimatedWait, setEstimatedWait] = useState("30");
+  const waitMinutes = parseIntInput(estimatedWait);
   const [isPeak, setIsPeak] = useState(false);
   const [notes, setNotes] = useState("");
   const [landmark, setLandmark] = useState("");
@@ -103,7 +105,7 @@ function CustomerHome() {
     setStoreName(r.store_name ?? "");
     setStoreAddress(r.store_address ?? "");
     setDesiredTime("");
-    setEstimatedWait(r.estimated_wait_minutes ?? 30);
+    setEstimatedWait(String(r.estimated_wait_minutes ?? 30));
     setIsPeak(!!r.is_peak);
     setNotes(r.notes ?? "");
     setLandmark(r.landmark ?? "");
@@ -117,7 +119,7 @@ function CustomerHome() {
   const create = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("unauth");
-      const fee = calcFee({ waitMinutes: estimatedWait, isPeak });
+      const fee = calcFee({ waitMinutes, isPeak });
       const { data, error } = await supabase
         .from("requests")
         .insert({
@@ -125,7 +127,7 @@ function CustomerHome() {
           store_name: storeName,
           store_address: storeAddress || null,
           desired_time: desiredTime ? new Date(desiredTime).toISOString() : null,
-          estimated_wait_minutes: estimatedWait,
+          estimated_wait_minutes: waitMinutes,
           is_peak: isPeak,
           notes: notes || null,
           landmark: landmark || null,
@@ -162,7 +164,7 @@ function CustomerHome() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const fee = calcFee({ waitMinutes: estimatedWait, isPeak });
+  const fee = calcFee({ waitMinutes, isPeak });
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -257,7 +259,7 @@ function CustomerHome() {
             </div>
             <div>
               <Label>{t("request.estimatedWait")} ({t("common.minutes")})</Label>
-              <Input type="number" min={10} max={300} value={estimatedWait} onChange={(e) => setEstimatedWait(Number(e.target.value))} />
+              <Input type="number" min={10} max={300} value={estimatedWait} onChange={(e) => setEstimatedWait(e.target.value)} />
             </div>
             <div className="sm:col-span-2">
               <div className="flex items-center justify-between mb-1">
@@ -335,7 +337,7 @@ function CustomerHome() {
 
             <div className="sm:col-span-2 p-4 rounded-md bg-muted/40 text-sm space-y-1">
               <Row label={t("fees.base")} v={formatYen(fee.base)} />
-              <Row label={`${t("fees.time")} (${estimatedWait}${t("common.minutes")})`} v={formatYen(fee.time)} />
+              <Row label={`${t("fees.time")} (${waitMinutes}${t("common.minutes")})`} v={formatYen(fee.time)} />
               {fee.peak > 0 && <Row label={t("fees.peak")} v={formatYen(fee.peak)} />}
               <div className="border-t border-border my-2" />
               <Row label={t("fees.total")} v={formatYen(fee.total)} bold />

@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatYen } from "@/lib/fees";
+import { parseIntInput } from "@/lib/numberInput";
 import { toast } from "sonner";
 import { cancelRequest } from "@/lib/payments.functions";
 import {
@@ -349,13 +350,14 @@ function PaymentRow({
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const remaining = p.amount - (p.refund_amount ?? 0);
-  const [amount, setAmount] = useState(remaining);
+  const [amount, setAmount] = useState(String(remaining));
+  const refundAmount = parseIntInput(amount);
   const [reason, setReason] = useState("");
 
   const refund = useMutation({
     mutationFn: () =>
       manualRefund({
-        data: { paymentId: p.id, amount: Number(amount), reason },
+        data: { paymentId: p.id, amount: refundAmount, reason },
       }),
     onSuccess: (r) => {
       toast.success(`返金 ${formatYen(r.refunded)}`);
@@ -412,7 +414,7 @@ function PaymentRow({
             <Input
               type="number"
               value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
+              onChange={(e) => setAmount(e.target.value)}
               className="h-7 w-28 text-xs"
               min={1}
               max={remaining}
@@ -436,7 +438,7 @@ function PaymentRow({
               size="sm"
               className="h-7 text-xs"
               onClick={() => refund.mutate()}
-              disabled={refund.isPending || amount < 1 || amount > remaining}
+              disabled={refund.isPending || refundAmount < 1 || refundAmount > remaining}
             >
               {t("troubles.executeRefund")}
             </Button>

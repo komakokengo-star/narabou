@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { requestCompletion } from "@/lib/payments.functions";
+import { parseIntInput } from "@/lib/numberInput";
 import { ReportBlockActions } from "@/components/ReportBlock";
 import { reverseGeocode, forwardGeocode } from "@/lib/geocode.functions";
 
@@ -147,7 +148,8 @@ function WorkerJob() {
   });
 
 
-  const [waitTime, setWaitTime] = useState(0);
+  const [waitTime, setWaitTime] = useState("");
+  const waitMinutes = parseIntInput(waitTime);
   const [note, setNote] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
@@ -193,7 +195,7 @@ function WorkerJob() {
         match_id: matchId,
         location_lat: lat,
         location_lng: lng,
-        wait_time: waitTime,
+        wait_time: waitMinutes,
         note: note || null,
         photo_url: photoUrl,
       });
@@ -429,7 +431,7 @@ function WorkerJob() {
           <form onSubmit={(e) => { e.preventDefault(); checkin.mutate(); }} className="space-y-3">
             <div>
               <Label>{t("workerJob.waitTimeLabel")}</Label>
-              <Input type="number" min={0} value={waitTime} onChange={(e) => setWaitTime(Number(e.target.value))} />
+              <Input type="number" min={0} value={waitTime} onChange={(e) => setWaitTime(e.target.value)} />
             </div>
             <div>
               <Label>{t("workerJob.noteLabel")}</Label>
