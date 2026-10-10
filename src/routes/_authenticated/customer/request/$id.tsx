@@ -109,7 +109,7 @@ function RequestDetail() {
   const [extMin, setExtMin] = useState("10");
   const extMinutes = parseIntInput(extMin);
   const extend = useMutation({
-    mutationFn: (method: "card" | "paypay") => chargeExtension({ data: { requestId: id, extraMinutes: extMin, method } }),
+    mutationFn: (method: "card" | "paypay") => chargeExtension({ data: { requestId: id, extraMinutes: extMinutes, method } }),
     onSuccess: (r) => {
       const method = (r.method ?? "card") as "card" | "paypay";
       setIntent({ clientSecret: r.clientSecret!, amount: r.amount, mode: method === "paypay" ? "pay" : "authorize", method });
