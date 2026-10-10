@@ -85,6 +85,7 @@
     "workerPayout": "代行者報酬 (80%)",
     "estimate": "見積もり",
     "transparentTitle": "10分だけならワンコインでOK。（PayPay利用可）",
+    "perPersonExample": "（4名様40分待ちの場合、お一人様200円で代行できます）",
 "baseHint": "最初の10分込み",
     "timeHint": "11分目から・切上げ計算",
     "peakHint": "混雑時のみ",

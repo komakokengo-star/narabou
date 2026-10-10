@@ -92,7 +92,8 @@ function Landing() {
         </section>
 
         <section className="container mx-auto px-4 py-12">
-          <h2 className="font-serif text-2xl sm:text-3xl mb-8">{t("fees.transparentTitle")}</h2>
+          <h2 className="font-serif text-2xl sm:text-3xl mb-2">{t("fees.transparentTitle")}</h2>
+          <p className="text-xs text-muted-foreground mb-8">{t("fees.perPersonExample")}</p>
           <div className="grid sm:grid-cols-2 gap-4">
             <FeeCard label={t("fees.base")} value={`¥${BASE_FEE}`} hint={t("fees.baseHint")} />
             <FeeCard label={t("fees.time")} value={`¥${TIME_BLOCK_FEE} / 10${t("common.minute")}`} hint={t("fees.timeHint")} />

@@ -85,6 +85,7 @@
     "workerPayout": "대행자 보수 (80%)",
     "estimate": "견적",
     "transparentTitle": "10분만이라면 500엔이면 OK. (PayPay 사용 가능)",
+    "perPersonExample": "(4명이 40분 대기할 경우, 1인 200엔으로 대행할 수 있습니다)",
 "baseHint": "첫 10분 포함",
     "timeHint": "11분째부터·올림 계산",
     "peakHint": "혼잡 시에만",

@@ -85,6 +85,7 @@
     "workerPayout": "Worker payout (80%)",
     "estimate": "Estimate",
     "transparentTitle": "Just 10 minutes? That's ¥500. (PayPay accepted)",
+    "perPersonExample": "(A 40-minute wait for 4 people works out to ¥200 each.)",
 "baseHint": "First 10 min included",
     "timeHint": "From the 11th min, rounded up per 10 min",
     "peakHint": "Busy hours only",
