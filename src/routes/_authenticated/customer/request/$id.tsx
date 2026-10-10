@@ -21,6 +21,7 @@ import { ReportBlockActions } from "@/components/ReportBlock";
 import { StripePaymentForm } from "@/components/StripePaymentForm";
 import { createPaymentIntent, chargeExtension, cancelRequest, respondToMatch, confirmCompletion, disputeCompletion } from "@/lib/payments.functions";
 import { calcCancelRefund, formatYen } from "@/lib/fees";
+import { parseIntInput } from "@/lib/numberInput";
 import { toast } from "sonner";
 import { ArrowLeft, Clock, Camera } from "lucide-react";
 
@@ -105,7 +106,8 @@ function RequestDetail() {
 
 
 
-  const [extMin, setExtMin] = useState(10);
+  const [extMin, setExtMin] = useState("10");
+  const extMinutes = parseIntInput(extMin);
   const extend = useMutation({
     mutationFn: (method: "card" | "paypay") => chargeExtension({ data: { requestId: id, extraMinutes: extMin, method } }),
     onSuccess: (r) => {
@@ -514,9 +516,9 @@ function RequestDetail() {
                         <DialogHeader><DialogTitle>{t("request.extensionPrompt")}</DialogTitle></DialogHeader>
                         <div className="space-y-2">
                           <Label>{t("common.minutes")}</Label>
-                          <Input type="number" min={10} step={10} value={extMin} onChange={(e) => setExtMin(Number(e.target.value))} />
+                          <Input type="number" min={10} step={10} value={extMin} onChange={(e) => setExtMin(e.target.value)} />
                           <p className="text-xs text-muted-foreground">
-                            追加料金: {formatYen(Math.ceil(extMin / 10) * 200)}
+                            追加料金: {formatYen(Math.ceil(extMinutes / 10) * 200)}
                           </p>
                         </div>
                         <DialogFooter className="flex-col gap-2 sm:flex-col">
