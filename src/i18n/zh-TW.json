@@ -85,6 +85,7 @@
     "workerPayout": "代排者報酬 (80%)",
     "estimate": "估價",
     "transparentTitle": "只有10分鐘的話，500日圓就OK。（可使用PayPay）",
+    "perPersonExample": "（4位等候40分鐘的話，每個人只要200日圓就能請人代排）",
 "baseHint": "含前 10 分鐘",
     "timeHint": "自第 11 分鐘起·進位計算",
     "peakHint": "僅尖峰時段",
