@@ -15,7 +15,19 @@ const FALLBACK_BROWSER_KEY = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_
 const TRACKING_ID = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
 
 // Fukuoka (Hakata station area)
-const FUKUOKA_CENTER = { lat: 33.5904, lng: 130.4017 };
+const CITIES = [
+  { name: "東京", lat: 35.6812, lng: 139.7671 },
+  { name: "横浜", lat: 35.4658, lng: 139.6223 },
+  { name: "名古屋", lat: 35.1709, lng: 136.8815 },
+  { name: "大阪", lat: 34.7025, lng: 135.4959 },
+  { name: "京都", lat: 34.9858, lng: 135.7588 },
+  { name: "神戸", lat: 34.6946, lng: 135.1955 },
+  { name: "札幌", lat: 43.0687, lng: 141.3508 },
+  { name: "仙台", lat: 38.2601, lng: 140.8822 },
+  { name: "広島", lat: 34.3978, lng: 132.4753 },
+  { name: "福岡", lat: 33.5904, lng: 130.4017 },
+] as const;
+const CITY_KEY = "narabou.city";
 
 async function resolveBrowserKey(): Promise<string | undefined> {
   try {
@@ -79,6 +91,18 @@ export function StoreSearchMap({ storeName, storeAddress, onChange }: Props) {
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cityIdx, setCityIdx] = useState(CITIES.length - 1);
+  const center = { lat: CITIES[cityIdx].lat, lng: CITIES[cityIdx].lng };
+
+  useEffect(() => {
+    const saved = Number(window.localStorage.getItem(CITY_KEY));
+    if (Number.isInteger(saved) && saved >= 0 && saved < CITIES.length) setCityIdx(saved);
+  }, []);
+
+  useEffect(() => {
+    if (mapRef.current) mapRef.current.panTo(center);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cityIdx, ready]);
 
   useEffect(() => {
     let cancelled = false;
@@ -89,7 +113,7 @@ export function StoreSearchMap({ storeName, storeAddress, onChange }: Props) {
         const { AutocompleteSessionToken } = await window.google.maps.importLibrary("places");
         if (cancelled || !mapDivRef.current) return;
         mapRef.current = new Map(mapDivRef.current, {
-          center: FUKUOKA_CENTER,
+          center,
           zoom: 13,
           disableDefaultUI: true,
           zoomControl: true,
@@ -116,7 +140,7 @@ export function StoreSearchMap({ storeName, storeAddress, onChange }: Props) {
         input: value,
         sessionToken: sessionTokenRef.current,
         locationBias: {
-          center: FUKUOKA_CENTER,
+          center,
           radius: 30000,
         },
         language: i18n.language === "en" ? "en" : "ja",
@@ -175,6 +199,23 @@ export function StoreSearchMap({ storeName, storeAddress, onChange }: Props) {
 
   return (
     <div className="space-y-3 sm:col-span-2">
+      <div>
+        <Label htmlFor="city-select">エリア</Label>
+        <select
+          id="city-select"
+          value={cityIdx}
+          onChange={(e) => {
+            const i = Number(e.target.value);
+            setCityIdx(i);
+            window.localStorage.setItem(CITY_KEY, String(i));
+          }}
+          className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+        >
+          {CITIES.map((c, i) => (
+            <option key={c.name} value={i}>{c.name}</option>
+          ))}
+        </select>
+      </div>
       <div className="relative">
         <Label>{t("request.storeName")}</Label>
         <Input

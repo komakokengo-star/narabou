@@ -4,7 +4,7 @@ import appI18n from "../i18n";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { BASE_FEE, TIME_BLOCK_FEE, PEAK_FEE } from "@/lib/fees";
+import { BASE_FEE, TIME_BLOCK_FEE } from "@/lib/fees";
 import { Clock, MapPin, ShieldCheck, Users } from "lucide-react";
 import queueIllustration from "@/assets/narabou-queue-illustration.jpg.asset.json";
 
@@ -33,13 +33,13 @@ export const Route = createFileRoute("/")({
           name: "ＮＡＲＡＢＯＵ 行列代行サービス",
           serviceType: "行列代行（並び代行）",
           provider: { "@type": "Organization", name: "ＮＡＲＡＢＯＵ", url: "https://app.narabou.jp" },
-          areaServed: { "@type": "City", name: "福岡市" },
+          areaServed: ["東京","横浜","名古屋","大阪","京都","神戸","札幌","仙台","広島","福岡"].map((name) => ({ "@type": "City", name })),
           url: "https://app.narabou.jp/",
           offers: {
             "@type": "Offer",
             priceCurrency: "JPY",
             price: String(BASE_FEE),
-            description: `基本料金¥${BASE_FEE}、10分ごと¥${TIME_BLOCK_FEE}、ピーク時+¥${PEAK_FEE}`,
+            description: `基本料金¥${BASE_FEE}、10分ごと¥${TIME_BLOCK_FEE}`,
           },
         }),
       },
@@ -83,7 +83,7 @@ function Landing() {
             <div className="relative order-first lg:order-last">
               <img
                 src={queueIllustration.url}
-                alt="福岡・薬院の人気店で行列に並ぶNARABOUのイラスト"
+                alt="人気店で行列に並ぶNARABOUのイラスト"
                 className="w-full rounded-2xl shadow-lg object-cover"
                 loading="lazy"
               />
@@ -93,10 +93,9 @@ function Landing() {
 
         <section className="container mx-auto px-4 py-12">
           <h2 className="font-serif text-2xl sm:text-3xl mb-8">{t("fees.transparentTitle")}</h2>
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             <FeeCard label={t("fees.base")} value={`¥${BASE_FEE}`} hint={t("fees.baseHint")} />
             <FeeCard label={t("fees.time")} value={`¥${TIME_BLOCK_FEE} / 10${t("common.minute")}`} hint={t("fees.timeHint")} />
-            <FeeCard label={t("fees.peak")} value={`+¥${PEAK_FEE}`} hint={t("fees.peakHint")} />
           </div>
           <p className="text-xs text-muted-foreground mt-4">
             {t("fees.disclaimer")}

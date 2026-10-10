@@ -104,6 +104,8 @@ async function sendToToken(
           webpush: {
             fcm_options: { link: payload.data?.url ?? "/dashboard" },
           },
+          apns: { payload: { aps: { sound: "default" } } },
+          android: { priority: "high", notification: { sound: "default" } },
         },
       }),
     },

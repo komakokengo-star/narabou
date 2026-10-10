@@ -8,9 +8,9 @@ export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
       { title: "プライバシーポリシー — ＮＡＲＡＢＯＵ" },
-      { name: "description", content: "福岡行列代行サービスアプリ「ＮＡＲＡＢＯＵ」のプライバシーポリシーです。個人情報の取り扱いについて定めます。" },
+      { name: "description", content: "行列代行サービスアプリ「ＮＡＲＡＢＯＵ」のプライバシーポリシーです。個人情報の取り扱いについて定めます。" },
       { property: "og:title", content: "プライバシーポリシー — ＮＡＲＡＢＯＵ" },
-      { property: "og:description", content: "福岡行列代行サービスアプリ「ＮＡＲＡＢＯＵ」のプライバシーポリシーです。" },
+      { property: "og:description", content: "行列代行サービスアプリ「ＮＡＲＡＢＯＵ」のプライバシーポリシーです。" },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://app.narabou.jp/privacy" },
       { name: "twitter:card", content: "summary" },
@@ -49,7 +49,7 @@ function PrivacyPage() {
           </div>
 
           <p className="text-sm text-muted-foreground mb-8">
-            本ページは HIFUNON が管理する、ＮＡＲＡＢＯＵ（福岡行列代行サービスアプリ）における個人情報の取り扱いについて説明するものです。最新の内容はアプリ内の表示をご確認ください。
+            本ページは HIFUNON が管理する、ＮＡＲＡＢＯＵ（行列代行サービスアプリ）における個人情報の取り扱いについて説明するものです。最新の内容はアプリ内の表示をご確認ください。
           </p>
 
           <Card className="p-6 sm:p-8 space-y-10">

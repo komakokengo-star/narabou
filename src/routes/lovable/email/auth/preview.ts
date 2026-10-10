@@ -18,7 +18,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "福岡行列代行"
+const SITE_NAME = "NARABOU"
 const ROOT_DOMAIN = "narabou.jp"
 const PUBLIC_APP_URL = process.env.PUBLIC_APP_URL ?? "https://narabou.lovable.app"
 

@@ -7,9 +7,9 @@ export const Route = createFileRoute("/tokusho")({
   head: () => ({
     meta: [
       { title: "特定商取引法に基づく表記 — ＮＡＲＡＢＯＵ" },
-      { name: "description", content: "福岡行列代行サービスアプリ「ＮＡＲＡＢＯＵ」の特定商取引法に基づく表記です。事業者情報、料金、決済・キャンセルポリシーなどを定めます。" },
+      { name: "description", content: "行列代行サービスアプリ「ＮＡＲＡＢＯＵ」の特定商取引法に基づく表記です。事業者情報、料金、決済・キャンセルポリシーなどを定めます。" },
       { property: "og:title", content: "特定商取引法に基づく表記 — ＮＡＲＡＢＯＵ" },
-      { property: "og:description", content: "福岡行列代行サービスアプリ「ＮＡＲＡＢＯＵ」の特定商取引法に基づく表記です。" },
+      { property: "og:description", content: "行列代行サービスアプリ「ＮＡＲＡＢＯＵ」の特定商取引法に基づく表記です。" },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://app.narabou.jp/tokusho" },
       { name: "twitter:card", content: "summary" },
@@ -75,15 +75,14 @@ function TokushoPage() {
               </DisclosureItem>
 
               <DisclosureItem term="サービス名">
-                ＮＡＲＡＢＯＵ（福岡行列代行サービスアプリ）
+                ＮＡＲＡＢＯＵ（行列代行サービスアプリ）
               </DisclosureItem>
 
               <DisclosureItem term="販売価格">
                 <div className="space-y-1">
-                  <p>基本料金：800円（税込）</p>
-                  <p>時間課金：10分ごとに200円（税込、切り上げ計算）</p>
-                  <p>ピーク料金：基本料金に+300円（税込）</p>
-                  <p>延長課金：依頼者承認時に10分ごとに200円（税込）</p>
+                  <p>基本料金：500円（税込）</p>
+                  <p>時間課金：10分ごとに100円（税込、切り上げ計算）</p>
+                  <p>延長課金：依頼者承認時に10分ごとに100円（税込）</p>
                   <p>運営手数料：依頼総額の20%</p>
                   <p className="text-xs text-muted-foreground">※具体例はアプリ内の料金シミュレーターでご確認ください。</p>
                 </div>
@@ -107,7 +106,7 @@ function TokushoPage() {
               <DisclosureItem term="キャンセル・返金について">
                 <div className="space-y-1">
                   <p>代行者が現地到着前：無料キャンセル</p>
-                  <p>現地到着後：基本料金800円を請求</p>
+                  <p>現地到着後：基本料金500円を請求</p>
                   <p>待機開始後：経過時間に応じた時間課金を請求</p>
                   <p>延長承認後のキャンセル：延長分も含めて請求</p>
                   <p className="mt-2">PayPay でお支払いの場合は即時決済のため、上記ポリシーに基づく請求額を差し引いた金額を後日返金します（返金の反映まで数日かかる場合があります）。</p>

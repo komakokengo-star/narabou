@@ -5,6 +5,7 @@
     "": {
       "name": "tanstack_start_ts",
       "dependencies": {
+        "@capacitor-firebase/messaging": "^8",
         "@capacitor/app": "^8.1.1",
         "@capacitor/browser": "^8.0.4",
         "@capacitor/core": "^8.5.2",
@@ -156,6 +157,8 @@
     "@babel/traverse": ["@babel/traverse@7.27.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@babel/traverse/-/traverse-7.27.0.tgz", { "dependencies": { "@babel/code-frame": "^7.26.2", "@babel/generator": "^7.27.0", "@babel/parser": "^7.27.0", "@babel/template": "^7.27.0", "@babel/types": "^7.27.0", "debug": "^4.3.1", "globals": "^11.1.0" } }, "sha512-19lYZFzYVQkkHkl4Cy4WrAVcqBkgvV2YM2TU3xG6DIwO7O3ecbDPfW3yM3bjAGcqcQHi+CCtjMR3dIEHxsd6bA=="],
 
     "@babel/types": ["@babel/types@7.29.8", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@babel/types/-/types-7.29.8.tgz", { "dependencies": { "@babel/helper-string-parser": "^7.29.7", "@babel/helper-validator-identifier": "^7.29.7" } }, "sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg=="],
+
+    "@capacitor-firebase/messaging": ["@capacitor-firebase/messaging@8.5.2", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@capacitor-firebase/messaging/-/messaging-8.5.2.tgz", { "peerDependencies": { "@capacitor/core": ">=8.0.0", "firebase": "^12.6.0" }, "optionalPeers": ["firebase"] }, "sha512-6EFxNeU/9teXdlQMmlHdjVqAMq+rr2po8oxLflvGuA6Xy+LPKbKccvamShXnTLjGO30beD6YmERNv5k9SxeGvg=="],
 
     "@capacitor/android": ["@capacitor/android@8.5.2", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@capacitor/android/-/android-8.5.2.tgz", { "peerDependencies": { "@capacitor/core": "^8.5.0" } }, "sha512-rtiaz78egCcS+vs29wkWCL3C+RhazKMSygXcjutwWP8NmO6r5UBxOvGf3Wjz5+ahobyQ723tn9gCePwRwcNDZQ=="],
 
