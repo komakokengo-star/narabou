@@ -3,7 +3,7 @@
     "name": "Queue Concierge Japan",
     "tagline": "NARABOU connects people who stand in line\nwith people who need someone to stand in line.",
     "metaTitle": "NARABOU — Queue Concierge in Japan's Major Cities",
-    "metaDescription": "Base ¥500 + ¥100 per 10 min. Payments, extensions and refunds handled in-app.",
+    "metaDescription": "Base ¥500 (first 10 min included) + ¥100 per 10 min after. Payments, extensions and refunds handled in-app.",
     "heroSubtitle": "Queue Concierge App for Japan's Major Cities",
     "startButton": "Get Started",
     "menuButton": "Menu"
@@ -85,8 +85,8 @@
     "workerPayout": "Worker payout (80%)",
     "estimate": "Estimate",
     "transparentTitle": "Transparent Pricing",
-    "baseHint": "Locked on arrival",
-    "timeHint": "Rounded up per 10 min",
+"baseHint": "First 10 min included",
+    "timeHint": "From the 11th min, rounded up per 10 min",
     "peakHint": "Busy hours only",
     "disclaimer": "Platform fee 20% / Worker payout 80%."
   },
