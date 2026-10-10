@@ -8,9 +8,9 @@ export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
       { title: "利用規約 — ＮＡＲＡＢＯＵ" },
-      { name: "description", content: "福岡行列代行サービスアプリ「ＮＡＲＡＢＯＵ」の利用規約です。依頼者・代行者・管理者の権利義務を定めます。" },
+      { name: "description", content: "行列代行サービスアプリ「ＮＡＲＡＢＯＵ」の利用規約です。依頼者・代行者・管理者の権利義務を定めます。" },
       { property: "og:title", content: "利用規約 — ＮＡＲＡＢＯＵ" },
-      { property: "og:description", content: "福岡行列代行サービスアプリ「ＮＡＲＡＢＯＵ」の利用規約です。" },
+      { property: "og:description", content: "行列代行サービスアプリ「ＮＡＲＡＢＯＵ」の利用規約です。" },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://app.narabou.jp/terms" },
       { name: "twitter:card", content: "summary" },
@@ -49,12 +49,12 @@ function TermsPage() {
           </div>
 
           <p className="text-sm text-muted-foreground mb-8">
-            本ページは HIFUNON が管理する、ＮＡＲＡＢＯＵ（福岡行列代行サービスアプリ）に関する一般的な利用条件を示したものです。法的拘束力を伴う正式な契約書ではなく、最新の内容はアプリ内の表示をご確認ください。
+            本ページは HIFUNON が管理する、ＮＡＲＡＢＯＵ（行列代行サービスアプリ）に関する一般的な利用条件を示したものです。法的拘束力を伴う正式な契約書ではなく、最新の内容はアプリ内の表示をご確認ください。
           </p>
 
           <Card className="p-6 sm:p-8 space-y-10">
             <Article number="第1条" title="総則">
-              <p>本規約は、福岡行列代行サービスアプリ「ＮＡＲＡＢＯＵ」（以下「本サービス」）の利用条件を定めるものとします。</p>
+              <p>本規約は、行列代行サービスアプリ「ＮＡＲＡＢＯＵ」（以下「本サービス」）の利用条件を定めるものとします。</p>
               <p>本規約は、依頼者・代行者・管理者のすべてのユーザーに適用されます。</p>
             </Article>
 
@@ -89,10 +89,9 @@ function TermsPage() {
             <Article number="第5条" title="料金体系">
               <p>本サービスの料金は以下の通りです。料金計算式はアプリ内にも明示します。</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li>基本料金：800円</li>
-                <li>時間課金：10分ごとに200円（切り上げ計算）</li>
-                <li>ピーク料金：+300円</li>
-                <li>延長課金：依頼者承認時に10分ごとに200円</li>
+                <li>基本料金：500円</li>
+                <li>時間課金：10分ごとに100円（切り上げ計算）</li>
+                <li>延長課金：依頼者承認時に10分ごとに100円</li>
                 <li>運営手数料：依頼総額の20%</li>
               </ul>
             </Article>
@@ -101,7 +100,7 @@ function TermsPage() {
               <p>依頼のキャンセルに伴う請求は、以下の通りとします。</p>
               <ul className="list-disc pl-5 space-y-1">
                 <li>代行者が現地到着前：無料キャンセル</li>
-                <li>現地到着後：基本料金800円を請求</li>
+                <li>現地到着後：基本料金500円を請求</li>
                 <li>待機開始後：経過時間に応じた時間課金を請求</li>
                 <li>延長承認後のキャンセル：延長分も含めて請求</li>
               </ul>

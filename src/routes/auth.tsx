@@ -16,7 +16,7 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "ログイン・新規登録 — ＮＡＲＡＢＯＵ" },
-      { name: "description", content: "ＮＡＲＡＢＯＵのアカウントにログイン、または新規登録します。依頼者としても代行者としても、福岡の行列代行サービスをすぐに利用開始できます。" },
+      { name: "description", content: "ＮＡＲＡＢＯＵのアカウントにログイン、または新規登録します。依頼者としても代行者としても、全国主要都市の行列代行サービスをすぐに利用開始できます。" },
       { property: "og:title", content: "ログイン・新規登録 — ＮＡＲＡＢＯＵ" },
       { property: "og:description", content: "ＮＡＲＡＢＯＵのアカウント作成・ログインページです。" },
       { property: "og:url", content: "https://app.narabou.jp/auth" },

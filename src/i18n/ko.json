@@ -2,9 +2,9 @@
   "app": {
     "name": "ＮＡＲＡＢＯＵ",
     "tagline": "NARABOU는 서는 사람과\n서 주길 바라는 사람을 이어줍니다.",
-    "metaTitle": "후쿠오카 줄 서기 대행 — 하카타·텐진의 인기 가게, 줄 서는 건 우리가",
-    "metaDescription": "기본 800원 + 10분당 200원. 피크 시 300원 추가. 결제·연장·환불도 앱에서 완료.",
-    "heroSubtitle": "후쿠오카 줄 서기 대행 앱",
+    "metaTitle": "줄 서기 대행 — 도쿄·오사카·후쿠오카 등 일본 주요 도시",
+    "metaDescription": "기본 500엔 + 10분당 100엔. 결제·연장·환불도 앱에서 완료.",
+    "heroSubtitle": "일본 주요 도시 줄 서기 대행 앱",
     "startButton": "시작하기",
     "menuButton": "메뉴"
   },
