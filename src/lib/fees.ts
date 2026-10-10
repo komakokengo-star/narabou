@@ -1,5 +1,5 @@
 // Single source of truth for the fee model.
-// 基本料金 500円, 10分 100円, ピーク料金なし, 手数料 20%.
+// 基本料金 500円（最初の10分込み）, 以降 10分ごと 100円, ピーク料金なし, 手数料 20%.
 
 // 本番料金
 export const BASE_FEE = 500;
@@ -25,7 +25,8 @@ export interface FeeBreakdown {
 }
 
 export function calcFee({ waitMinutes, isPeak, extraFee = 0 }: FeeInput): FeeBreakdown {
-  const time = Math.ceil(Math.max(0, waitMinutes) / TIME_BLOCK_MINUTES) * TIME_BLOCK_FEE;
+  // 最初の10分は基本料金に含まれる。11分目以降を10分単位で切り上げ計算。
+  const time = Math.ceil(Math.max(0, Math.max(0, waitMinutes) - TIME_BLOCK_MINUTES) / TIME_BLOCK_MINUTES) * TIME_BLOCK_FEE;
   const peak = isPeak ? PEAK_FEE : 0;
   const total = BASE_FEE + time + peak + extraFee;
   const platformFee = Math.round(total * PLATFORM_RATE);
