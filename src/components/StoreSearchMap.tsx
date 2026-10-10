@@ -199,6 +199,23 @@ export function StoreSearchMap({ storeName, storeAddress, onChange }: Props) {
 
   return (
     <div className="space-y-3 sm:col-span-2">
+      <div>
+        <Label htmlFor="city-select">エリア</Label>
+        <select
+          id="city-select"
+          value={cityIdx}
+          onChange={(e) => {
+            const i = Number(e.target.value);
+            setCityIdx(i);
+            window.localStorage.setItem(CITY_KEY, String(i));
+          }}
+          className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+        >
+          {CITIES.map((c, i) => (
+            <option key={c.name} value={i}>{c.name}</option>
+          ))}
+        </select>
+      </div>
       <div className="relative">
         <Label>{t("request.storeName")}</Label>
         <Input
