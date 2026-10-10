@@ -14,18 +14,18 @@ declare global {
 const FALLBACK_BROWSER_KEY = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
 const TRACKING_ID = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
 
-// Fukuoka (Hakata station area)
+// City centers and representative store examples for the search field.
 const CITIES = [
-  { name: "東京", lat: 35.6812, lng: 139.7671 },
-  { name: "横浜", lat: 35.4658, lng: 139.6223 },
-  { name: "名古屋", lat: 35.1709, lng: 136.8815 },
-  { name: "大阪", lat: 34.7025, lng: 135.4959 },
-  { name: "京都", lat: 34.9858, lng: 135.7588 },
-  { name: "神戸", lat: 34.6946, lng: 135.1955 },
-  { name: "札幌", lat: 43.0687, lng: 141.3508 },
-  { name: "仙台", lat: 38.2601, lng: 140.8822 },
-  { name: "広島", lat: 34.3978, lng: 132.4753 },
-  { name: "福岡", lat: 33.5904, lng: 130.4017 },
+  { name: "東京", lat: 35.6812, lng: 139.7671, example: "六厘舎 東京駅店", exampleEn: "Rokurinsha Tokyo Station" },
+  { name: "横浜", lat: 35.4658, lng: 139.6223, example: "崎陽軒 本店", exampleEn: "Kiyoken Main Store" },
+  { name: "名古屋", lat: 35.1709, lng: 136.8815, example: "矢場とん 矢場町本店", exampleEn: "Yabaton Yabacho Main Store" },
+  { name: "大阪", lat: 34.7025, lng: 135.4959, example: "551蓬莱 本店", exampleEn: "551 Horai Main Store" },
+  { name: "京都", lat: 34.9858, lng: 135.7588, example: "出町ふたば", exampleEn: "Demachi Futaba" },
+  { name: "神戸", lat: 34.6946, lng: 135.1955, example: "老祥記", exampleEn: "Roshoki" },
+  { name: "札幌", lat: 43.0687, lng: 141.3508, example: "えびそば一幻 総本店", exampleEn: "Ebisoba Ichigen Main Store" },
+  { name: "仙台", lat: 38.2601, lng: 140.8822, example: "牛たん炭焼 利久 仙台駅店", exampleEn: "Rikyu Sendai Station" },
+  { name: "広島", lat: 34.3978, lng: 132.4753, example: "お好み焼 みっちゃん総本店 八丁堀本店", exampleEn: "Micchan Sohonten Hatchobori Main Store" },
+  { name: "福岡", lat: 33.5904, lng: 130.4017, example: "一蘭 天神西通り店", exampleEn: "Ichiran Tenjin Nishidori" },
 ] as const;
 const CITY_KEY = "narabou.city";
 
@@ -229,7 +229,7 @@ export function StoreSearchMap({ storeName, storeAddress, onChange }: Props) {
           }}
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
-          placeholder={i18n.language === "en" ? "e.g. Ichiran Tenjin" : "例: 一蘭 天神西通り店"}
+          placeholder={i18n.language === "en" ? `e.g. ${CITIES[cityIdx].exampleEn}` : `例：${CITIES[cityIdx].example}`}
           required
           minLength={1}
           maxLength={120}
