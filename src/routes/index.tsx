@@ -39,7 +39,7 @@ export const Route = createFileRoute("/")({
             "@type": "Offer",
             priceCurrency: "JPY",
             price: String(BASE_FEE),
-            description: `基本料金¥${BASE_FEE}、10分ごと¥${TIME_BLOCK_FEE}`,
+            description: `基本料金¥${BASE_FEE}（最初の10分込み）、以降10分ごと¥${TIME_BLOCK_FEE}`,
           },
         }),
       },

@@ -3,7 +3,7 @@
     "name": "ＮＡＲＡＢＯＵ",
     "tagline": "NARABOU는 서는 사람과\n서 주길 바라는 사람을 이어줍니다.",
     "metaTitle": "줄 서기 대행 — 도쿄·오사카·후쿠오카 등 일본 주요 도시",
-    "metaDescription": "기본 500엔 + 10분당 100엔. 결제·연장·환불도 앱에서 완료.",
+    "metaDescription": "기본 500엔(첫 10분 포함) + 이후 10분당 100엔. 결제·연장·환불도 앱에서 완료.",
     "heroSubtitle": "일본 주요 도시 줄 서기 대행 앱",
     "startButton": "시작하기",
     "menuButton": "메뉴"
@@ -85,8 +85,8 @@
     "workerPayout": "대행자 보수 (80%)",
     "estimate": "견적",
     "transparentTitle": "투명한 요금",
-    "baseHint": "현지 도착 시 확정",
-    "timeHint": "올림 계산",
+"baseHint": "첫 10분 포함",
+    "timeHint": "11분째부터·올림 계산",
     "peakHint": "혼잡 시에만",
     "disclaimer": "운영 수수료 20% / 대행자 보수 80%."
   },

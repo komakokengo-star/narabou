@@ -3,7 +3,7 @@
     "name": "ＮＡＲＡＢＯＵ",
     "tagline": "NARABOU連結願意排隊的人，\n與需要代排的人。",
     "metaTitle": "排隊代行 — 東京、大阪、福岡等日本主要城市",
-    "metaDescription": "基本 500 日圓 + 每 10 分鐘 100 日圓。付款、延長、退款都在 App 內完成。",
+    "metaDescription": "基本 500 日圓（含前 10 分鐘）+ 之後每 10 分鐘 100 日圓。付款、延長、退款都在 App 內完成。",
     "heroSubtitle": "日本主要城市排隊代行應用程式",
     "startButton": "開始使用",
     "menuButton": "選單"
@@ -85,8 +85,8 @@
     "workerPayout": "代排者報酬 (80%)",
     "estimate": "估價",
     "transparentTitle": "透明計費",
-    "baseHint": "抵達現地後確定",
-    "timeHint": "進位計算",
+"baseHint": "含前 10 分鐘",
+    "timeHint": "自第 11 分鐘起·進位計算",
     "peakHint": "僅尖峰時段",
     "disclaimer": "平台手續費 20% / 代排者報酬 80%。"
   },
