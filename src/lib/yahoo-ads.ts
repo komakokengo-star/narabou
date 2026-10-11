@@ -5,6 +5,9 @@
 const YTAG_URL = "https://s.yimg.jp/images/listing/tool/cv/ytag.js";
 const CONV_IO = "66EM_Nxh6HgDev0IGLZ8jw..";
 const CONV_LABEL = "WIPBFZV8EDLK2T8PWF1370765";
+// 代行者側（受注申請）のコンバージョン
+const WORKER_CONV_IO = "XoSG74-mcb8574iELZvang..";
+const WORKER_CONV_LABEL = "NIGCMJSRQPM0B751D91370885";
 
 declare global {
   interface Window {
