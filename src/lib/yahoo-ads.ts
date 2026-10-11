@@ -5,6 +5,9 @@
 const YTAG_URL = "https://s.yimg.jp/images/listing/tool/cv/ytag.js";
 const CONV_IO = "66EM_Nxh6HgDev0IGLZ8jw..";
 const CONV_LABEL = "WIPBFZV8EDLK2T8PWF1370765";
+// 代行者側（受注申請）のコンバージョン
+const WORKER_CONV_IO = "XoSG74-mcb8574iELZvang..";
+const WORKER_CONV_LABEL = "NIGCMJSRQPM0B751D91370885";
 
 declare global {
   interface Window {
@@ -36,15 +39,15 @@ function loadYtag(): Promise<void> {
  * @param value 実際の依頼金額（円）
  * @param transactionId 重複計測防止用のID（PaymentIntent ID など）
  */
-export async function fireYahooConversion(value: number, transactionId?: string) {
+async function fireConversion(io: string, label: string, value: number, transactionId?: string) {
   try {
     await loadYtag();
     if (!window.ytag) return;
     window.ytag({
       type: "yjad_conversion",
       config: {
-        yahoo_ydn_conv_io: CONV_IO,
-        yahoo_ydn_conv_label: CONV_LABEL,
+        yahoo_ydn_conv_io: io,
+        yahoo_ydn_conv_label: label,
         yahoo_ydn_conv_transaction_id: transactionId ?? "",
         yahoo_ydn_conv_value: String(Math.round(value)),
         yahoo_email: "",
@@ -54,4 +57,22 @@ export async function fireYahooConversion(value: number, transactionId?: string)
   } catch {
     // 計測失敗は無視
   }
+}
+
+/**
+ * 依頼者側コンバージョン（決済完了時）を送信する。
+ * @param value 実際の依頼金額（円）
+ * @param transactionId 重複計測防止用のID（PaymentIntent ID など）
+ */
+export function fireYahooConversion(value: number, transactionId?: string) {
+  return fireConversion(CONV_IO, CONV_LABEL, value, transactionId);
+}
+
+/**
+ * 代行者側コンバージョン（受注申請の送信時）を送信する。
+ * 金額はタグ発行時の登録値（2000円）を使う。
+ * @param transactionId 重複計測防止用のID（申請した案件ID など）
+ */
+export function fireYahooWorkerConversion(transactionId?: string) {
+  return fireConversion(WORKER_CONV_IO, WORKER_CONV_LABEL, 2000, transactionId);
 }
