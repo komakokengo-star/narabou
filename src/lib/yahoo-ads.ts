@@ -1,6 +1,7 @@
 // LINEヤフー広告（Yahoo!広告）コンバージョン計測。
-// サイトジェネラルタグ（ytag.js）を必要になった時点で遅延読み込みし、
-// 依頼の決済完了時に fireYahooConversion() でコンバージョンを送信する。
+// ytag.js は window.ytag を定義せず、window.yjDataLayer キューを監視する形で動く。
+// そのため公式スニペットと同じ way で ytag() スタブを先に定義し、
+// 決済完了・受注申請のタイミングでコンバージョンを送信する。
 
 const YTAG_URL = "https://s.yimg.jp/images/listing/tool/cv/ytag.js";
 const CONV_IO = "66EM_Nxh6HgDev0IGLZ8jw..";
@@ -11,15 +12,28 @@ const WORKER_CONV_LABEL = "NIGCMJSRQPM0B751D91370885";
 
 declare global {
   interface Window {
-    ytag?: (config: Record<string, unknown>) => void;
+    yjDataLayer?: unknown[];
+    ytag?: (...args: unknown[]) => void;
+  }
+}
+
+// ytag.js が読み込まれる前にキューと ytag() を用意しておく（公式の形）。
+// ytag.js は読み込み時に既存のキューを処理し、以降の push を即座に反映する。
+function ensureYtagStub() {
+  if (typeof window === "undefined") return;
+  if (!window.yjDataLayer) window.yjDataLayer = [];
+  if (typeof window.ytag !== "function") {
+    window.ytag = function ytag(...args: unknown[]) {
+      if (window.yjDataLayer) window.yjDataLayer.push(args);
+    };
   }
 }
 
 let loading: Promise<void> | null = null;
 
 function loadYtag(): Promise<void> {
+  ensureYtagStub();
   if (typeof window === "undefined") return Promise.resolve();
-  if (window.ytag) return Promise.resolve();
   if (!loading) {
     loading = new Promise<void>((resolve) => {
       const script = document.createElement("script");
@@ -36,13 +50,15 @@ function loadYtag(): Promise<void> {
 
 /**
  * コンバージョンを送信する。
- * @param value 実際の依頼金額（円）
+ * @param io タグ発行時に割り当てられる計測ID
+ * @param label コンバージョンラベル
+ * @param value 金額（円）
  * @param transactionId 重複計測防止用のID（PaymentIntent ID など）
  */
 async function fireConversion(io: string, label: string, value: number, transactionId?: string) {
   try {
     await loadYtag();
-    if (!window.ytag) return;
+    if (typeof window === "undefined" || typeof window.ytag !== "function") return;
     window.ytag({
       type: "yjad_conversion",
       config: {
