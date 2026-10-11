@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { formatYen } from "@/lib/fees";
 import { syncPaymentIntentStatus } from "@/lib/payment-status.functions";
+import { fireYahooConversion } from "@/lib/yahoo-ads";
 
 let stripePromise: Promise<{ stripe: Stripe | null; error: string | null }> | null = null;
 function getStripePromise() {
@@ -65,6 +66,7 @@ export function StripePaymentForm({
       .then((result) => {
         if (result.status === "paid" || result.status === "authorized") {
           toast.success("お支払いが完了しました");
+          fireYahooConversion(amount, params.get("payment_intent") ?? undefined);
           onSuccess?.();
         }
       })
@@ -134,6 +136,7 @@ function InnerForm({ clientSecret, amount, onSuccess, mode, method }: { clientSe
         return;
       }
       toast.success(result.status === "authorized" ? "仮押さえが完了しました" : "お支払いが完了しました");
+      fireYahooConversion(amount, clientSecret.split("_secret_")[0]);
       onSuccess?.();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "決済状態の確認に失敗しました");
