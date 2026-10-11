@@ -18,16 +18,14 @@ function loadYtag(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   if (window.ytag) return Promise.resolve();
   if (!loading) {
-    loading = new Promise((resolve, reject) => {
+    loading = new Promise<void>((resolve) => {
       const script = document.createElement("script");
       script.async = true;
       script.src = YTAG_URL;
       script.onload = () => resolve();
-      script.onerror = () => reject(new Error("ytag.js load failed"));
-      document.head.appendChild(script);
-    }).catch(() => {
       // 広告ブロッカー等で読み込めない場合は計測を諦める（アプリ動作には影響させない）
-      loading = null;
+      script.onerror = () => resolve();
+      document.head.appendChild(script);
     });
   }
   return loading;
