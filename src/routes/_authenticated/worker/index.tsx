@@ -21,6 +21,7 @@ import { CheckCircle2, User, Landmark, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { refreshConnectStatus } from "@/lib/stripe-connect.functions";
 import { applyForRequest } from "@/lib/payments.functions";
+import { fireYahooWorkerConversion } from "@/lib/yahoo-ads";
 
 export const Route = createFileRoute("/_authenticated/worker/")({
   head: () => ({
@@ -95,9 +96,11 @@ function WorkerHome() {
   const accept = useMutation({
     mutationFn: async (requestId: string) => {
       await applyForRequestFn({ data: { requestId, applyComment: applyComment.trim() || undefined } });
+      return requestId;
     },
-    onSuccess: () => {
+    onSuccess: (requestId) => {
       toast.success("受注申請を送信しました。依頼者の承認をお待ちください");
+      fireYahooWorkerConversion(requestId);
       setDetailJobId(null);
       setApplyComment("");
       qc.invalidateQueries();
