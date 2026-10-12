@@ -51,15 +51,28 @@ npm run ios:open
 
 ### 権限の説明文（Info.plist）
 
-Xcode左ツリーの `App/Info.plist` を開き、以下を追加します（右クリック → Add Row）。
-**この文言が無いとApp Store審査でリジェクトされます。**
+**Xcodeで手作業せず、ターミナルで次の1行を実行します。**（無い物だけ追加され、既存の値は壊れません）
 
-| キー | 値（そのままコピー可） |
-|---|---|
-| Privacy - Location When In Use Usage Description | 現地到着の報告と、依頼場所までの距離確認のために現在地を使用します。 |
-| Privacy - Camera Usage Description | 並び状況の写真を撮影して報告するためにカメラを使用します。 |
-| Privacy - Photo Library Usage Description | 報告用の写真を選択するために写真へアクセスします。 |
-| Privacy - Photo Library Additions Usage Description | 撮影した報告写真を保存するために写真へアクセスします。 |
+```bash
+npm run ios:privacy
+```
+
+`ios/` は `npm run ios:setup` のたびに作り直されるため、Xcodeでの手作業は作り直すと消えます。
+文言は `scripts/ios-privacy.mjs` に固定してあるので、どのビルドでも同じ状態になります。
+
+追加される内容（手作業で直す場合の対応表）:
+
+| Xcodeでの表示 | Info.plistのキー | 値 |
+|---|---|---|
+| Privacy - Location When In Use Usage Description | `NSLocationWhenInUseUsageDescription` | 現地到着の報告と、依頼場所までの距離確認のために現在地を使用します。 |
+| Privacy - Location Always and When In Use Usage Description | `NSLocationAlwaysAndWhenInUseUsageDescription` | NARABOUが常に位置情報を取得することはありません。同梱するSDKの仕様上、App Store提出に必要な記載として追加しています。 |
+| Privacy - Camera Usage Description | `NSCameraUsageDescription` | 並び状況の写真を撮影して報告するためにカメラを使用します。 |
+| Privacy - Photo Library Usage Description | `NSPhotoLibraryUsageDescription` | 報告用の写真を選択するために写真へアクセスします。 |
+| Privacy - Photo Library Additions Usage Description | `NSPhotoLibraryAdditionsUsageDescription` | 撮影した報告写真を保存するために写真へアクセスします。 |
+
+「常時（Always）」の項目は、アプリが実際に位置情報を常時取得することはありません。
+Firebase などの同梱SDKが位置情報APIを参照しているため、Appleの自動チェックが
+「バイナリが参照している以上、説明文が必須」と判断する対応です（2026-10-12 に ITMS-90683 のメール受信）。
 
 ---
 
@@ -94,6 +107,7 @@ Xcode左ツリーの `App/Info.plist` を開き、以下を追加します（右
 
 | 症状 | 対処 |
 |---|---|
+| アップロード後に「ITMS-90683: Missing purpose string in Info.plist」のメールが来る | 位置情報APIを参照するSDK（Firebase等）を同梱したための**警告**で、アップロードと審査は止まりません。`npm run ios:privacy` で説明文を足してから次のビルドを作れば再発しません |
 | `pod: command not found` | `sudo gem install cocoapods` |
 | `No such module 'Capacitor'` | `cd ios/App && pod install` のあとXcodeを開き直す |
 | 白い画面のまま | ネットワーク。`capacitor.config.ts` の `server.url` が正しいか確認 |
