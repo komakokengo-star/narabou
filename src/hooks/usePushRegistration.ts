@@ -23,6 +23,17 @@ function mapNative(p: string): PermState {
   return "default";
 }
 
+// ネイティブの getToken() は Firebase 初期化漏れなどで永久に解決しない
+// ことがあるため、必ずタイムアウトで打ち切る。
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} が時間内に完了しませんでした`)), ms),
+    ),
+  ]);
+}
+
 async function getTokenAny(ask: boolean): Promise<{ token: string | null; perm: PermState; platform: string }> {
   if (nativePushAvailable()) {
     const fm = await nativeMessaging();
@@ -32,10 +43,10 @@ async function getTokenAny(ask: boolean): Promise<{ token: string | null; perm: 
     }
     const perm = mapNative(receive);
     if (perm !== "granted") return { token: null, perm, platform: Capacitor.getPlatform() };
-    const { token } = await fm.getToken();
+    const { token } = await withTimeout(fm.getToken(), 20000, "通知トークンの取得");
     return { token: token ?? null, perm, platform: Capacitor.getPlatform() };
   }
-  const token = await requestFcmToken();
+  const token = await withTimeout(requestFcmToken(), 20000, "通知トークンの取得");
   return { token, perm: Notification.permission as PermState, platform: "web" };
 }
 
