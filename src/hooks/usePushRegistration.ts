@@ -143,7 +143,12 @@ export function usePushRegistration(enabled: boolean) {
       );
       toast.success("プッシュ通知を有効にしました");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "通知の登録に失敗しました");
+      const msg = err instanceof Error ? err.message : "通知の登録に失敗しました";
+      if (nativePushAvailable() && msg.includes("時間内に完了しませんでした")) {
+        toast.error("通知の設定に失敗しました。App Storeでアプリを最新版に更新してから、もう一度お試しください。");
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setRegistering(false);
     }
