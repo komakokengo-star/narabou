@@ -3,12 +3,27 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { usePushRegistration } from "@/hooks/usePushRegistration";
 import { sendTestPushToSelf } from "@/lib/push.functions";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 import { toast } from "sonner";
+
+function detectIosBrowserTab(): boolean {
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  if (!ios) return false;
+  const standalone =
+    window.matchMedia?.("(display-mode: standalone)").matches ||
+    (navigator as unknown as { standalone?: boolean }).standalone === true;
+  return !standalone && !Capacitor.isNativePlatform();
+}
 
 export function PushNotificationCard() {
   const { permission, registering, requestPermission } = usePushRegistration(true);
   const [testing, setTesting] = useState(false);
+  const [iosTab, setIosTab] = useState(false);
+  useEffect(() => {
+    setIosTab(detectIosBrowserTab());
+  }, []);
 
   const sendTest = async () => {
     setTesting(true);
@@ -37,7 +52,10 @@ export function PushNotificationCard() {
             {permission === "granted" && "有効になっています。受注申請・マッチ成立・完了報告などをお知らせします。"}
             {permission === "default" && "受注・完了などの重要な更新を通知で受け取れます。"}
             {permission === "denied" && "通知がブロックされています。ブラウザ設定から許可してください。"}
-            {permission === "unsupported" && "このブラウザ/デバイスは通知に対応していません。"}
+            {permission === "unsupported" &&
+              (iosTab
+                ? "iPhone/iPadのSafariでは通知を受け取れません。App Storeの「NARABOU」アプリでご利用ください。"
+                : "このブラウザ/デバイスは通知に対応していません。")}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {permission !== "granted" && permission !== "unsupported" && (
