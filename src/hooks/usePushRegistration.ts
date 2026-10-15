@@ -127,15 +127,20 @@ export function usePushRegistration(enabled: boolean) {
     }
     setRegistering(true);
     try {
-      const { token, perm, platform } = await getTokenAny(true);
+      // 許可ダイアログ・プラグイン呼び出しのどこで止まっても必ず抜けるよう全体にも上限を設ける
+      const { token, perm, platform } = await withTimeout(getTokenAny(true), 45000, "通知の設定");
       setPermission(perm);
       if (!token) {
         if (perm === "denied") toast.error("通知が拒否されています。端末の設定から許可してください。");
         return;
       }
-      await registerDeviceToken({
-        data: { token, user_agent: navigator.userAgent.slice(0, 500), platform },
-      });
+      await withTimeout(
+        registerDeviceToken({
+          data: { token, user_agent: navigator.userAgent.slice(0, 500), platform },
+        }),
+        15000,
+        "通知の登録",
+      );
       toast.success("プッシュ通知を有効にしました");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "通知の登録に失敗しました");
