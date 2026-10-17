@@ -36,10 +36,10 @@ function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
 
 async function getTokenAny(ask: boolean): Promise<{ token: string | null; perm: PermState; platform: string }> {
   if (nativePushAvailable()) {
-    const fm = await nativeMessaging();
-    let { receive } = await fm.checkPermissions();
+    const fm = await withTimeout(nativeMessaging(), 10000, "通知機能の読み込み");
+    let { receive } = await withTimeout(fm.checkPermissions(), 10000, "通知の状態確認");
     if (ask && receive !== "granted" && receive !== "denied") {
-      receive = (await fm.requestPermissions()).receive;
+      receive = (await withTimeout(fm.requestPermissions(), 30000, "通知の許可確認")).receive;
     }
     const perm = mapNative(receive);
     if (perm !== "granted") return { token: null, perm, platform: Capacitor.getPlatform() };
