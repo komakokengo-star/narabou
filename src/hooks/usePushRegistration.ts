@@ -42,7 +42,8 @@ async function getTokenAny(ask: boolean): Promise<{ token: string | null; perm: 
     const { fm } = await withTimeout(nativeMessaging(), 10000, "通知機能の読み込み");
     let { receive } = await withTimeout(fm.checkPermissions(), 10000, "通知の状態確認");
     if (ask && receive !== "granted" && receive !== "denied") {
-      receive = (await withTimeout(fm.requestPermissions(), 30000, "通知の許可確認")).receive;
+      // 許可ダイアログは利用者が押すまで待つ（時間制限を付けない）
+      receive = (await fm.requestPermissions()).receive;
     }
     const perm = mapNative(receive);
     if (perm !== "granted") return { token: null, perm, platform: Capacitor.getPlatform() };
@@ -130,8 +131,8 @@ export function usePushRegistration(enabled: boolean) {
     }
     setRegistering(true);
     try {
-      // 許可ダイアログ・プラグイン呼び出しのどこで止まっても必ず抜けるよう全体にも上限を設ける
-      const { token, perm, platform } = await withTimeout(getTokenAny(true), 45000, "通知の設定");
+      // 各段階（読み込み・状態確認・トークン取得）に個別の上限あり。許可ダイアログは利用者を待つ
+      const { token, perm, platform } = await getTokenAny(true);
       setPermission(perm);
       if (!token) {
         if (perm === "denied") toast.error("通知が拒否されています。端末の設定から許可してください。");
