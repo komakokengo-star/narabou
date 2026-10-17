@@ -12,9 +12,12 @@ function nativePushAvailable(): boolean {
   return Capacitor.isNativePlatform() && Capacitor.isPluginAvailable("FirebaseMessaging");
 }
 
+// 注意: Capacitor のプラグイン本体（Proxy）は .then を持つように見えるため、
+// async 関数から直接返したり await したりすると、存在しないネイティブ処理 "then" を
+// 呼んで永久に止まる。必ずオブジェクトに包んで返すこと。
 async function nativeMessaging() {
   const mod = await import("@capacitor-firebase/messaging");
-  return mod.FirebaseMessaging;
+  return { fm: mod.FirebaseMessaging };
 }
 
 function mapNative(p: string): PermState {
@@ -36,7 +39,7 @@ function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
 
 async function getTokenAny(ask: boolean): Promise<{ token: string | null; perm: PermState; platform: string }> {
   if (nativePushAvailable()) {
-    const fm = await withTimeout(nativeMessaging(), 10000, "通知機能の読み込み");
+    const { fm } = await withTimeout(nativeMessaging(), 10000, "通知機能の読み込み");
     let { receive } = await withTimeout(fm.checkPermissions(), 10000, "通知の状態確認");
     if (ask && receive !== "granted" && receive !== "denied") {
       receive = (await withTimeout(fm.requestPermissions(), 30000, "通知の許可確認")).receive;
@@ -58,7 +61,7 @@ export function usePushRegistration(enabled: boolean) {
     if (typeof window === "undefined") return;
     if (nativePushAvailable()) {
       nativeMessaging()
-        .then((fm) => fm.checkPermissions())
+        .then(({ fm }) => fm.checkPermissions())
         .then((r) => setPermission(mapNative(r.receive)))
         .catch(() => setPermission("unsupported"));
       return;
@@ -89,7 +92,7 @@ export function usePushRegistration(enabled: boolean) {
     let unsub: (() => void) | undefined;
     if (native) {
       nativeMessaging()
-        .then((fm) =>
+        .then(({ fm }) =>
           fm.addListener("notificationReceived", (e) => {
             const n = e.notification;
             if (n?.title) toast(n.title, { description: n.body });
@@ -101,7 +104,7 @@ export function usePushRegistration(enabled: boolean) {
         })
         .catch(() => {});
       nativeMessaging()
-        .then((fm) =>
+        .then(({ fm }) =>
           fm.addListener("notificationActionPerformed", (e) => {
             const url = (e.notification?.data as Record<string, string> | undefined)?.url;
             if (url && url.startsWith("/")) window.location.assign(url);
