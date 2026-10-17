@@ -16,14 +16,16 @@ import { Ban, Globe, LogOut, Trash2, User as UserIcon } from "lucide-react";
  * iPhoneアプリ内（WKWebView）ではタッチの pointerdown で開く既定動作が
  * 反応しないことがあるため、タップ（click）で開閉する。
  */
+let lastPointerType = "";
 function tapToggle(setOpen: (fn: (v: boolean) => boolean) => void) {
   return {
     onPointerDown: (e: React.PointerEvent) => {
+      lastPointerType = e.pointerType;
       if (e.pointerType !== "mouse") e.preventDefault();
     },
-    onClick: (e: React.MouseEvent) => {
+    onClick: () => {
       // マウスはRadix既定のpointerdownで開くので、二重切替を避ける
-      if ((e.nativeEvent as PointerEvent).pointerType === "mouse") return;
+      if (lastPointerType === "mouse") return;
       setOpen((v) => !v);
     },
   };
