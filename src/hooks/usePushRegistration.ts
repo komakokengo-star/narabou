@@ -144,8 +144,10 @@ export function usePushRegistration(enabled: boolean) {
       toast.success("プッシュ通知を有効にしました");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "通知の登録に失敗しました";
+      console.warn("[push] requestPermission failed", err);
       if (nativePushAvailable() && msg.includes("時間内に完了しませんでした")) {
-        toast.error("通知の設定に失敗しました。App Storeでアプリを最新版に更新してから、もう一度お試しください。");
+        // どの段階で止まったか（例: 通知トークンの取得）を表示して原因を切り分けやすくする
+        toast.error(`通知の設定に失敗しました（${msg}）。App Storeでアプリを最新版に更新してから、もう一度お試しください。`);
       } else {
         toast.error(msg);
       }
