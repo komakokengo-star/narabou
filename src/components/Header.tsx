@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useRouter } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,11 +12,33 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Ban, Globe, LogOut, Trash2, User as UserIcon } from "lucide-react";
 
+/**
+ * iPhoneアプリ内（WKWebView）ではタッチの pointerdown で開く既定動作が
+ * 反応しないことがあるため、タップ（click）で開閉する。
+ */
+let lastPointerType = "";
+function tapToggle(setOpen: (fn: (v: boolean) => boolean) => void) {
+  return {
+    onPointerDown: (e: React.PointerEvent) => {
+      lastPointerType = e.pointerType;
+      if (e.pointerType !== "mouse") e.preventDefault();
+    },
+    onClick: () => {
+      // マウスはRadix既定のpointerdownで開くので、二重切替を避ける
+      if (lastPointerType === "mouse") return;
+      setOpen((v) => !v);
+    },
+  };
+}
+
 export function Header() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { data: roles } = useRoles(user?.id);
   const router = useRouter();
+  const [langOpen, setLangOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -46,8 +69,8 @@ export function Header() {
             </Link>
           )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          <DropdownMenu open={langOpen} onOpenChange={setLangOpen} modal={false}>
+            <DropdownMenuTrigger asChild {...tapToggle(setLangOpen)}>
               <Button variant="ghost" size="icon" aria-label={t("common.language")}>
                 <Globe className="w-4 h-4" />
               </Button>
@@ -69,8 +92,8 @@ export function Header() {
           </DropdownMenu>
 
           {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+            <DropdownMenu open={accountOpen} onOpenChange={setAccountOpen} modal={false}>
+              <DropdownMenuTrigger asChild {...tapToggle(setAccountOpen)}>
                 <Button variant="ghost" size="sm" className="gap-2" aria-label={t("nav.account")}>
                   <UserIcon className="w-4 h-4" />
                   <span className="hidden sm:inline text-xs text-muted-foreground">
