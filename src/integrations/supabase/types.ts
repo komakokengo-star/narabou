@@ -640,6 +640,38 @@ export type Database = {
         }
         Relationships: []
       }
+      worker_availability: {
+        Row: {
+          area: string
+          expires_at: string
+          is_available: boolean
+          updated_at: string
+          worker_id: string
+        }
+        Insert: {
+          area: string
+          expires_at?: string
+          is_available?: boolean
+          updated_at?: string
+          worker_id: string
+        }
+        Update: {
+          area?: string
+          expires_at?: string
+          is_available?: boolean
+          updated_at?: string
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worker_availability_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -654,6 +686,14 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      get_worker_availability: { Args: never; Returns: Json }
+      get_worker_availability_counts: {
+        Args: never
+        Returns: {
+          area: string
+          available_count: number
+        }[]
       }
       has_role: {
         Args: {
@@ -690,6 +730,10 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      set_worker_availability: {
+        Args: { p_area: string; p_available: boolean }
+        Returns: Json
       }
     }
     Enums: {
