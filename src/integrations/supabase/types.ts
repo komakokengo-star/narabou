@@ -731,6 +731,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      renew_worker_availability: { Args: never; Returns: undefined }
       set_worker_availability: {
         Args: { p_area: string; p_available: boolean }
         Returns: Json
