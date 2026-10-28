@@ -8,6 +8,20 @@
       "when": 1790826308998,
       "tag": "0000_add_reports_blocks_and_user_suspension",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793151834187,
+      "tag": "0001_worker_availability",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793151906629,
+      "tag": "0002_availability_safe_renewal",
+      "breakpoints": true
     }
   ]
 }

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
+import { AvailabilityCount } from "@/components/AvailabilityCount";
 
 declare global {
   interface Window {
@@ -215,6 +216,7 @@ export function StoreSearchMap({ storeName, storeAddress, onChange }: Props) {
             <option key={c.name} value={i}>{c.name}</option>
           ))}
         </select>
+        <AvailabilityCount area={CITIES[cityIdx].name} />
       </div>
       <div className="relative">
         <Label>{t("request.storeName")}</Label>

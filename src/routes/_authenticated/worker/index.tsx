@@ -22,6 +22,7 @@ import { useEffect, useState } from "react";
 import { refreshConnectStatus } from "@/lib/stripe-connect.functions";
 import { applyForRequest } from "@/lib/payments.functions";
 import { fireYahooWorkerConversion } from "@/lib/yahoo-ads";
+import { WorkerAvailability } from "@/components/WorkerAvailability";
 
 export const Route = createFileRoute("/_authenticated/worker/")({
   head: () => ({
@@ -227,6 +228,7 @@ function WorkerHome() {
       <Header />
       <main className="flex-1 container mx-auto px-4 py-10 max-w-5xl">
         <h1 className="font-serif text-3xl mb-6">{t("role.worker")}</h1>
+        <WorkerAvailability payoutReady={payoutReady} />
 
         {/* Onboarding */}
         <Card className="p-6 mb-8">

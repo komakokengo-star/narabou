@@ -17,6 +17,15 @@ import {
 } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/admin/audit")({
+  head: () => ({ meta: [
+    { title: "操作履歴の監査 — NARABOU" },
+    { name: "description", content: "NARABOUの管理操作履歴を確認します。" },
+    { property: "og:title", content: "操作履歴の監査 — NARABOU" },
+    { property: "og:description", content: "NARABOUの管理操作履歴を確認します。" },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex, nofollow" },
+  ] }),
   ssr: false,
   beforeLoad: async () => {
     const { data: user } = await supabase.auth.getUser();

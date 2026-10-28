@@ -29,6 +29,15 @@ import {
 } from "@/lib/troubles.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/troubles")({
+  head: () => ({ meta: [
+    { title: "トラブル対応管理 — NARABOU" },
+    { name: "description", content: "NARABOUの依頼・決済に関するトラブル対応を管理します。" },
+    { property: "og:title", content: "トラブル対応管理 — NARABOU" },
+    { property: "og:description", content: "NARABOUの依頼・決済に関するトラブル対応を管理します。" },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex, nofollow" },
+  ] }),
   ssr: false,
   beforeLoad: async () => {
     const { data: user } = await supabase.auth.getUser();

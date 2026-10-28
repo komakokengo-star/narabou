@@ -26,6 +26,15 @@ import { toast } from "sonner";
 import { ArrowLeft, Clock, Camera } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/customer/request/$id")({
+  head: () => ({ meta: [
+    { title: "依頼の詳細と状況 — NARABOU" },
+    { name: "description", content: "行列代行の依頼状況、応募の承認、支払いと完了確認を管理します。" },
+    { property: "og:title", content: "依頼の詳細と状況 — NARABOU" },
+    { property: "og:description", content: "行列代行の依頼状況、応募の承認、支払いと完了確認を管理します。" },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex, nofollow" },
+  ] }),
   component: RequestDetail,
 });
 

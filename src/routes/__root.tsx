@@ -29,6 +29,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { WorkerAvailabilityHeartbeat } from "@/hooks/useWorkerAvailability";
 
 const recoveryRedirectScript = `
 (function () {
@@ -253,6 +254,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={appI18n}>
+        <WorkerAvailabilityHeartbeat />
         <Outlet />
         <Toaster richColors position="top-center" />
       </I18nextProvider>
