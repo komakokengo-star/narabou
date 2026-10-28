@@ -28,6 +28,15 @@ function haversineMeters(a: { lat: number; lng: number }, b: { lat: number; lng:
 }
 
 export const Route = createFileRoute("/_authenticated/worker/job/$id")({
+  head: () => ({ meta: [
+    { title: "代行案件の進行管理 — NARABOU" },
+    { name: "description", content: "担当する行列代行案件の到着・進行・完了を管理します。" },
+    { property: "og:title", content: "代行案件の進行管理 — NARABOU" },
+    { property: "og:description", content: "担当する行列代行案件の到着・進行・完了を管理します。" },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex, nofollow" },
+  ] }),
   component: WorkerJob,
 });
 
