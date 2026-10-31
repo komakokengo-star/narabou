@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "933530490328",
+    "project_id": "narabou-push",
+    "storage_bucket": "narabou-push.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:933530490328:android:4874a4810fe7d05a99cead",
+        "android_client_info": {
+          "package_name": "jp.narabou.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsT44QtRn2GrIn86SPTFgkL6uVjl5dVOg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
