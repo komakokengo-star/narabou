@@ -17,7 +17,7 @@
     "ios:entitlements": "node scripts/ios-entitlements.mjs",
     "ios:icons": "capacitor-assets generate --ios",
     "ios:open": "cap open ios",
-    "android:setup": "cap add android && cap sync android && capacitor-assets generate --android",
+    "android:setup": "cap add android && cap sync android && capacitor-assets generate --android && node scripts/android-firebase.mjs",
     "android:sync": "cap sync android",
     "android:icons": "capacitor-assets generate --android",
     "android:open": "cap open android"
