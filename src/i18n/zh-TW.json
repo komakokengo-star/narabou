@@ -6,7 +6,9 @@
     "metaDescription": "基本 500 日圓（含前 10 分鐘）+ 之後每 10 分鐘 100 日圓。付款、延長、退款都在 App 內完成。",
     "heroSubtitle": "日本主要城市排隊代行應用程式",
     "startButton": "開始使用",
-    "menuButton": "選單"
+    "menuButton": "選單",
+    "downloadTitle": "下載應用程式",
+    "downloadHint": "從 App Store·Google Play 免費安裝"
   },
   "nav": {
     "account": "帳戶",

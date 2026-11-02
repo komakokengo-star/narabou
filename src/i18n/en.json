@@ -6,7 +6,9 @@
     "metaDescription": "Base ¥500 (first 10 min included) + ¥100 per 10 min after. Payments, extensions and refunds handled in-app.",
     "heroSubtitle": "Queue Concierge App for Japan's Major Cities",
     "startButton": "Get Started",
-    "menuButton": "Menu"
+    "menuButton": "Menu",
+    "downloadTitle": "Download the App",
+    "downloadHint": "Free download from the App Store and Google Play"
   },
   "nav": {
     "account": "Account",
