@@ -6,7 +6,9 @@
     "metaDescription": "全国主要都市の人気店の行列に、認証済みの代行者が代わりに並びます。基本500円（最初の10分込み）＋以降10分ごと100円。現地写真での定点報告、延長の追加課金や返金までアプリだけで完結します。",
     "heroSubtitle": "全国主要都市の行列代行アプリ",
     "startButton": "はじめる",
-    "menuButton": "メニュー"
+    "menuButton": "メニュー",
+    "downloadTitle": "アプリをダウンロード",
+    "downloadHint": "App Store・Google Playから無料でインストールできます"
   },
   "nav": {
     "account": "アカウント",
