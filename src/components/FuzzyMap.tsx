@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+// Type-only import: erased at build time so SSR never loads leaflet's browser-only code.
+import type { Circle as LeafletCircle, Map as LeafletMap } from "leaflet";
 
 // Add a deterministic random offset (~50-100m) per id to fuzz position for safety.
 function fuzz(lat: number, lng: number, seed: string) {
@@ -20,30 +20,39 @@ interface Props {
   className?: string;
 }
 
+// leaflet touches `window` at import time, so it must be loaded dynamically in the browser.
 export function FuzzyMap({ lat, lng, fuzzSeed, radiusMeters = 90, className }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
+  const mapRef = useRef<LeafletMap | null>(null);
 
   useEffect(() => {
     if (!ref.current) return;
     const p = fuzzSeed ? fuzz(lat, lng, fuzzSeed) : { lat, lng };
-    if (!mapRef.current) {
-      mapRef.current = L.map(ref.current, { zoomControl: false, attributionControl: false })
-        .setView([p.lat, p.lng], 16);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
+    let cancelled = false;
+    let circle: LeafletCircle | null = null;
+
+    void Promise.all([import("leaflet"), import("leaflet/dist/leaflet.css")]).then(([L]) => {
+      if (cancelled || !ref.current) return;
+      if (!mapRef.current) {
+        mapRef.current = L.map(ref.current, { zoomControl: false, attributionControl: false })
+          .setView([p.lat, p.lng], 16);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+        }).addTo(mapRef.current);
+      } else {
+        mapRef.current.setView([p.lat, p.lng], 16);
+      }
+      circle = L.circle([p.lat, p.lng], {
+        radius: radiusMeters,
+        color: "hsl(0,72%,45%)",
+        fillColor: "hsl(0,72%,55%)",
+        fillOpacity: 0.2,
       }).addTo(mapRef.current);
-    } else {
-      mapRef.current.setView([p.lat, p.lng], 16);
-    }
-    const circle = L.circle([p.lat, p.lng], {
-      radius: radiusMeters,
-      color: "hsl(0,72%,45%)",
-      fillColor: "hsl(0,72%,55%)",
-      fillOpacity: 0.2,
-    }).addTo(mapRef.current);
+    });
+
     return () => {
-      circle.remove();
+      cancelled = true;
+      if (circle && mapRef.current) mapRef.current.removeLayer(circle);
     };
   }, [lat, lng, fuzzSeed, radiusMeters]);
 
