@@ -103,7 +103,7 @@ function Landing() {
               <img src={appStoreBadge} alt="App Storeからダウンロード" className="h-12 w-auto" />
             </a>
             <a href={GOOGLE_PLAY_URL} target="_blank" rel="noopener noreferrer" aria-label="Google Playで手に入れよう">
-              <img src={googlePlayBadge} alt="Google Playで手に入れよう" className="h-12 w-auto" />
+              <img src={googlePlayBadge} alt="Google Playで手に入れよう" className="h-16 w-auto -my-2" />
             </a>
           </div>
         </section>
