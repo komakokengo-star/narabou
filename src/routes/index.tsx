@@ -100,7 +100,7 @@ function Landing() {
           <p className="text-xs text-muted-foreground mb-6">{t("app.downloadHint")}</p>
           <div className="flex flex-wrap items-center gap-4">
             <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" aria-label="App Storeからダウンロード">
-              <img src={appStoreBadge} alt="App Storeからダウンロード" className="h-12 w-auto" />
+              <img src={appStoreBadge} alt="App Storeからダウンロード" className="h-14 w-auto" />
             </a>
             <a href={GOOGLE_PLAY_URL} target="_blank" rel="noopener noreferrer" aria-label="Google Playで手に入れよう">
               <img src={googlePlayBadge} alt="Google Playで手に入れよう" className="h-16 w-auto -my-2" />
