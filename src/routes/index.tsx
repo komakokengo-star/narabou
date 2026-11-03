@@ -5,8 +5,10 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BASE_FEE, TIME_BLOCK_FEE } from "@/lib/fees";
-import { Apple, Clock, MapPin, Play, ShieldCheck, Users } from "lucide-react";
+import { Clock, MapPin, ShieldCheck, Users } from "lucide-react";
 import queueIllustration from "@/assets/narabou-queue-illustration.jpg.asset.json";
+import appStoreBadge from "@/assets/store-badges/app-store-ja.svg";
+import googlePlayBadge from "@/assets/store-badges/google-play-ja.png";
 
 const APP_STORE_URL = "https://apps.apple.com/jp/app/narabou/id6814769011";
 const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=jp.narabou.app";
@@ -96,18 +98,12 @@ function Landing() {
         <section className="container mx-auto px-4 py-12">
           <h2 className="font-serif text-2xl sm:text-3xl mb-2">{t("app.downloadTitle")}</h2>
           <p className="text-xs text-muted-foreground mb-6">{t("app.downloadHint")}</p>
-          <div className="flex flex-wrap gap-3">
-            <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">
-              <Button size="lg" variant="outline" className="rounded-full px-6 gap-2">
-                <Apple className="w-5 h-5" />
-                App Store
-              </Button>
+          <div className="flex flex-wrap items-center gap-4">
+            <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" aria-label="App Storeからダウンロード">
+              <img src={appStoreBadge} alt="App Storeからダウンロード" className="h-12 w-auto" />
             </a>
-            <a href={GOOGLE_PLAY_URL} target="_blank" rel="noopener noreferrer">
-              <Button size="lg" variant="outline" className="rounded-full px-6 gap-2">
-                <Play className="w-5 h-5" />
-                Google Play
-              </Button>
+            <a href={GOOGLE_PLAY_URL} target="_blank" rel="noopener noreferrer" aria-label="Google Playで手に入れよう">
+              <img src={googlePlayBadge} alt="Google Playで手に入れよう" className="h-12 w-auto" />
             </a>
           </div>
         </section>
